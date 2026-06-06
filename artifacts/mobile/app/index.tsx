@@ -44,7 +44,7 @@ export default function OnboardingScreen() {
             </View>
 
             {/* Amount */}
-            <Text style={styles.amountText}>$00,000.00</Text>
+            <Text style={styles.amountText}>$0.00</Text>
 
             {/* Action buttons */}
             <View style={styles.actionsRow}>
