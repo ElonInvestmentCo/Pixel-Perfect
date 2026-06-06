@@ -67,14 +67,20 @@ export function GoogleSignInButton({
   const svgW      = available;
   const svgH      = Math.round(natural.h * scale);
 
+  const label = variant === "signup"   ? "Sign up with Google"
+    : variant === "signin" ? "Sign in with Google"
+    : "Continue with Google";
+
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.78}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ disabled }}
       style={[styles.wrapper, { height: svgH, opacity: disabled ? 0.45 : 1 }]}
     >
-      {/* Outer View carries the pressed/shadow feedback area */}
       <View style={styles.inner}>
         <SvgComponent width={svgW} height={svgH} />
       </View>
@@ -87,6 +93,7 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 14,
   },
   inner: {
     width: "100%",
