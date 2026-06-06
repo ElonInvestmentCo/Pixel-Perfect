@@ -13,26 +13,29 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const LIME    = "#C8FF00";
-const BLACK   = "#1A1A1A";
-const INDIGO  = "#4338CA";
+const LIME   = "#C8FF00";
+const BLACK  = "#1A1A1A";
+const INDIGO = "#4338CA";
 
-function GoogleIcon() {
+function GoogleG() {
   return (
-    <View style={{ width: 20, height: 20, alignItems: "center", justifyContent: "center" }}>
-      <Text style={{ fontSize: 15, fontFamily: "Inter_700Bold" }}>
-        <Text style={{ color: "#4285F4" }}>G</Text>
-      </Text>
+    <View style={{ flexDirection: "row" }}>
+      {(["G","o","o","g","l","e"] as const).map((c, i) => {
+        const colors = ["#4285F4","#EA4335","#FBBC05","#34A853","#EA4335","#34A853"];
+        return <Text key={i} style={{ fontSize:14, fontFamily:"Inter_700Bold", color:colors[i] }}>{c}</Text>;
+      })}
     </View>
   );
 }
 
-function Divider({ label }: { label: string }) {
+function FieldRow({ icon, children }: { icon: string; children: React.ReactNode }) {
   return (
-    <View style={s.dividerRow}>
-      <View style={s.dividerLine} />
-      <Text style={s.dividerText}>{label}</Text>
-      <View style={s.dividerLine} />
+    <View style={s.fieldOuter}>
+      <View style={s.fieldIcon}>
+        <Feather name={icon as any} size={17} color="#AAAAAA" />
+      </View>
+      <View style={s.fieldDivider} />
+      {children}
     </View>
   );
 }
@@ -42,200 +45,168 @@ export default function SignInScreen() {
   const topPad = Platform.OS === "web" ? 55 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
 
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPw, setShowPw] = useState(false);
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: "#FFFFFF" }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <ScrollView
-        contentContainerStyle={[s.scroll, { paddingTop: topPad + 12, paddingBottom: botPad + 24 }]}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        {/* Wallet emoji avatar */}
-        <View style={s.avatarWrap}>
-          <Text style={s.avatarEmoji}>🎒</Text>
-        </View>
+        <ScrollView
+          contentContainerStyle={[s.scroll, { paddingTop: topPad + 14, paddingBottom: botPad + 32 }]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Top nav */}
+          <View style={s.navRow}>
+            <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
+              <Feather name="arrow-left" size={20} color={BLACK} />
+            </TouchableOpacity>
 
-        {/* Title */}
-        <Text style={s.title}>Welcome back</Text>
-        <Text style={s.subtitle}>Sign in to your account</Text>
+            {/* QPay badge */}
+            <View style={s.badge}>
+              <Text style={s.badgeText}>QPay</Text>
+            </View>
+          </View>
 
-        {/* Email */}
-        <Text style={s.label}>Your email</Text>
-        <View style={s.inputBox}>
-          <TextInput
-            style={s.input}
-            placeholder="johndoe@mail.com"
-            placeholderTextColor="#BBBBBB"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            returnKeyType="next"
-          />
-        </View>
+          {/* Greeting */}
+          <View style={s.greetBlock}>
+            <Text style={s.greet}>Welcome back 👋</Text>
+            <Text style={s.greetSub}>Sign in to continue to QPay</Text>
+          </View>
 
-        {/* Password */}
-        <Text style={[s.label, { marginTop: 18 }]}>Password</Text>
-        <View style={s.inputBox}>
-          <TextInput
-            style={[s.input, { flex: 1 }]}
-            placeholder=""
-            placeholderTextColor="#BBBBBB"
-            secureTextEntry={!showPassword}
-            autoCapitalize="none"
-            returnKeyType="done"
-          />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={s.eyeBtn}>
-            <Feather name={showPassword ? "eye" : "eye-off"} size={20} color="#AAAAAA" />
+          {/* Social first (switched layout) */}
+          <View style={s.socialRow}>
+            <TouchableOpacity style={s.socialBtn}>
+              <FontAwesome name="apple" size={19} color={BLACK} />
+              <Text style={s.socialText}>Apple</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={s.socialBtn}>
+              <GoogleG />
+              <Text style={s.socialText}>Google</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Divider */}
+          <View style={s.divRow}>
+            <View style={s.divLine} />
+            <Text style={s.divText}>or sign in with email</Text>
+            <View style={s.divLine} />
+          </View>
+
+          {/* Email */}
+          <Text style={s.label}>Email address</Text>
+          <FieldRow icon="mail">
+            <TextInput
+              style={s.input}
+              placeholder="johndoe@mail.com"
+              placeholderTextColor="#CCCCCC"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              returnKeyType="next"
+            />
+          </FieldRow>
+
+          {/* Password */}
+          <Text style={[s.label, { marginTop: 16 }]}>Password</Text>
+          <FieldRow icon="lock">
+            <TextInput
+              style={[s.input, { flex: 1 }]}
+              placeholder="Enter your password"
+              placeholderTextColor="#CCCCCC"
+              secureTextEntry={!showPw}
+              autoCapitalize="none"
+              returnKeyType="done"
+            />
+            <TouchableOpacity onPress={() => setShowPw(!showPw)} style={{ paddingRight: 16 }}>
+              <Feather name={showPw ? "eye" : "eye-off"} size={18} color="#AAAAAA" />
+            </TouchableOpacity>
+          </FieldRow>
+
+          {/* Forgot */}
+          <TouchableOpacity style={s.forgotRow}>
+            <Text style={s.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
-        </View>
 
-        {/* Sign In button */}
-        <TouchableOpacity style={s.primaryBtn} activeOpacity={0.85}>
-          <Text style={s.primaryBtnText}>Sign In</Text>
-        </TouchableOpacity>
-
-        {/* Forgot password */}
-        <TouchableOpacity style={s.forgotRow} activeOpacity={0.7}>
-          <Text style={s.forgotText}>Forgot Password?</Text>
-        </TouchableOpacity>
-
-        {/* Divider */}
-        <Divider label="Or sign in with" />
-
-        {/* Social buttons */}
-        <View style={s.socialRow}>
-          <TouchableOpacity style={s.socialBtn} activeOpacity={0.8}>
-            <FontAwesome name="apple" size={20} color={BLACK} />
-            <Text style={s.socialBtnText}>Apple</Text>
+          {/* CTA */}
+          <TouchableOpacity style={s.cta} activeOpacity={0.85}>
+            <Text style={s.ctaText}>Sign In</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={s.socialBtn} activeOpacity={0.8}>
-            <GoogleIcon />
-            <Text style={s.socialBtnText}>Google</Text>
+
+          {/* Switch to sign up */}
+          <TouchableOpacity style={s.switchLink} onPress={() => router.replace("/signup")}>
+            <Text style={s.switchText}>
+              Don't have an account?{"  "}
+              <Text style={s.switchBold}>Sign Up</Text>
+            </Text>
           </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const s = StyleSheet.create({
-  scroll: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    backgroundColor: "#FFFFFF",
+  scroll: { flexGrow: 1, paddingHorizontal: 24, backgroundColor: "#FFFFFF" },
+
+  navRow: {
+    flexDirection: "row", alignItems: "center",
+    justifyContent: "space-between", marginBottom: 36,
   },
-  avatarWrap: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: "#FFF3E0",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 28,
-  },
-  avatarEmoji: {
-    fontSize: 26,
-  },
-  title: {
-    fontSize: 30,
-    fontFamily: "Inter_700Bold",
-    color: BLACK,
-    letterSpacing: -0.3,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 15,
-    fontFamily: "Inter_400Regular",
-    color: "#888888",
-    lineHeight: 22,
-    marginBottom: 32,
-  },
-  label: {
-    fontSize: 14,
-    fontFamily: "Inter_400Regular",
-    color: "#888888",
-    marginBottom: 8,
-  },
-  inputBox: {
-    flexDirection: "row",
-    alignItems: "center",
+  backBtn: {
+    width: 40, height: 40, borderRadius: 20,
     backgroundColor: "#F5F5F5",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 54,
+    alignItems: "center", justifyContent: "center",
   },
+  badge: {
+    backgroundColor: "#1A1A1A",
+    paddingHorizontal: 14, paddingVertical: 7,
+    borderRadius: 20,
+  },
+  badgeText: { fontSize: 13, fontFamily: "Inter_700Bold", color: LIME, letterSpacing: 0.5 },
+
+  greetBlock: { marginBottom: 28 },
+  greet: { fontSize: 30, fontFamily: "Inter_700Bold", color: BLACK, letterSpacing: -0.3, marginBottom: 6 },
+  greetSub: { fontSize: 15, fontFamily: "Inter_400Regular", color: "#888888" },
+
+  socialRow: { flexDirection: "row", gap: 12, marginBottom: 24 },
+  socialBtn: {
+    flex: 1, flexDirection: "row", alignItems: "center",
+    justifyContent: "center", gap: 8,
+    borderWidth: 1.5, borderColor: "#E0E0E0",
+    borderRadius: 14, height: 52,
+  },
+  socialText: { fontSize: 15, fontFamily: "Inter_600SemiBold", color: BLACK },
+
+  divRow: { flexDirection: "row", alignItems: "center", marginBottom: 22 },
+  divLine: { flex: 1, height: 1, backgroundColor: "#EEEEEE" },
+  divText: { fontSize: 12, fontFamily: "Inter_400Regular", color: "#AAAAAA", marginHorizontal: 10 },
+
+  label: { fontSize: 13, fontFamily: "Inter_500Medium", color: "#555555", marginBottom: 8 },
+  fieldOuter: {
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: "#F7F7F7", borderRadius: 14,
+    borderWidth: 1, borderColor: "#EEEEEE", height: 54,
+  },
+  fieldIcon: { width: 50, alignItems: "center", justifyContent: "center" },
+  fieldDivider: { width: 1, height: 28, backgroundColor: "#E0E0E0" },
   input: {
-    flex: 1,
-    fontSize: 15,
-    fontFamily: "Inter_400Regular",
-    color: BLACK,
-    height: "100%",
+    flex: 1, fontSize: 15, fontFamily: "Inter_400Regular",
+    color: BLACK, paddingHorizontal: 14, height: "100%",
     outlineStyle: "none",
   } as any,
-  eyeBtn: {
-    paddingLeft: 10,
+
+  forgotRow: { alignSelf: "flex-end", marginTop: 12, marginBottom: 24 },
+  forgotText: { fontSize: 14, fontFamily: "Inter_600SemiBold", color: INDIGO },
+
+  cta: {
+    backgroundColor: LIME, borderRadius: 28, height: 56,
+    alignItems: "center", justifyContent: "center", marginBottom: 20,
   },
-  primaryBtn: {
-    backgroundColor: LIME,
-    borderRadius: 28,
-    height: 56,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 28,
-    marginBottom: 16,
-  },
-  primaryBtnText: {
-    fontSize: 17,
-    fontFamily: "Inter_700Bold",
-    color: BLACK,
-  },
-  forgotRow: {
-    alignItems: "center",
-    marginBottom: 28,
-  },
-  forgotText: {
-    fontSize: 15,
-    fontFamily: "Inter_600SemiBold",
-    color: INDIGO,
-  },
-  dividerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#E8E8E8",
-  },
-  dividerText: {
-    fontSize: 13,
-    fontFamily: "Inter_400Regular",
-    color: "#AAAAAA",
-    marginHorizontal: 12,
-  },
-  socialRow: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  socialBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    borderWidth: 1.5,
-    borderColor: "#E0E0E0",
-    borderRadius: 14,
-    height: 54,
-    backgroundColor: "#FFFFFF",
-  },
-  socialBtnText: {
-    fontSize: 15,
-    fontFamily: "Inter_600SemiBold",
-    color: BLACK,
-  },
+  ctaText: { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK },
+
+  switchLink: { alignItems: "center", paddingVertical: 4 },
+  switchText: { fontSize: 14, fontFamily: "Inter_400Regular", color: "#888888" },
+  switchBold: { fontFamily: "Inter_700Bold", color: BLACK },
 });
