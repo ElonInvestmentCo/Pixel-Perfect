@@ -1,8 +1,9 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -50,15 +51,41 @@ export default function SignInScreen() {
     return () => { mountedRef.current = false; };
   }, []);
 
-  const isFormValid = isValidEmail(email) && password.length > 0;
+  const isFormValid = useMemo(
+    () => isValidEmail(email) && password.length > 0,
+    [email, password],
+  );
 
-  const handleSignIn = async () => {
+  const handleEmailChange = useCallback((v: string) => {
+    setEmail(v);
+    setEmailErr("");
+    setSubmitErr("");
+  }, []);
+
+  const handlePasswordChange = useCallback((v: string) => {
+    setPassword(v);
+    setPasswordErr("");
+    setSubmitErr("");
+  }, []);
+
+  const handleEmailBlur = useCallback(() => {
+    setEmailErr(validateEmail(email));
+  }, [email]);
+
+  const handlePasswordBlur = useCallback(() => {
+    setPasswordErr(validateSignInPassword(password));
+  }, [password]);
+
+  const toggleShowPw = useCallback(() => setShowPw((v) => !v), []);
+
+  const handleSignIn = useCallback(async () => {
     const eErr = validateEmail(email);
     const pErr = validateSignInPassword(password);
     setEmailErr(eErr);
     setPasswordErr(pErr);
     if (eErr || pErr || loading) return;
 
+    Keyboard.dismiss();
     setLoading(true);
     setSubmitErr("");
     try {
@@ -70,7 +97,7 @@ export default function SignInScreen() {
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  };
+  }, [email, password, loading]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -102,8 +129,8 @@ export default function SignInScreen() {
             <TextInput
               style={s.input}
               value={email}
-              onChangeText={(v) => { setEmail(v); if (emailErr) setEmailErr(""); setSubmitErr(""); }}
-              onBlur={() => setEmailErr(validateEmail(email))}
+              onChangeText={handleEmailChange}
+              onBlur={handleEmailBlur}
               placeholder="johndoe@mail.com"
               placeholderTextColor="#C0C0C0"
               keyboardType="email-address"
@@ -126,8 +153,8 @@ export default function SignInScreen() {
               ref={passwordRef}
               style={[s.input, { flex: 1 }]}
               value={password}
-              onChangeText={(v) => { setPassword(v); if (passwordErr) setPasswordErr(""); setSubmitErr(""); }}
-              onBlur={() => setPasswordErr(validateSignInPassword(password))}
+              onChangeText={handlePasswordChange}
+              onBlur={handlePasswordBlur}
               placeholder="Your password"
               placeholderTextColor="#C0C0C0"
               secureTextEntry={!showPw}
@@ -139,8 +166,9 @@ export default function SignInScreen() {
               editable={!loading}
             />
             <TouchableOpacity
-              onPress={() => setShowPw(!showPw)}
+              onPress={toggleShowPw}
               style={s.eyeBtn}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               accessibilityRole="button"
               accessibilityLabel={showPw ? "Hide password" : "Show password"}
             >
@@ -171,6 +199,7 @@ export default function SignInScreen() {
             style={s.forgotRow}
             onPress={() => router.push("/reset-password")}
             disabled={loading}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             accessibilityRole="button"
             accessibilityLabel="Forgot Password"
           >

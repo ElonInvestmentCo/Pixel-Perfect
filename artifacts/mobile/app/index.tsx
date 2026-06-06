@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
@@ -18,7 +18,7 @@ const LIME  = "#C8FF00";
 const BLACK = "#1A1A1A";
 
 // ─── Shared card chip decoration ─────────────────────────────────────────────
-function Chip() {
+const Chip = React.memo(function Chip() {
   return (
     <View style={chip.wrap}>
       <View style={chip.bandH} />
@@ -26,7 +26,8 @@ function Chip() {
       <View style={chip.center} />
     </View>
   );
-}
+});
+
 const chip = StyleSheet.create({
   wrap: {
     width: 34, height: 26, borderRadius: 5,
@@ -43,7 +44,7 @@ const chip = StyleSheet.create({
 });
 
 // ─── Concentric ring decoration ───────────────────────────────────────────────
-function Rings({ color }: { color: string }) {
+const Rings = React.memo(function Rings({ color }: { color: string }) {
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
       {[80, 110, 140, 170].map((s, i) => (
@@ -56,10 +57,10 @@ function Rings({ color }: { color: string }) {
       ))}
     </View>
   );
-}
+});
 
 // ─── Slide illustrations ──────────────────────────────────────────────────────
-function Slide1() {
+const Slide1 = React.memo(function Slide1() {
   return (
     <View style={il.wrap}>
       <View style={il.circle} />
@@ -70,27 +71,27 @@ function Slide1() {
         </View>
         <Text style={il.cardAmount}>$0.00</Text>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <TouchableOpacity style={il.pill}>
+          <TouchableOpacity style={il.pill} accessibilityRole="button" accessibilityLabel="Transfer">
             <View style={il.iconCircle}><Feather name="arrow-up" size={12} color={BLACK} /></View>
             <Text style={il.pillText}>Transfer</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[il.pill, { marginLeft: 8 }]}>
+          <TouchableOpacity style={[il.pill, { marginLeft: 8 }]} accessibilityRole="button" accessibilityLabel="Receive">
             <View style={il.iconCircle}><Feather name="arrow-down" size={12} color={BLACK} /></View>
             <Text style={il.pillText}>Receive</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[il.menuBtn, { marginLeft: 8 }]}>
+          <TouchableOpacity style={[il.menuBtn, { marginLeft: 8 }]} accessibilityRole="button" accessibilityLabel="Menu">
             <Feather name="menu" size={16} color={BLACK} />
           </TouchableOpacity>
         </View>
       </View>
     </View>
   );
-}
+});
 
 const CARD_W = SW * 0.7;
 const CARD_H = CARD_W * 0.615;
 
-function Slide2() {
+const Slide2 = React.memo(function Slide2() {
   return (
     <View style={il.wrap}>
       <View style={il.circle} />
@@ -104,17 +105,17 @@ function Slide2() {
           <Rings color="rgba(255,255,255,0.15)" />
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <Chip />
-            {[10,15,20].map((r,i)=>(
+            {[10, 15, 20].map((r, i) => (
               <View key={i} style={{
-                position:"absolute", left:48+(i*4), width:r, height:r,
-                borderRadius:r/2, borderWidth:1.5,
-                borderColor:"rgba(255,255,255,0.7)", backgroundColor:"transparent",
-              }}/>
+                position: "absolute", left: 48 + (i * 4), width: r, height: r,
+                borderRadius: r / 2, borderWidth: 1.5,
+                borderColor: "rgba(255,255,255,0.7)", backgroundColor: "transparent",
+              }} />
             ))}
           </View>
-          <Text style={{ color:"#fff", fontSize:15, fontFamily:"Inter_600SemiBold", letterSpacing:1, marginBottom:14 }}>5643 7890</Text>
-          <Text style={{ color:"rgba(255,255,255,0.85)", fontSize:12 }}>Jennifer Lopez</Text>
-          <Text style={{ color:"rgba(255,255,255,0.6)", fontSize:11, marginTop:2 }}>Exp 03/28</Text>
+          <Text style={{ color: "#fff", fontSize: 15, fontFamily: "Inter_600SemiBold", letterSpacing: 1, marginBottom: 14 }}>5643 7890</Text>
+          <Text style={{ color: "rgba(255,255,255,0.85)", fontSize: 12 }}>Jennifer Lopez</Text>
+          <Text style={{ color: "rgba(255,255,255,0.6)", fontSize: 11, marginTop: 2 }}>Exp 03/28</Text>
         </View>
         {/* Lime card */}
         <View style={[il.creditCard, {
@@ -126,46 +127,46 @@ function Slide2() {
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 }}>
             <Chip />
           </View>
-          <Text style={{ color:BLACK, fontSize:13, fontFamily:"Inter_600SemiBold", letterSpacing:0.8, marginBottom:14 }}>5643 7890 3281 7865</Text>
-          <View style={{ flexDirection:"row", justifyContent:"space-between", alignItems:"flex-end" }}>
+          <Text style={{ color: BLACK, fontSize: 13, fontFamily: "Inter_600SemiBold", letterSpacing: 0.8, marginBottom: 14 }}>5643 7890 3281 7865</Text>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" }}>
             <View>
-              <Text style={{ color:BLACK, fontSize:12 }}>Jennifer Lopez</Text>
-              <Text style={{ color:"#333", fontSize:11, marginTop:2 }}>Exp 03/28</Text>
+              <Text style={{ color: BLACK, fontSize: 12 }}>Jennifer Lopez</Text>
+              <Text style={{ color: "#333", fontSize: 11, marginTop: 2 }}>Exp 03/28</Text>
             </View>
-            <Text style={{ fontSize:20, fontFamily:"Inter_700Bold", color:BLACK, fontStyle:"italic" }}>VISA</Text>
+            <Text style={{ fontSize: 20, fontFamily: "Inter_700Bold", color: BLACK, fontStyle: "italic" }}>VISA</Text>
           </View>
         </View>
       </View>
     </View>
   );
-}
+});
 
-function Slide3() {
+const Slide3 = React.memo(function Slide3() {
   const bars = [40, 65, 50, 80, 55, 95, 70];
   return (
     <View style={il.wrap}>
       <View style={il.circle} />
       <View style={il.card}>
-        <Text style={{ fontSize:12, color:"#8A8A8A", fontFamily:"Inter_400Regular", marginBottom:4 }}>Portfolio Growth</Text>
-        <Text style={{ fontSize:28, fontFamily:"Inter_700Bold", color:BLACK, marginBottom:16 }}>+24.5%</Text>
-        <View style={{ flexDirection:"row", alignItems:"flex-end", gap:6, height:80 }}>
+        <Text style={{ fontSize: 12, color: "#8A8A8A", fontFamily: "Inter_400Regular", marginBottom: 4 }}>Portfolio Growth</Text>
+        <Text style={{ fontSize: 28, fontFamily: "Inter_700Bold", color: BLACK, marginBottom: 16 }}>+24.5%</Text>
+        <View style={{ flexDirection: "row", alignItems: "flex-end", gap: 6, height: 80 }}>
           {bars.map((h, i) => (
             <View key={i} style={{
-              flex:1, height:`${h}%`,
+              flex: 1, height: `${h}%`,
               backgroundColor: i === bars.length - 1 ? LIME : "#E8E8E8",
-              borderRadius:6,
+              borderRadius: 6,
             }} />
           ))}
         </View>
-        <View style={{ flexDirection:"row", justifyContent:"space-between", marginTop:8 }}>
-          {["Jan","Feb","Mar","Apr","May","Jun","Jul"].map(m => (
-            <Text key={m} style={{ fontSize:9, color:"#AAAAAA" }}>{m}</Text>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 8 }}>
+          {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"].map((m) => (
+            <Text key={m} style={{ fontSize: 9, color: "#AAAAAA" }}>{m}</Text>
           ))}
         </View>
       </View>
     </View>
   );
-}
+});
 
 const il = StyleSheet.create({
   wrap: { width: SW, paddingHorizontal: 24, alignItems: "center", justifyContent: "center", flex: 1 },
@@ -211,26 +212,32 @@ const il = StyleSheet.create({
 const SLIDES = [
   {
     id: "balance",
-    render: () => <Slide1 />,
+    Component: Slide1,
     headline: "The Modern Way\nYour Money",
     sub: "Spend, save, and grow your money all\ntogether in one place.",
   },
   {
     id: "cards",
-    render: () => <Slide2 />,
+    Component: Slide2,
     headline: "Pay Your Way\nWorldwide",
     sub: "Tap, swipe, or transfer — your money\ngoes where you go.",
   },
   {
     id: "growth",
-    render: () => <Slide3 />,
+    Component: Slide3,
     headline: "Watch Your\nMoney Grow",
     sub: "Track investments and savings goals\nwith real-time insights.",
   },
 ];
 
 // ─── Animated dot ─────────────────────────────────────────────────────────────
-function AnimatedDot({ index, scrollX }: { index: number; scrollX: Animated.Value }) {
+const AnimatedDot = React.memo(function AnimatedDot({
+  index,
+  scrollX,
+}: {
+  index: number;
+  scrollX: Animated.Value;
+}) {
   const width = scrollX.interpolate({
     inputRange: [(index - 1) * SW, index * SW, (index + 1) * SW],
     outputRange: [8, 24, 8],
@@ -241,10 +248,9 @@ function AnimatedDot({ index, scrollX }: { index: number; scrollX: Animated.Valu
     outputRange: [0.3, 1, 0.3],
     extrapolate: "clamp",
   });
-  return (
-    <Animated.View style={[dot.base, { width, opacity }]} />
-  );
-}
+  return <Animated.View style={[dot.base, { width, opacity }]} />;
+});
+
 const dot = StyleSheet.create({
   base: { height: 8, borderRadius: 4, backgroundColor: BLACK, marginHorizontal: 3 },
 });
@@ -255,23 +261,39 @@ export default function OnboardingScreen() {
   const topPad = Platform.OS === "web" ? 55 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
 
-  const scrollX = useRef(new Animated.Value(0)).current;
-  const scrollRef = useRef<any>(null);
+  const scrollX      = useRef(new Animated.Value(0)).current;
+  const scrollRef    = useRef<any>(null);
+  const navigatingRef = useRef(false);
 
-  // Derive active index from scrollX for headline text (use listener)
-  const [activeIndex, setActiveIndex] = React.useState(0);
-  React.useEffect(() => {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
     const id = scrollX.addListener(({ value }) => {
       setActiveIndex(Math.round(value / SW));
     });
     return () => scrollX.removeListener(id);
+  }, [scrollX]);
+
+  const safeNavigate = React.useCallback((fn: () => void) => {
+    if (navigatingRef.current) return;
+    navigatingRef.current = true;
+    fn();
+    setTimeout(() => { navigatingRef.current = false; }, 600);
   }, []);
+
+  const activeSlide = useMemo(() => SLIDES[activeIndex], [activeIndex]);
 
   return (
     <View style={[rs.root, { backgroundColor: "#EBEBEB" }]}>
       {/* Skip */}
       <View style={[rs.topBar, { paddingTop: topPad + 10 }]}>
-        <TouchableOpacity style={rs.skipBtn} onPress={() => router.replace("/signin")}>
+        <TouchableOpacity
+          style={rs.skipBtn}
+          onPress={() => safeNavigate(() => router.replace("/signin"))}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel="Skip onboarding"
+        >
           <Text style={rs.skipText}>Skip</Text>
         </TouchableOpacity>
       </View>
@@ -286,14 +308,14 @@ export default function OnboardingScreen() {
         decelerationRate="fast"
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: false }
+          { useNativeDriver: false },
         )}
         style={rs.slider}
         contentContainerStyle={{ alignItems: "center" }}
       >
-        {SLIDES.map((s) => (
-          <View key={s.id} style={[rs.slide, { height: SW * 0.85 }]}>
-            {s.render()}
+        {SLIDES.map((slide) => (
+          <View key={slide.id} style={[rs.slide, { height: SW * 0.85 }]}>
+            <slide.Component />
           </View>
         ))}
       </Animated.ScrollView>
@@ -307,18 +329,28 @@ export default function OnboardingScreen() {
           ))}
         </View>
 
-        {/* Text — fades between slides */}
+        {/* Text — changes between slides */}
         <View style={rs.textBlock}>
-          <Text style={rs.headline}>{SLIDES[activeIndex].headline}</Text>
-          <Text style={rs.sub}>{SLIDES[activeIndex].sub}</Text>
+          <Text style={rs.headline}>{activeSlide.headline}</Text>
+          <Text style={rs.sub}>{activeSlide.sub}</Text>
         </View>
 
         {/* CTA */}
-        <TouchableOpacity style={rs.cta} onPress={() => router.push("/signup")}>
+        <TouchableOpacity
+          style={rs.cta}
+          onPress={() => safeNavigate(() => router.push("/signup"))}
+          accessibilityRole="button"
+          accessibilityLabel="Get started"
+        >
           <Text style={rs.ctaText}>Get Started</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={rs.signinLink} onPress={() => router.push("/signin")}>
+        <TouchableOpacity
+          style={rs.signinLink}
+          onPress={() => safeNavigate(() => router.push("/signin"))}
+          accessibilityRole="button"
+          accessibilityLabel="Already have an account? Sign In"
+        >
           <Text style={rs.signinLinkText}>
             Already have an account? <Text style={rs.signinLinkBold}>Sign In</Text>
           </Text>

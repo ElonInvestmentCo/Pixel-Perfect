@@ -15,7 +15,7 @@ const LIME  = "#C8FF00";
 const BLACK = "#1A1A1A";
 
 // ─── Quick Action ─────────────────────────────────────────────────────────────
-function QuickAction({
+const QuickAction = React.memo(function QuickAction({
   icon,
   label,
   onPress,
@@ -38,7 +38,7 @@ function QuickAction({
       <Text style={qa.label}>{label}</Text>
     </TouchableOpacity>
   );
-}
+});
 
 const qa = StyleSheet.create({
   wrap:     { alignItems: "center", gap: 8 },
@@ -51,7 +51,7 @@ const qa = StyleSheet.create({
 });
 
 // ─── Transaction row ──────────────────────────────────────────────────────────
-function TxRow({
+const TxRow = React.memo(function TxRow({
   icon,
   title,
   subtitle,
@@ -78,7 +78,7 @@ function TxRow({
       </Text>
     </View>
   );
-}
+});
 
 const tx = StyleSheet.create({
   row: {
@@ -105,9 +105,7 @@ export default function DashboardScreen() {
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
   const [balanceVisible, setBalanceVisible] = useState(true);
 
-  const handleSignOut = () => {
-    router.replace("/");
-  };
+  const handleSignOut = () => router.replace("/");
 
   return (
     <View style={{ flex: 1, backgroundColor: "#EBEBEB" }}>
@@ -137,7 +135,8 @@ export default function DashboardScreen() {
           <View style={s.cardTop}>
             <Text style={s.cardLabel}>Total Balance</Text>
             <TouchableOpacity
-              onPress={() => setBalanceVisible(!balanceVisible)}
+              onPress={() => setBalanceVisible((v) => !v)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               accessibilityRole="button"
               accessibilityLabel={balanceVisible ? "Hide balance" : "Show balance"}
             >
@@ -174,6 +173,7 @@ export default function DashboardScreen() {
           <View style={s.sectionHeader}>
             <Text style={s.sectionTitle}>Recent Transactions</Text>
             <TouchableOpacity
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               accessibilityRole="button"
               accessibilityLabel="See all transactions"
             >

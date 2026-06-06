@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -36,7 +36,7 @@ async function sendOtp(_dialCode: string, _phone: string): Promise<void> {
 }
 
 // ─── Blinking cursor ──────────────────────────────────────────────────────────
-function BlinkingCursor() {
+const BlinkingCursor = React.memo(function BlinkingCursor() {
   const opacity = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     const loop = Animated.loop(
@@ -49,10 +49,10 @@ function BlinkingCursor() {
     return () => loop.stop();
   }, [opacity]);
   return <Animated.View style={{ width: 2, height: 20, backgroundColor: BLACK, opacity }} />;
-}
+});
 
 // ─── Country picker modal ─────────────────────────────────────────────────────
-function CountryPickerModal({
+const CountryPickerModal = React.memo(function CountryPickerModal({
   visible,
   current,
   onSelect,
@@ -76,10 +76,12 @@ function CountryPickerModal({
     [query],
   );
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setQuery("");
     onClose();
-  };
+  }, [onClose]);
+
+  const clearQuery = useCallback(() => setQuery(""), []);
 
   return (
     <Modal
@@ -131,7 +133,7 @@ function CountryPickerModal({
             />
             {query.length > 0 && (
               <TouchableOpacity
-                onPress={() => setQuery("")}
+                onPress={clearQuery}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 accessibilityRole="button"
                 accessibilityLabel="Clear search"
@@ -184,10 +186,10 @@ function CountryPickerModal({
       </View>
     </Modal>
   );
-}
+});
 
 // ─── Numeric keypad ───────────────────────────────────────────────────────────
-function NumPad({
+const NumPad = React.memo(function NumPad({
   value,
   onChange,
   disabled = false,
@@ -228,7 +230,7 @@ function NumPad({
       ))}
     </View>
   );
-}
+});
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 type SendStatus = "idle" | "loading" | "error";
@@ -254,7 +256,10 @@ export default function PhoneVerifyScreen() {
   const isLoading = sendStatus === "loading";
   const canSend   = isValid && !isLoading;
 
-  const handleSend = async () => {
+  const openPicker  = useCallback(() => setPickerOpen(true),  []);
+  const closePicker = useCallback(() => setPickerOpen(false), []);
+
+  const handleSend = useCallback(async () => {
     if (!canSend) return;
     setSendStatus("loading");
     setErrorMsg("");
@@ -269,19 +274,26 @@ export default function PhoneVerifyScreen() {
       setSendStatus("error");
       setErrorMsg(e?.message ?? "Failed to send code. Please try again.");
     }
-  };
+  }, [canSend, country.dialCode, phone]);
 
-  const handlePhoneChange = (v: string) => {
+  const handlePhoneChange = useCallback((v: string) => {
     if (sendStatus === "error") { setSendStatus("idle"); setErrorMsg(""); }
     setPhone(v);
-  };
+  }, [sendStatus]);
 
-  const handleCountrySelect = (c: Country) => {
+  const handleCountrySelect = useCallback((c: Country) => {
     setCountry(c);
     setPhone("");
     setSendStatus("idle");
     setErrorMsg("");
-  };
+  }, []);
+
+  const lengthHint = useMemo(() => {
+    if (!phone.length || isValid) return null;
+    return country.minLen === country.maxLen
+      ? `${country.name} numbers: ${country.minLen} digits`
+      : `${country.name} numbers: ${country.minLen}–${country.maxLen} digits`;
+  }, [phone.length, isValid, country]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -292,6 +304,7 @@ export default function PhoneVerifyScreen() {
           style={s.closeBtn}
           onPress={() => router.back()}
           activeOpacity={0.7}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
@@ -310,7 +323,7 @@ export default function PhoneVerifyScreen() {
           {/* Country selector pill */}
           <TouchableOpacity
             style={s.countryPill}
-            onPress={() => setPickerOpen(true)}
+            onPress={openPicker}
             activeOpacity={0.7}
             accessibilityRole="button"
             accessibilityLabel={`Country code: ${country.flag} ${country.dialCode}. Tap to change.`}
@@ -332,14 +345,9 @@ export default function PhoneVerifyScreen() {
         </View>
 
         {/* Length hint */}
-        {phone.length > 0 && !isValid && (
-          <Text style={s.hintText}>
-            {country.name} numbers:{" "}
-            {country.minLen === country.maxLen
-              ? `${country.minLen} digits`
-              : `${country.minLen}–${country.maxLen} digits`}
-          </Text>
-        )}
+        {lengthHint ? (
+          <Text style={s.hintText} accessibilityLiveRegion="polite">{lengthHint}</Text>
+        ) : null}
 
         {/* Error message */}
         {sendStatus === "error" && errorMsg ? (
@@ -374,7 +382,7 @@ export default function PhoneVerifyScreen() {
         visible={pickerOpen}
         current={country}
         onSelect={handleCountrySelect}
-        onClose={() => setPickerOpen(false)}
+        onClose={closePicker}
       />
     </View>
   );

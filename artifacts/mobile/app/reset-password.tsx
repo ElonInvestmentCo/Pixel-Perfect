@@ -1,8 +1,9 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -36,13 +37,24 @@ export default function ResetPasswordScreen() {
     return () => { mountedRef.current = false; };
   }, []);
 
-  const isFormValid = isValidEmail(email);
+  const isFormValid = useMemo(() => isValidEmail(email), [email]);
 
-  const handleContinue = async () => {
+  const handleEmailChange = useCallback((v: string) => {
+    setEmail(v);
+    setEmailErr("");
+    setSubmitErr("");
+  }, []);
+
+  const handleEmailBlur = useCallback(() => {
+    setEmailErr(validateEmail(email));
+  }, [email]);
+
+  const handleContinue = useCallback(async () => {
     const err = validateEmail(email);
     setEmailErr(err);
     if (err || loading) return;
 
+    Keyboard.dismiss();
     setLoading(true);
     setSubmitErr("");
     try {
@@ -56,7 +68,7 @@ export default function ResetPasswordScreen() {
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  };
+  }, [email, loading]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -76,13 +88,14 @@ export default function ResetPasswordScreen() {
           <TouchableOpacity
             style={s.backBtn}
             onPress={() => router.back()}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             accessibilityRole="button"
             accessibilityLabel="Go back"
           >
             <Feather name="arrow-left" size={18} color={BLACK} />
           </TouchableOpacity>
 
-          {/* 💰 emoji avatar */}
+          {/* emoji avatar */}
           <View style={s.avatarWrap} accessibilityElementsHidden>
             <Text style={s.avatarEmoji}>💰</Text>
           </View>
@@ -106,8 +119,8 @@ export default function ResetPasswordScreen() {
             <TextInput
               style={s.input}
               value={email}
-              onChangeText={(v) => { setEmail(v); if (emailErr) setEmailErr(""); setSubmitErr(""); }}
-              onBlur={() => setEmailErr(validateEmail(email))}
+              onChangeText={handleEmailChange}
+              onBlur={handleEmailBlur}
               placeholder="johndoe@mail.com"
               placeholderTextColor="#C0C0C0"
               keyboardType="email-address"

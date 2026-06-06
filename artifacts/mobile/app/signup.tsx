@@ -1,7 +1,8 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -47,9 +48,22 @@ export default function SignUpScreen() {
   const emailRef    = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
 
-  const isFormValid = isValidName(name) && isValidEmail(email) && isStrongPassword(password);
+  const isFormValid = useMemo(
+    () => isValidName(name) && isValidEmail(email) && isStrongPassword(password),
+    [name, email, password],
+  );
 
-  const handleSignUp = () => {
+  const handleNameChange  = useCallback((v: string) => { setName(v);     if (nameErr)     setNameErr("");     }, [nameErr]);
+  const handleEmailChange = useCallback((v: string) => { setEmail(v);    if (emailErr)    setEmailErr("");    }, [emailErr]);
+  const handlePasswordChange = useCallback((v: string) => { setPassword(v); if (passwordErr) setPasswordErr(""); }, [passwordErr]);
+
+  const handleNameBlur     = useCallback(() => setNameErr(validateName(name)),             [name]);
+  const handleEmailBlur    = useCallback(() => setEmailErr(validateEmail(email)),          [email]);
+  const handlePasswordBlur = useCallback(() => setPasswordErr(validateSignUpPassword(password)), [password]);
+
+  const toggleShowPw = useCallback(() => setShowPw((v) => !v), []);
+
+  const handleSignUp = useCallback(() => {
     const nErr = validateName(name);
     const eErr = validateEmail(email);
     const pErr = validateSignUpPassword(password);
@@ -57,8 +71,14 @@ export default function SignUpScreen() {
     setEmailErr(eErr);
     setPasswordErr(pErr);
     if (nErr || eErr || pErr) return;
+    Keyboard.dismiss();
     router.push("/phone-verify");
-  };
+  }, [name, email, password]);
+
+  const charsNeeded = useMemo(
+    () => (!isStrongPassword(password) && password.length > 0 ? 8 - password.length : 0),
+    [password],
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -72,6 +92,7 @@ export default function SignUpScreen() {
           <TouchableOpacity
             style={s.closeBtn}
             onPress={() => router.back()}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             accessibilityRole="button"
             accessibilityLabel="Close"
           >
@@ -89,8 +110,8 @@ export default function SignUpScreen() {
             <TextInput
               style={s.input}
               value={name}
-              onChangeText={(v) => { setName(v); if (nameErr) setNameErr(""); }}
-              onBlur={() => setNameErr(validateName(name))}
+              onChangeText={handleNameChange}
+              onBlur={handleNameBlur}
               placeholder="John Doe"
               placeholderTextColor="#C0C0C0"
               autoCapitalize="words"
@@ -111,8 +132,8 @@ export default function SignUpScreen() {
               ref={emailRef}
               style={s.input}
               value={email}
-              onChangeText={(v) => { setEmail(v); if (emailErr) setEmailErr(""); }}
-              onBlur={() => setEmailErr(validateEmail(email))}
+              onChangeText={handleEmailChange}
+              onBlur={handleEmailBlur}
               placeholder="johndoe@mail.com"
               placeholderTextColor="#C0C0C0"
               keyboardType="email-address"
@@ -134,8 +155,8 @@ export default function SignUpScreen() {
               ref={passwordRef}
               style={[s.input, { flex: 1 }]}
               value={password}
-              onChangeText={(v) => { setPassword(v); if (passwordErr) setPasswordErr(""); }}
-              onBlur={() => setPasswordErr(validateSignUpPassword(password))}
+              onChangeText={handlePasswordChange}
+              onBlur={handlePasswordBlur}
               placeholder="Min. 8 characters"
               placeholderTextColor="#C0C0C0"
               secureTextEntry={!showPw}
@@ -146,8 +167,9 @@ export default function SignUpScreen() {
               accessibilityHint="Enter a password with at least 8 characters"
             />
             <TouchableOpacity
-              onPress={() => setShowPw(!showPw)}
+              onPress={toggleShowPw}
               style={s.eyeBtn}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               accessibilityRole="button"
               accessibilityLabel={showPw ? "Hide password" : "Show password"}
             >
@@ -157,9 +179,9 @@ export default function SignUpScreen() {
           {passwordErr ? <Text style={s.fieldErrText} accessibilityLiveRegion="polite">{passwordErr}</Text> : null}
 
           {/* Password strength hint */}
-          {!passwordErr && password.length > 0 && !isStrongPassword(password) ? (
+          {charsNeeded > 0 && !passwordErr ? (
             <Text style={s.hintText}>
-              {8 - password.length} more character{8 - password.length !== 1 ? "s" : ""} needed
+              {charsNeeded} more character{charsNeeded !== 1 ? "s" : ""} needed
             </Text>
           ) : null}
 

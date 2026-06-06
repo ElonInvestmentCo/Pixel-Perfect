@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Animated,
@@ -41,7 +41,7 @@ async function resendOtp(_to: string): Promise<void> {
 }
 
 // ─── Blinking cursor ──────────────────────────────────────────────────────────
-function BlinkingCursor() {
+const BlinkingCursor = React.memo(function BlinkingCursor() {
   const opacity = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     const loop = Animated.loop(
@@ -54,10 +54,10 @@ function BlinkingCursor() {
     return () => loop.stop();
   }, [opacity]);
   return <Animated.View style={{ width: 2, height: 28, backgroundColor: BLACK, opacity }} />;
-}
+});
 
 // ─── Single OTP box ───────────────────────────────────────────────────────────
-function OTPBox({
+const OTPBox = React.memo(function OTPBox({
   digit, active, hasError, isSuccess,
 }: {
   digit: string; active: boolean; hasError: boolean; isSuccess: boolean;
@@ -82,10 +82,16 @@ function OTPBox({
       ) : null}
     </View>
   );
-}
+});
 
 // ─── Numpad ───────────────────────────────────────────────────────────────────
-function NumPad({ onKey, disabled }: { onKey: (k: string) => void; disabled: boolean }) {
+const NumPad = React.memo(function NumPad({
+  onKey,
+  disabled,
+}: {
+  onKey: (k: string) => void;
+  disabled: boolean;
+}) {
   return (
     <View style={np.wrap}>
       {PAD_ROWS.map((row, ri) => (
@@ -115,7 +121,7 @@ function NumPad({ onKey, disabled }: { onKey: (k: string) => void; disabled: boo
       ))}
     </View>
   );
-}
+});
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 type Status = "idle" | "loading" | "success" | "error";
@@ -142,9 +148,9 @@ export default function VerifyCodeScreen() {
   const [countdown, setCountdown] = useState(RESEND_SECS);
   const [resending, setResending] = useState(false);
 
-  const shakeAnim  = useRef(new Animated.Value(0)).current;
-  const hiddenRef  = useRef<TextInput>(null);
-  const mountedRef = useRef(true);
+  const shakeAnim   = useRef(new Animated.Value(0)).current;
+  const hiddenRef   = useRef<TextInput>(null);
+  const mountedRef  = useRef(true);
   const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -191,7 +197,11 @@ export default function VerifyCodeScreen() {
     }
   }, [shake, isResetMode]);
 
-  const handleKey = (k: string) => {
+  // Stable ref so handleKey doesn't need submit in its dep array
+  const submitRef = useRef(submit);
+  useEffect(() => { submitRef.current = submit; }, [submit]);
+
+  const handleKey = useCallback((k: string) => {
     if (status === "loading" || status === "success") return;
     if (status === "error") {
       setStatus("idle");
@@ -199,27 +209,24 @@ export default function VerifyCodeScreen() {
       setCode("");
       return;
     }
-    let next: string;
-    if (k === "⌫") {
-      next = code.slice(0, -1);
-    } else if (code.length < 4) {
-      next = code + k;
-    } else {
-      return;
-    }
-    setCode(next);
-    if (next.length === 4) submit(next);
-  };
+    setCode((prev) => {
+      const next = k === "⌫"     ? prev.slice(0, -1)
+        : prev.length < 4         ? prev + k
+        : prev;
+      if (next.length === 4 && next !== prev) submitRef.current(next);
+      return next;
+    });
+  }, [status]);
 
-  const handleAutofill = (text: string) => {
+  const handleAutofill = useCallback((text: string) => {
     const digits = text.replace(/\D/g, "").slice(0, 4);
     setCode(digits);
     if (digits.length === 4 && status !== "loading" && status !== "success") {
-      submit(digits);
+      submitRef.current(digits);
     }
-  };
+  }, [status]);
 
-  const handleResend = async () => {
+  const handleResend = useCallback(async () => {
     if (countdown > 0 || resending) return;
     setResending(true);
     setCode("");
@@ -233,16 +240,22 @@ export default function VerifyCodeScreen() {
     } finally {
       if (mountedRef.current) setResending(false);
     }
-  };
+  }, [countdown, resending, isResetMode, email, dialCode, phone]);
 
-  // Masked destination shown in subtitle
-  const maskedAddress = isResetMode
-    ? email.replace(/(.{2}).+(@.+)/, (_, a, b) => `${a}*****${b}`)
-    : phone.length > 3
+  const maskedAddress = useMemo(() => {
+    if (isResetMode) {
+      return email.replace(/(.{2}).+(@.+)/, (_, a, b) => `${a}*****${b}`);
+    }
+    return phone.length > 3
       ? `${dialCode} ${"*".repeat(Math.max(0, phone.length - 3))}${phone.slice(-3)}`
       : `${dialCode} *****341`;
+  }, [isResetMode, email, phone, dialCode]);
 
-  const digits      = code.split("").concat(["", "", "", ""]).slice(0, 4);
+  const digits = useMemo(
+    () => code.split("").concat(["", "", "", ""]).slice(0, 4),
+    [code],
+  );
+
   const isLoading   = status === "loading";
   const isSuccess   = status === "success";
   const hasError    = status === "error";
@@ -275,6 +288,7 @@ export default function VerifyCodeScreen() {
           style={s.closeBtn}
           onPress={() => router.back()}
           activeOpacity={0.7}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
@@ -337,6 +351,7 @@ export default function VerifyCodeScreen() {
                 onPress={handleResend}
                 disabled={resending}
                 activeOpacity={0.7}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 accessibilityRole="button"
                 accessibilityLabel={resending ? "Sending code…" : "Resend code now"}
                 accessibilityState={{ disabled: resending }}
@@ -360,7 +375,7 @@ export default function VerifyCodeScreen() {
           ]}
           activeOpacity={0.85}
           disabled={!doneEnabled}
-          onPress={() => submit(code)}
+          onPress={() => submitRef.current(code)}
           accessibilityRole="button"
           accessibilityLabel={isSuccess ? "Verified" : "Confirm code"}
           accessibilityState={{ disabled: !doneEnabled }}
