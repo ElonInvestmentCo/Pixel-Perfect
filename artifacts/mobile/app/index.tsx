@@ -63,29 +63,85 @@ function Slide1() {
   return (
     <View style={il.wrap}>
       <View style={il.circle} />
-      <View style={il.card}>
+      {/* Dark card */}
+      <View style={dk.card}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text style={il.cardLabel}>Total Balance</Text>
-          <Feather name="eye" size={15} color="#8A8A8A" style={{ marginLeft: 6 }} />
+          <Text style={dk.label}>Total Balance</Text>
+          <Feather name="eye" size={15} color="rgba(255,255,255,0.55)" style={{ marginLeft: 6 }} />
         </View>
-        <Text style={il.cardAmount}>$0.00</Text>
+        <Text style={dk.amount}>$0.00</Text>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <TouchableOpacity style={il.pill}>
-            <View style={il.iconCircle}><Feather name="arrow-up" size={12} color={BLACK} /></View>
-            <Text style={il.pillText}>Transfer</Text>
+          <TouchableOpacity style={dk.pill}>
+            <View style={dk.iconCircle}><Feather name="arrow-up" size={13} color={BLACK} /></View>
+            <Text style={dk.pillText}>Transfer</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[il.pill, { marginLeft: 8 }]}>
-            <View style={il.iconCircle}><Feather name="arrow-down" size={12} color={BLACK} /></View>
-            <Text style={il.pillText}>Receive</Text>
+          <TouchableOpacity style={[dk.pill, { marginLeft: 10 }]}>
+            <View style={dk.iconCircle}><Feather name="arrow-down" size={13} color={BLACK} /></View>
+            <Text style={dk.pillText}>Receive</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[il.menuBtn, { marginLeft: 8 }]}>
-            <Feather name="menu" size={16} color={BLACK} />
+          <TouchableOpacity style={[dk.menuBtn, { marginLeft: 10 }]}>
+            <Feather name="menu" size={17} color={BLACK} />
           </TouchableOpacity>
         </View>
       </View>
     </View>
   );
 }
+
+const dk = StyleSheet.create({
+  card: {
+    width: "100%",
+    backgroundColor: "#111111",
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.18)",
+    padding: 22,
+    zIndex: 2,
+  },
+  label: {
+    fontSize: 13,
+    color: "rgba(255,255,255,0.55)",
+    fontFamily: "Inter_400Regular",
+  },
+  amount: {
+    fontSize: 36,
+    fontFamily: "Inter_700Bold",
+    color: "#FFFFFF",
+    marginTop: 6,
+    marginBottom: 20,
+    letterSpacing: -0.5,
+  },
+  pill: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: LIME,
+    borderRadius: 30,
+    paddingVertical: 9,
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  iconCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pillText: {
+    fontSize: 15,
+    fontFamily: "Inter_600SemiBold",
+    color: BLACK,
+  },
+  menuBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: LIME,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
 
 const CARD_W = SW * 0.7;
 const CARD_H = CARD_W * 0.615;
