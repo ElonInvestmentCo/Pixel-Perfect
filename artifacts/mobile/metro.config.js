@@ -5,33 +5,42 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const path = require("path");
 
-const projectRoot = __dirname;
+const projectRoot  = __dirname;
 const workspaceRoot = path.resolve(projectRoot, "../..");
 
 const config = getDefaultConfig(projectRoot);
 
-// Watch all files in the monorepo
+// ─── Monorepo: watch the whole workspace so symlinked packages resolve ────────
 config.watchFolders = [workspaceRoot];
 
-// Resolve modules from the workspace root first, then project root
+// ─── Module resolution: project first, then workspace root ────────────────────
 config.resolver.nodeModulesPaths = [
-  path.resolve(projectRoot, "node_modules"),
+  path.resolve(projectRoot,  "node_modules"),
   path.resolve(workspaceRoot, "node_modules"),
 ];
 
-// Ensure native extensions take priority over web extensions
+// Respect package.json "exports" field.
+// Without this, Metro ignores "exports" and falls back to "./index" — which
+// does not exist for workspace packages that only define an exports map
+// (e.g. @workspace/api-client-react uses "exports":{".":"./src/index.ts"}).
+// Metro then climbs up to the workspace root, tries to resolve its ./index,
+// and emits "Unable to resolve module ./index from /home/runner/workspace/."
+config.resolver.unstable_enablePackageExports = true;
+
+// Native extensions take priority over web extensions
 config.resolver.platforms = ["ios", "android", "native", "web"];
 
-// SVG transformer — lets .svg files be imported as React components via react-native-svg
-const { transformer, resolver } = config;
+// ─── SVG transformer ──────────────────────────────────────────────────────────
+// Spread config.transformer / config.resolver AFTER all options above are set
+// so nothing is accidentally overwritten by the spread.
 config.transformer = {
-  ...transformer,
+  ...config.transformer,
   babelTransformerPath: require.resolve("react-native-svg-transformer"),
 };
 config.resolver = {
-  ...resolver,
-  assetExts: resolver.assetExts.filter((ext) => ext !== "svg"),
-  sourceExts: [...resolver.sourceExts, "svg"],
+  ...config.resolver,
+  assetExts: config.resolver.assetExts.filter((ext) => ext !== "svg"),
+  sourceExts: [...config.resolver.sourceExts, "svg"],
 };
 
 module.exports = config;

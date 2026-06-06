@@ -1,0 +1,65 @@
+Root cause is now narrowed down correctly:
+
+Metro is resolving the project origin from the workspace root (`/home/runner/workspace`) instead of the actual Expo app root (`artifacts/mobile`). This is why Expo Go requests fail with:
+
+`Unable to resolve module ./index from /home/runner/workspace/`
+
+The issue is now clearly a Metro/Expo workspace root resolution problem — not the SVG assets themselves.
+
+Continue debugging from this exact point and fully fix the Expo runtime environment.
+
+Critical fixes to implement now:
+
+1. Verify Expo is starting from the correct project root
+
+* Ensure all Expo commands execute inside `artifacts/mobile`
+* Ensure Expo is not accidentally using the monorepo/workspace root as the app root
+* Verify `app.json` / `package.json` / `expo-router` entry resolution all point to the mobile app correctly
+
+2. Fix Metro root resolution
+
+* Ensure `projectRoot` is explicitly set correctly in `metro.config.js`
+* Ensure `watchFolders` do not accidentally override bundle origin resolution
+* Ensure Expo Router entry resolution works correctly for iOS/Android bundle requests
+* Ensure pnpm workspace symlinks are resolving correctly
+
+3. Verify Expo Router entry setup
+
+* Confirm the app entry is:
+  `expo-router/entry`
+* Confirm no stale `index.js` / `index.ts` expectation remains anywhere
+* Confirm no package is incorrectly resolving from workspace root
+
+4. Check workspace package resolution
+
+* Verify Metro resolves `expo-router` from `artifacts/mobile/node_modules`
+* Verify no hoisting issue causes Metro to search `/workspace/node_modules`
+* Verify no broken aliases or exports fields remain
+
+5. Clean rebuild requirements
+   Perform a FULL clean reset:
+
+* Stop Metro completely
+* Delete `.expo`
+* Delete `.expo-shared`
+* Delete `node_modules/.cache`
+* Clear Metro cache
+* Clear Expo cache
+* Remove stale bundle artifacts
+* Restart Expo from `artifacts/mobile`
+* Start with:
+  `npx expo start --clear --tunnel`
+
+6. Verification requirements
+   After fixing:
+
+* Verify Expo Go no longer returns HTTP 502
+* Verify onboarding loads successfully
+* Verify auth screens render correctly
+* Verify SVG buttons still render correctly
+* Verify iOS bundle builds successfully
+* Verify Android bundle builds successfully
+* Verify there are zero Metro resolution errors remaining
+
+Important:
+Do not revert or remove the authentication implementation work. Preserve the completed auth system exactly as-is while fixing the Metro/workspace resolution issue properly.

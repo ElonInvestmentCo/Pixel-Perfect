@@ -1,0 +1,79 @@
+You’ve already isolated the real issue correctly:
+
+Metro is resolving from the workspace root (`/home/runner/workspace`) instead of the Expo app root (`artifacts/mobile`), which is causing Expo Router’s native bundle resolution to fail for iOS and return the HTTP 502 error in Expo Go.
+
+Now stop speculative debugging and apply a strict production-grade fix focused on Metro/project-root resolution.
+
+Critical fixes to apply now:
+
+1. Ensure Expo starts from the actual mobile app directory
+
+* Verify the workflow/dev command explicitly runs from:
+
+  * `artifacts/mobile`
+* Do not allow Expo to infer the workspace root as projectRoot.
+* Ensure no root-level package.json or workspace config is hijacking Metro resolution.
+
+2. Fix Metro projectRoot + watchFolders configuration
+
+* Explicitly set:
+
+  * `projectRoot` → `artifacts/mobile`
+* Ensure `watchFolders` only include required workspace packages.
+* Prevent Metro from resolving modules relative to `/home/runner/workspace`.
+
+3. Fix Expo Router entry resolution
+
+* Verify Expo Router resolves:
+
+  * `expo-router/entry`
+    from the mobile app’s node_modules, not workspace root.
+* Ensure no stale generated route cache exists after deleting `(tabs)`.
+
+4. Verify metro.config.js correctness
+
+* Preserve SVG transformer setup.
+* Preserve resolver.assetExts/sourceExts logic.
+* Ensure resolver config is not accidentally overwritten/spread incorrectly.
+* Avoid experimental resolver settings unless absolutely required.
+* Remove any unnecessary `unstable_*` Metro options if they introduce platform-specific resolution instability.
+
+5. Verify package resolution behavior
+
+* Ensure workspace packages do not rely solely on `"exports"` if Metro cannot resolve them consistently.
+* Ensure every referenced workspace package has a valid:
+
+  * `main`
+  * `react-native`
+  * or resolvable entry file.
+* Ensure Metro never falls back to resolving `./index` from workspace root.
+
+6. Perform a full clean rebuild
+   Completely reset the environment:
+
+* Stop Metro entirely
+* Delete:
+
+  * `.expo`
+  * `.expo-shared`
+  * `node_modules/.cache`
+  * Metro cache
+  * temporary bundler artifacts
+* Restart Expo using:
+
+  * `expo start --clear --tunnel`
+
+7. Verification after fixes
+   You must verify:
+
+* Expo Go loads successfully without HTTP 502
+* Native iOS bundle resolves correctly
+* Expo Router initial route renders correctly
+* Auth screens load successfully
+* SVG assets still render correctly
+* No Metro resolver crashes occur
+* No workspace-root resolution errors remain
+* No runtime startup crashes occur
+
+Important:
+Do not continue feature development until the Metro/native bundle issue is fully fixed and verified stable inside Expo Go.

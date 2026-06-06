@@ -1,0 +1,47 @@
+Excellent root-cause analysis. Continue from this exact debugging state and fully finish verifying the Metro/Expo fix before making any additional app changes.
+
+Critical requirement:
+Do not resume feature development until the Expo Go 502 issue is conclusively resolved and verified stable.
+
+Next debugging steps:
+
+* Verify Metro can successfully serve the JS bundle after the resolver/config fixes.
+* Directly test the bundle endpoint again to confirm no resolver crash occurs.
+* Confirm Expo Go loads the app successfully after the clean restart.
+* Confirm onboarding/auth screens render without runtime crashes.
+* Confirm SVG transformer still works correctly after the Metro config changes.
+* Confirm workspace package resolution now works properly with exports fields enabled.
+
+Specifically verify:
+
+* metro.config.js no longer overwrites resolver settings accidentally
+* unstable_enablePackageExports is active and functioning
+* SVG transformer configuration still works correctly
+* Workspace packages resolve correctly without falling back to ./index
+* No stale route/cache references remain after deleting (tabs)
+
+Additional validation:
+
+* Verify Expo Router initial route renders successfully.
+* Verify _layout.tsx does not crash during startup.
+* Verify no auth screen imports trigger runtime failures.
+* Verify all SVG assets still render correctly in Sign In and Sign Up.
+* Verify no circular dependency warnings exist.
+* Verify no duplicate asset resolution warnings exist.
+
+Cleanup requirements:
+
+* Ensure Metro cache is fully rebuilt from scratch.
+* Ensure Expo tunnel session is fresh.
+* Ensure no stale node_modules symlink issues remain.
+* Ensure no orphaned Expo Router routes remain after deleting app/(tabs).
+
+Before concluding the fix:
+
+* Launch Expo Go successfully from the QR code.
+* Navigate through onboarding → auth screens manually.
+* Confirm HTTP 502 no longer appears.
+* Confirm Metro serves bundles consistently after reloads.
+* Confirm there are zero runtime errors/warnings during startup or navigation.
+
+Only after the runtime/build system is fully stable should development continue.
