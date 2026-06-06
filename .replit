@@ -29,7 +29,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=18115 pnpm --filter @workspace/mobile run dev"
+args = "PORT=18115 node artifacts/mobile/server/dev-qr.js"
 waitForPort = 18115
 
 [agent]
@@ -51,3 +51,7 @@ externalPort = 8081
 [[ports]]
 localPort = 18115
 externalPort = 3000
+
+[[ports]]
+localPort = 18116
+externalPort = 3001
