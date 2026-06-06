@@ -1,0 +1,42 @@
+Continue implementing the remaining authentication improvements exactly within the existing architecture and screens already built.
+
+Critical instruction:
+Do not redesign or visually alter the existing authentication UI while adding functionality. Preserve the current layouts and pixel-perfect styling exactly as already implemented.
+
+As you continue:
+
+* Maintain the exact spacing, typography, shadows, colors, radii, animations, SVG sizing, and transitions already present.
+* Do not introduce generic/default-looking form styles or system buttons.
+* Preserve the premium native iOS-style feel throughout the auth flow.
+
+Implementation quality requirements:
+
+* Keep all components modular and reusable.
+* Avoid duplicated logic across auth screens.
+* Ensure all loading states animate smoothly.
+* Ensure disabled button states still visually match the design system.
+* Ensure validation errors feel polished and native.
+* Ensure keyboard transitions are smooth and do not shift layouts abruptly.
+* Ensure focus transitions between inputs feel natural on mobile.
+* Ensure OTP animations remain smooth and performant.
+
+Routing/auth requirements:
+
+* Ensure authenticated routing is handled correctly after successful verification.
+* Ensure Dashboard/Home is treated as an authenticated destination.
+* Ensure sign-out fully resets auth state and navigation history correctly.
+* Ensure password reset flow and signup verification flow remain separate internally.
+
+Platform requirements:
+
+* Verify Apple Sign In UI appears only where appropriate for iOS.
+* Verify Google buttons render correctly on both iOS and Android.
+* Ensure all SVG and image assets preserve sharp rendering at all DPIs.
+* Ensure layouts remain responsive across different screen sizes.
+
+Before finishing:
+
+* Run full TypeScript checks.
+* Verify Expo Go runs without warnings/errors.
+* Manually test every auth route and interaction.
+* Confirm there are no unfinished placeholders, broken flows, dead buttons, or temporary logic remaining anywhere in authentication.

@@ -20,6 +20,7 @@ const SUCCESS = "#16A34A";
 const ERROR_C = "#DC2626";
 const GRAY    = "#F2F2F2";
 
+// Partial numpad rows (4–9, *, 0, ⌫) — same layout as phone-verify
 const PAD_ROWS = [
   ["4", "5", "6"],
   ["7", "8", "9"],
@@ -27,17 +28,14 @@ const PAD_ROWS = [
 ];
 
 const RESEND_SECS = 60;
-
-// ─── Development config ───────────────────────────────────────────────────────
-// In production: call POST /api/auth/verify-otp and check against your backend.
-const DEV_CODE = "1234";
+const DEV_CODE    = "1234";
 
 async function verifyOtpRequest(code: string): Promise<void> {
   await new Promise<void>((r) => setTimeout(r, 1200));
   if (code !== DEV_CODE) throw new Error("Wrong code. Please try again.");
 }
 
-async function resendOtpRequest(_dialCode: string, _phone: string): Promise<void> {
+async function resendOtpRequest(_to: string): Promise<void> {
   await new Promise<void>((r) => setTimeout(r, 1400));
 }
 
@@ -59,17 +57,10 @@ function BlinkingCursor() {
 
 // ─── Single OTP box ───────────────────────────────────────────────────────────
 function OTPBox({
-  digit,
-  active,
-  hasError,
-  isSuccess,
+  digit, active, hasError, isSuccess,
 }: {
-  digit: string;
-  active: boolean;
-  hasError: boolean;
-  isSuccess: boolean;
+  digit: string; active: boolean; hasError: boolean; isSuccess: boolean;
 }) {
-  const filled = digit !== "";
   return (
     <View
       style={[
@@ -79,15 +70,10 @@ function OTPBox({
         isSuccess && otp.success,
         !active && !hasError && !isSuccess && otp.idle,
       ]}
+      accessibilityElementsHidden
     >
-      {filled ? (
-        <Text
-          style={[
-            otp.digit,
-            hasError  && { color: ERROR_C },
-            isSuccess && { color: SUCCESS },
-          ]}
-        >
+      {digit !== "" ? (
+        <Text style={[otp.digit, hasError && { color: ERROR_C }, isSuccess && { color: SUCCESS }]}>
           {digit}
         </Text>
       ) : active ? (
@@ -97,14 +83,8 @@ function OTPBox({
   );
 }
 
-// ─── Partial numpad (4–9, *, 0, ⌫) ───────────────────────────────────────────
-function PartialNumPad({
-  onKey,
-  disabled,
-}: {
-  onKey: (k: string) => void;
-  disabled: boolean;
-}) {
+// ─── Partial numpad ───────────────────────────────────────────────────────────
+function PartialNumPad({ onKey, disabled }: { onKey: (k: string) => void; disabled: boolean }) {
   return (
     <View style={np.wrap}>
       {PAD_ROWS.map((row, ri) => (
@@ -118,6 +98,9 @@ function PartialNumPad({
                 activeOpacity={0.55}
                 disabled={disabled || isStar}
                 onPress={() => onKey(k)}
+                accessibilityRole="button"
+                accessibilityLabel={k === "⌫" ? "Delete" : k === "*" ? "" : k}
+                accessibilityElementsHidden={isStar}
               >
                 {k === "⌫" ? (
                   <Feather name="delete" size={22} color={BLACK} />
@@ -145,7 +128,14 @@ export default function VerifyCodeScreen() {
     phone    = "",
     dialCode = "+65",
     flag     = "🇸🇬",
-  } = useLocalSearchParams<{ phone: string; dialCode: string; flag: string }>();
+    mode     = "phone",   // "phone" | "reset"
+    email    = "",
+  } = useLocalSearchParams<{
+    phone: string; dialCode: string; flag: string;
+    mode: string; email: string;
+  }>();
+
+  const isResetMode = mode === "reset";
 
   const [code, setCode]           = useState("");
   const [status, setStatus]       = useState<Status>("idle");
@@ -153,20 +143,16 @@ export default function VerifyCodeScreen() {
   const [countdown, setCountdown] = useState(RESEND_SECS);
   const [resending, setResending] = useState(false);
 
-  const shakeAnim = useRef(new Animated.Value(0)).current;
+  const shakeAnim  = useRef(new Animated.Value(0)).current;
+  const hiddenRef  = useRef<TextInput>(null);
 
-  // Hidden TextInput for iOS SMS OTP autofill (textContentType="oneTimeCode").
-  // iOS presents the code in the QuickType bar even without the keyboard showing.
-  const hiddenRef = useRef<TextInput>(null);
-
-  // ── 60 s resend countdown ──
+  // 60 s resend countdown
   useEffect(() => {
     if (countdown <= 0) return;
     const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
   }, [countdown]);
 
-  // ── Horizontal shake animation ──
   const shake = useCallback(() => {
     Animated.sequence([
       Animated.timing(shakeAnim, { toValue:  9, duration: 65, useNativeDriver: true }),
@@ -176,7 +162,6 @@ export default function VerifyCodeScreen() {
     ]).start();
   }, [shakeAnim]);
 
-  // ── OTP verification ──
   const submit = useCallback(async (c: string) => {
     if (c.length < 4) return;
     setStatus("loading");
@@ -184,55 +169,46 @@ export default function VerifyCodeScreen() {
     try {
       await verifyOtpRequest(c);
       setStatus("success");
-      setTimeout(() => router.replace("/"), 1800);
+      if (isResetMode) {
+        // Reset flow: go to sign in with a success notice
+        setTimeout(() => router.replace("/signin"), 1800);
+      } else {
+        // Phone verification flow: authenticated — go to dashboard
+        setTimeout(() => router.replace("/dashboard"), 1800);
+      }
     } catch (e: any) {
       setStatus("error");
       setErrorMsg(e?.message ?? "Invalid code. Please try again.");
       shake();
     }
-  }, [shake]);
+  }, [shake, isResetMode]);
 
-  // ── Numpad key press ──
-  // NOTE: side-effects (submit) live here, NOT inside the setCode updater,
-  // to avoid double-invocation in React StrictMode.
   const handleKey = (k: string) => {
     if (status === "loading" || status === "success") return;
-
-    // Any key after an error resets the field
     if (status === "error") {
       setStatus("idle");
       setErrorMsg("");
       setCode("");
       return;
     }
-
     let next: string;
     if (k === "⌫") {
       next = code.slice(0, -1);
     } else if (code.length < 4) {
       next = code + k;
     } else {
-      return; // 4 digits already filled, ignore extra keys
+      return;
     }
-
     setCode(next);
-
-    // Auto-submit when the 4th digit is entered
-    if (next.length === 4) {
-      submit(next);
-    }
+    if (next.length === 4) submit(next);
   };
 
-  // ── SMS autofill (iOS textContentType="oneTimeCode") ──
   const handleAutofill = (text: string) => {
     const digits = text.replace(/\D/g, "").slice(0, 4);
     setCode(digits);
-    if (digits.length === 4 && status === "idle") {
-      submit(digits);
-    }
+    if (digits.length === 4 && status === "idle") submit(digits);
   };
 
-  // ── Resend code ──
   const handleResend = async () => {
     if (countdown > 0 || resending) return;
     setResending(true);
@@ -240,29 +216,35 @@ export default function VerifyCodeScreen() {
     setStatus("idle");
     setErrorMsg("");
     try {
-      await resendOtpRequest(dialCode, phone);
+      const to = isResetMode ? email : `${dialCode}${phone}`;
+      await resendOtpRequest(to);
       setCountdown(RESEND_SECS);
     } finally {
       setResending(false);
     }
   };
 
-  // ── Derived values ──
-  const maskedPhone =
-    phone.length > 3
-      ? "*".repeat(Math.max(0, phone.length - 3)) + phone.slice(-3)
-      : phone || "*****341";
+  // Masked address shown in subtitle
+  const maskedAddress = isResetMode
+    ? email.replace(/(.{2}).+(@.+)/, (_, a, b) => `${a}*****${b}`)
+    : phone.length > 3
+      ? `${dialCode} ${"*".repeat(Math.max(0, phone.length - 3))}${phone.slice(-3)}`
+      : `${dialCode} *****341`;
 
-  const digits     = code.split("").concat(["", "", "", ""]).slice(0, 4);
-  const isLoading  = status === "loading";
-  const isSuccess  = status === "success";
-  const hasError   = status === "error";
+  const digits      = code.split("").concat(["", "", "", ""]).slice(0, 4);
+  const isLoading   = status === "loading";
+  const isSuccess   = status === "success";
+  const hasError    = status === "error";
   const padDisabled = isLoading || isSuccess;
   const doneEnabled = code.length === 4 && !padDisabled;
 
+  const successMsg = isResetMode
+    ? "Verified! Redirecting to sign in…"
+    : "Verified! Signing you in…";
+
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      {/* Hidden TextInput — enables iOS SMS OTP autofill */}
+      {/* Hidden TextInput for iOS SMS OTP autofill */}
       <TextInput
         ref={hiddenRef}
         style={s.hiddenInput}
@@ -276,22 +258,31 @@ export default function VerifyCodeScreen() {
         accessible={false}
       />
 
-      {/* ── Top content ─────────────────────────────────────────────── */}
+      {/* Top content */}
       <View style={[s.top, { paddingTop: topPad + 14 }]}>
-        {/* Close */}
-        <TouchableOpacity style={s.closeBtn} onPress={() => router.back()} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={s.closeBtn}
+          onPress={() => router.back()}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
           <Feather name="x" size={15} color="#999999" />
         </TouchableOpacity>
 
-        <Text style={s.title}>Verify your Code</Text>
+        <Text style={s.title} accessibilityRole="header">Verify your Code</Text>
         <Text style={s.subtitle}>
-          Enter the security code we sent to{"\n"}
-          <Text style={s.maskedAddr}>{dialCode} {maskedPhone}</Text>
+          {isResetMode
+            ? "Enter the code we sent to"
+            : "Enter the security code we sent to"}{"\n"}
+          <Text style={s.maskedAddr}>{maskedAddress}</Text>
         </Text>
 
-        {/* 4 OTP boxes — shake on wrong code */}
+        {/* 4 OTP boxes */}
         <Animated.View
           style={[s.otpRow, { transform: [{ translateX: shakeAnim }] }]}
+          accessibilityLabel={`OTP entered: ${code.length} of 4 digits`}
+          accessibilityLiveRegion="polite"
         >
           {[0, 1, 2, 3].map((i) => (
             <OTPBox
@@ -304,26 +295,27 @@ export default function VerifyCodeScreen() {
           ))}
         </Animated.View>
 
-        {/* Dev hint — hidden in production builds */}
+        {/* Dev hint — hidden in production */}
         {__DEV__ && !isSuccess && (
           <Text style={s.devHint}>
-            Test code:{" "}
-            <Text style={{ fontFamily: "Inter_600SemiBold" }}>{DEV_CODE}</Text>
+            Test code: <Text style={{ fontFamily: "Inter_600SemiBold" }}>{DEV_CODE}</Text>
           </Text>
         )}
 
-        {/* Error message */}
-        {hasError && <Text style={s.errorMsg}>{errorMsg}</Text>}
+        {/* Error */}
+        {hasError && (
+          <Text style={s.errorMsg} accessibilityLiveRegion="assertive">{errorMsg}</Text>
+        )}
 
         {/* Success banner */}
         {isSuccess && (
-          <View style={s.successRow}>
+          <View style={s.successRow} accessibilityLiveRegion="polite">
             <Feather name="check-circle" size={15} color={SUCCESS} />
-            <Text style={s.successMsg}>Verified! Signing you in…</Text>
+            <Text style={s.successMsg}>{successMsg}</Text>
           </View>
         )}
 
-        {/* Resend countdown / button */}
+        {/* Resend */}
         {!isSuccess && (
           <View style={s.resendRow}>
             {countdown > 0 ? (
@@ -336,6 +328,9 @@ export default function VerifyCodeScreen() {
                 onPress={handleResend}
                 disabled={resending}
                 activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel={resending ? "Sending code…" : "Resend code now"}
+                accessibilityState={{ disabled: resending }}
               >
                 <Text style={[s.resendNow, resending && { opacity: 0.5 }]}>
                   {resending ? "Sending…" : "Resend code now"}
@@ -347,7 +342,7 @@ export default function VerifyCodeScreen() {
 
         <View style={{ flex: 1 }} />
 
-        {/* Done / verify button */}
+        {/* Done / verify CTA */}
         <TouchableOpacity
           style={[
             s.cta,
@@ -357,6 +352,9 @@ export default function VerifyCodeScreen() {
           activeOpacity={0.85}
           disabled={!doneEnabled}
           onPress={() => submit(code)}
+          accessibilityRole="button"
+          accessibilityLabel={isSuccess ? "Verified" : "Confirm code"}
+          accessibilityState={{ disabled: !doneEnabled }}
         >
           {isLoading ? (
             <ActivityIndicator color={BLACK} size="small" />
@@ -369,7 +367,7 @@ export default function VerifyCodeScreen() {
         <View style={{ height: 16 }} />
       </View>
 
-      {/* ── Partial numpad ──────────────────────────────────────────── */}
+      {/* Partial numpad */}
       <View style={{ paddingBottom: botPad + 6 }}>
         <PartialNumPad onKey={handleKey} disabled={padDisabled} />
       </View>
@@ -393,13 +391,13 @@ const otp = StyleSheet.create({
 // ─── Numpad styles ────────────────────────────────────────────────────────────
 const np = StyleSheet.create({
   wrap: { paddingHorizontal: 20 },
-  row: { flexDirection: "row", gap: 8, marginBottom: 8 },
+  row:  { flexDirection: "row", gap: 8, marginBottom: 8 },
   key: {
     flex: 1, height: 62,
     backgroundColor: GRAY, borderRadius: 12,
     alignItems: "center", justifyContent: "center",
   },
-  keyDim: { opacity: 0.32 },
+  keyDim:  { opacity: 0.32 },
   keyText: { fontSize: 26, fontFamily: "Inter_400Regular", color: BLACK },
 });
 
@@ -449,7 +447,7 @@ const s = StyleSheet.create({
     fontSize: 14, fontFamily: "Inter_400Regular", color: "#AAAAAA",
   },
   resendTimer: { fontFamily: "Inter_600SemiBold", color: BLACK },
-  resendNow: { fontSize: 15, fontFamily: "Inter_600SemiBold", color: INDIGO },
+  resendNow:   { fontSize: 15, fontFamily: "Inter_600SemiBold", color: INDIGO },
 
   cta: {
     backgroundColor: LIME, borderRadius: 28, height: 54,

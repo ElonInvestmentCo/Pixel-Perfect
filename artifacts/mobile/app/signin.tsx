@@ -1,7 +1,7 @@
-import { Feather, FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -13,17 +13,68 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { AppleSignInButton } from "../components/AppleSignInButton";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
+import { Feather } from "@expo/vector-icons";
 
 const LIME   = "#C8FF00";
 const BLACK  = "#1A1A1A";
 const INDIGO = "#4F46E5";
+const ERROR_C = "#DC2626";
+
+function isValidEmail(v: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+}
 
 export default function SignInScreen() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 55 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
-  const [showPw, setShowPw] = useState(false);
+
+  const [email, setEmail]         = useState("");
+  const [password, setPassword]   = useState("");
+  const [showPw, setShowPw]       = useState(false);
+  const [loading, setLoading]     = useState(false);
+  const [emailErr, setEmailErr]   = useState("");
+  const [passwordErr, setPasswordErr] = useState("");
+  const [submitErr, setSubmitErr] = useState("");
+
+  const passwordRef = useRef<TextInput>(null);
+
+  const validateEmail = (v: string) => {
+    if (!v.trim()) return "Email is required";
+    if (!isValidEmail(v)) return "Enter a valid email address";
+    return "";
+  };
+
+  const validatePassword = (v: string) => {
+    if (!v) return "Password is required";
+    return "";
+  };
+
+  const isFormValid =
+    isValidEmail(email) && password.length > 0;
+
+  const handleSignIn = async () => {
+    const eErr = validateEmail(email);
+    const pErr = validatePassword(password);
+    setEmailErr(eErr);
+    setPasswordErr(pErr);
+    if (eErr || pErr) return;
+    if (loading) return;
+
+    setLoading(true);
+    setSubmitErr("");
+    try {
+      // Simulate auth — replace with real API call
+      await new Promise<void>((r) => setTimeout(r, 1200));
+      router.replace("/dashboard");
+    } catch (e: any) {
+      setSubmitErr(e?.message ?? "Sign in failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -33,69 +84,127 @@ export default function SignInScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Emoji avatar */}
-          <View style={s.avatarWrap}>
+          {/* Avatar */}
+          <View style={s.avatarWrap} accessibilityElementsHidden>
             <Text style={s.avatarEmoji}>🎒</Text>
           </View>
 
-          {/* Title */}
-          <Text style={s.title}>Welcome back</Text>
+          <Text style={s.title} accessibilityRole="header">Welcome back</Text>
           <Text style={s.subtitle}>Sign in to your account</Text>
+
+          {/* Submit error */}
+          {submitErr ? (
+            <View style={s.submitErrBox} accessibilityLiveRegion="polite">
+              <Feather name="alert-circle" size={14} color={ERROR_C} />
+              <Text style={s.submitErrText}>{submitErr}</Text>
+            </View>
+          ) : null}
 
           {/* Email */}
           <Text style={s.label}>Your email</Text>
-          <View style={s.field}>
+          <View style={[s.field, emailErr ? s.fieldError : null]}>
             <TextInput
               style={s.input}
+              value={email}
+              onChangeText={(v) => { setEmail(v); if (emailErr) setEmailErr(""); setSubmitErr(""); }}
+              onBlur={() => setEmailErr(validateEmail(email))}
               placeholder="johndoe@mail.com"
               placeholderTextColor="#C0C0C0"
               keyboardType="email-address"
               autoCapitalize="none"
+              autoCorrect={false}
               returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+              blurOnSubmit={false}
+              accessibilityLabel="Email address"
+              accessibilityHint="Enter your email address"
+              editable={!loading}
             />
           </View>
+          {emailErr ? <Text style={s.fieldErrText} accessibilityLiveRegion="polite">{emailErr}</Text> : null}
 
           {/* Password */}
           <Text style={[s.label, { marginTop: 20 }]}>Password</Text>
-          <View style={s.field}>
+          <View style={[s.field, passwordErr ? s.fieldError : null]}>
             <TextInput
+              ref={passwordRef}
               style={[s.input, { flex: 1 }]}
-              placeholder=""
+              value={password}
+              onChangeText={(v) => { setPassword(v); if (passwordErr) setPasswordErr(""); setSubmitErr(""); }}
+              onBlur={() => setPasswordErr(validatePassword(password))}
+              placeholder="Your password"
               placeholderTextColor="#C0C0C0"
               secureTextEntry={!showPw}
               autoCapitalize="none"
               returnKeyType="done"
+              onSubmitEditing={handleSignIn}
+              accessibilityLabel="Password"
+              accessibilityHint="Enter your account password"
+              editable={!loading}
             />
-            <TouchableOpacity onPress={() => setShowPw(!showPw)} style={s.eyeBtn}>
+            <TouchableOpacity
+              onPress={() => setShowPw(!showPw)}
+              style={s.eyeBtn}
+              accessibilityRole="button"
+              accessibilityLabel={showPw ? "Hide password" : "Show password"}
+            >
               <Feather name={showPw ? "eye" : "eye-off"} size={20} color="#AAAAAA" />
             </TouchableOpacity>
           </View>
+          {passwordErr ? <Text style={s.fieldErrText} accessibilityLiveRegion="polite">{passwordErr}</Text> : null}
 
-          {/* Sign In button */}
-          <TouchableOpacity style={s.cta} activeOpacity={0.85}>
-            <Text style={s.ctaText}>Sign In</Text>
+          {/* Sign In CTA */}
+          <TouchableOpacity
+            style={[s.cta, (!isFormValid || loading) && s.ctaDim]}
+            activeOpacity={0.85}
+            disabled={!isFormValid || loading}
+            onPress={handleSignIn}
+            accessibilityRole="button"
+            accessibilityLabel="Sign In"
+            accessibilityState={{ disabled: !isFormValid || loading }}
+          >
+            {loading ? (
+              <ActivityIndicator color={BLACK} size="small" />
+            ) : (
+              <Text style={[s.ctaText, (!isFormValid || loading) && s.ctaTextDim]}>Sign In</Text>
+            )}
           </TouchableOpacity>
 
           {/* Forgot password */}
-          <TouchableOpacity style={s.forgotRow} onPress={() => router.push("/reset-password")}>
+          <TouchableOpacity
+            style={s.forgotRow}
+            onPress={() => router.push("/reset-password")}
+            accessibilityRole="button"
+            accessibilityLabel="Forgot Password"
+          >
             <Text style={s.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
 
           {/* Divider */}
-          <View style={s.divRow}>
+          <View style={s.divRow} accessibilityElementsHidden>
             <View style={s.divLine} />
             <Text style={s.divText}>Or sign in with</Text>
             <View style={s.divLine} />
           </View>
 
-          {/* Apple button */}
-          <TouchableOpacity style={s.appleBtn} activeOpacity={0.85}>
-            <FontAwesome name="apple" size={20} color="#000000" />
-            <Text style={s.appleBtnText}>Apple</Text>
-          </TouchableOpacity>
+          {/* Apple */}
+          <AppleSignInButton variant="signin" disabled={loading} />
 
-          {/* Google button — official SVG asset, platform-appropriate variant */}
-          <GoogleSignInButton variant="signin" horizontalPadding={24} />
+          {/* Google */}
+          <GoogleSignInButton variant="signin" horizontalPadding={24} disabled={loading} />
+
+          {/* Sign up link */}
+          <TouchableOpacity
+            style={s.signupRow}
+            onPress={() => router.push("/signup")}
+            accessibilityRole="button"
+            accessibilityLabel="Don't have an account? Sign Up"
+          >
+            <Text style={s.signupText}>
+              Don't have an account?{" "}
+              <Text style={s.signupBold}>Sign Up</Text>
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -119,7 +228,17 @@ const s = StyleSheet.create({
   },
   subtitle: {
     fontSize: 15, fontFamily: "Inter_400Regular",
-    color: "#888888", lineHeight: 22, marginBottom: 32,
+    color: "#888888", lineHeight: 22, marginBottom: 28,
+  },
+
+  submitErrBox: {
+    flexDirection: "row", alignItems: "center", gap: 6,
+    backgroundColor: "#FEF2F2", borderRadius: 10,
+    paddingHorizontal: 14, paddingVertical: 10,
+    marginBottom: 16, borderWidth: 1, borderColor: "#FECACA",
+  },
+  submitErrText: {
+    fontSize: 13, fontFamily: "Inter_400Regular", color: ERROR_C, flex: 1,
   },
 
   label: {
@@ -130,6 +249,14 @@ const s = StyleSheet.create({
     flexDirection: "row", alignItems: "center",
     backgroundColor: "#F5F5F5", borderRadius: 12,
     height: 56, paddingHorizontal: 16,
+    borderWidth: 1.5, borderColor: "transparent",
+  },
+  fieldError: {
+    borderColor: ERROR_C, backgroundColor: "#FEF9F9",
+  },
+  fieldErrText: {
+    fontSize: 12, fontFamily: "Inter_400Regular",
+    color: ERROR_C, marginTop: 5, marginBottom: 2,
   },
   input: {
     flex: 1, fontSize: 15, fontFamily: "Inter_400Regular",
@@ -141,9 +268,11 @@ const s = StyleSheet.create({
   cta: {
     backgroundColor: LIME, borderRadius: 28, height: 58,
     alignItems: "center", justifyContent: "center",
-    marginTop: 30, marginBottom: 16,
+    marginTop: 28, marginBottom: 14,
   },
+  ctaDim: { backgroundColor: "#E8E8E8" },
   ctaText: { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK },
+  ctaTextDim: { color: "#AAAAAA" },
 
   forgotRow: { alignItems: "center", paddingVertical: 4, marginBottom: 28 },
   forgotText: { fontSize: 15, fontFamily: "Inter_600SemiBold", color: INDIGO },
@@ -155,15 +284,7 @@ const s = StyleSheet.create({
     color: "#AAAAAA", marginHorizontal: 12,
   },
 
-  appleBtn: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: 10, height: 56, borderRadius: 14,
-    borderWidth: 1.5, borderColor: "#D0D0D0",
-    backgroundColor: "#FFFFFF",
-    marginBottom: 12,
-  },
-  appleBtnText: {
-    fontSize: 16, fontFamily: "Inter_600SemiBold", color: "#000000",
-  },
-
+  signupRow: { alignItems: "center", paddingVertical: 8, marginTop: 4 },
+  signupText: { fontSize: 14, fontFamily: "Inter_400Regular", color: "#888888" },
+  signupBold: { fontFamily: "Inter_600SemiBold", color: BLACK },
 });

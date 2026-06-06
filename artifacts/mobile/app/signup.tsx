@@ -1,6 +1,6 @@
-import { Feather, FontAwesome } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -13,16 +13,58 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { AppleSignInButton } from "../components/AppleSignInButton";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
 
-const LIME  = "#C8FF00";
-const BLACK = "#1A1A1A";
+const LIME    = "#C8FF00";
+const BLACK   = "#1A1A1A";
+const ERROR_C = "#DC2626";
+
+function isValidEmail(v: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
+}
+
+function isValidName(v: string) {
+  return v.trim().length >= 2;
+}
+
+function isValidPassword(v: string) {
+  return v.length >= 8;
+}
 
 export default function SignUpScreen() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 55 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
-  const [showPw, setShowPw] = useState(false);
+
+  const [name, setName]         = useState("");
+  const [email, setEmail]       = useState("");
+  const [password, setPassword] = useState("");
+  const [showPw, setShowPw]     = useState(false);
+
+  const [nameErr, setNameErr]         = useState("");
+  const [emailErr, setEmailErr]       = useState("");
+  const [passwordErr, setPasswordErr] = useState("");
+
+  const emailRef    = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+
+  const validateName     = (v: string) => !isValidName(v) ? "Full name must be at least 2 characters" : "";
+  const validateEmail    = (v: string) => !v.trim() ? "Email is required" : !isValidEmail(v) ? "Enter a valid email address" : "";
+  const validatePassword = (v: string) => !isValidPassword(v) ? "Password must be at least 8 characters" : "";
+
+  const isFormValid = isValidName(name) && isValidEmail(email) && isValidPassword(password);
+
+  const handleSignUp = () => {
+    const nErr = validateName(name);
+    const eErr = validateEmail(email);
+    const pErr = validatePassword(password);
+    setNameErr(nErr);
+    setEmailErr(eErr);
+    setPasswordErr(pErr);
+    if (nErr || eErr || pErr) return;
+    router.push("/phone-verify");
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -32,78 +74,137 @@ export default function SignUpScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* X close button */}
-          <TouchableOpacity style={s.closeBtn} onPress={() => router.back()}>
+          {/* Close button */}
+          <TouchableOpacity
+            style={s.closeBtn}
+            onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel="Close"
+          >
             <Feather name="x" size={15} color="#999999" />
           </TouchableOpacity>
 
-          {/* Title */}
-          <Text style={s.title}>Welcome to PayVora</Text>
+          <Text style={s.title} accessibilityRole="header">Welcome to PayVora</Text>
           <Text style={s.subtitle}>
             Create a commitment-free profile to{"\n"}explore financial products
           </Text>
 
           {/* Full name */}
           <Text style={s.label}>Full name</Text>
-          <View style={s.field}>
+          <View style={[s.field, nameErr ? s.fieldError : null]}>
             <TextInput
               style={s.input}
+              value={name}
+              onChangeText={(v) => { setName(v); if (nameErr) setNameErr(""); }}
+              onBlur={() => setNameErr(validateName(name))}
               placeholder="John Doe"
               placeholderTextColor="#C0C0C0"
               autoCapitalize="words"
+              autoCorrect={false}
               returnKeyType="next"
+              onSubmitEditing={() => emailRef.current?.focus()}
+              blurOnSubmit={false}
+              accessibilityLabel="Full name"
+              accessibilityHint="Enter your full name"
             />
           </View>
+          {nameErr ? <Text style={s.fieldErrText} accessibilityLiveRegion="polite">{nameErr}</Text> : null}
 
           {/* Email */}
           <Text style={[s.label, { marginTop: 20 }]}>Your email</Text>
-          <View style={s.field}>
+          <View style={[s.field, emailErr ? s.fieldError : null]}>
             <TextInput
+              ref={emailRef}
               style={s.input}
+              value={email}
+              onChangeText={(v) => { setEmail(v); if (emailErr) setEmailErr(""); }}
+              onBlur={() => setEmailErr(validateEmail(email))}
               placeholder="johndoe@mail.com"
               placeholderTextColor="#C0C0C0"
               keyboardType="email-address"
               autoCapitalize="none"
+              autoCorrect={false}
               returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+              blurOnSubmit={false}
+              accessibilityLabel="Email address"
+              accessibilityHint="Enter your email address"
             />
           </View>
+          {emailErr ? <Text style={s.fieldErrText} accessibilityLiveRegion="polite">{emailErr}</Text> : null}
 
           {/* Password */}
           <Text style={[s.label, { marginTop: 20 }]}>Password</Text>
-          <View style={s.field}>
+          <View style={[s.field, passwordErr ? s.fieldError : null]}>
             <TextInput
+              ref={passwordRef}
               style={[s.input, { flex: 1 }]}
-              placeholder=""
+              value={password}
+              onChangeText={(v) => { setPassword(v); if (passwordErr) setPasswordErr(""); }}
+              onBlur={() => setPasswordErr(validatePassword(password))}
+              placeholder="Min. 8 characters"
               placeholderTextColor="#C0C0C0"
               secureTextEntry={!showPw}
               autoCapitalize="none"
               returnKeyType="done"
+              onSubmitEditing={handleSignUp}
+              accessibilityLabel="Password"
+              accessibilityHint="Enter a password with at least 8 characters"
             />
-            <TouchableOpacity onPress={() => setShowPw(!showPw)} style={s.eyeBtn}>
+            <TouchableOpacity
+              onPress={() => setShowPw(!showPw)}
+              style={s.eyeBtn}
+              accessibilityRole="button"
+              accessibilityLabel={showPw ? "Hide password" : "Show password"}
+            >
               <Feather name={showPw ? "eye" : "eye-off"} size={20} color="#AAAAAA" />
             </TouchableOpacity>
           </View>
+          {passwordErr ? <Text style={s.fieldErrText} accessibilityLiveRegion="polite">{passwordErr}</Text> : null}
 
-          {/* Sign Up button */}
-          <TouchableOpacity style={s.cta} activeOpacity={0.85} onPress={() => router.push("/phone-verify")}>
-            <Text style={s.ctaText}>Sign Up</Text>
+          {/* Password hint */}
+          {!passwordErr && password.length > 0 && password.length < 8 ? (
+            <Text style={s.hintText}>{8 - password.length} more character{8 - password.length !== 1 ? "s" : ""} needed</Text>
+          ) : null}
+
+          {/* Sign Up CTA */}
+          <TouchableOpacity
+            style={[s.cta, !isFormValid && s.ctaDim]}
+            activeOpacity={0.85}
+            disabled={!isFormValid}
+            onPress={handleSignUp}
+            accessibilityRole="button"
+            accessibilityLabel="Sign Up"
+            accessibilityState={{ disabled: !isFormValid }}
+          >
+            <Text style={[s.ctaText, !isFormValid && s.ctaTextDim]}>Sign Up</Text>
           </TouchableOpacity>
 
           {/* Divider */}
-          <View style={s.divRow}>
+          <View style={s.divRow} accessibilityElementsHidden>
             <View style={s.divLine} />
             <Text style={s.divText}>Or sign up with</Text>
             <View style={s.divLine} />
           </View>
 
-          {/* Apple button */}
-          <TouchableOpacity style={s.appleBtn} activeOpacity={0.85}>
-            <FontAwesome name="apple" size={20} color="#000000" />
-            <Text style={s.appleBtnText}>Apple</Text>
-          </TouchableOpacity>
+          {/* Apple */}
+          <AppleSignInButton variant="signup" />
 
-          {/* Google button — official SVG asset, platform-appropriate variant */}
+          {/* Google */}
           <GoogleSignInButton variant="signup" horizontalPadding={24} />
+
+          {/* Sign in link */}
+          <TouchableOpacity
+            style={s.signinRow}
+            onPress={() => { router.back(); router.push("/signin"); }}
+            accessibilityRole="button"
+            accessibilityLabel="Already have an account? Sign In"
+          >
+            <Text style={s.signinText}>
+              Already have an account?{" "}
+              <Text style={s.signinBold}>Sign In</Text>
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -137,6 +238,18 @@ const s = StyleSheet.create({
     flexDirection: "row", alignItems: "center",
     backgroundColor: "#F5F5F5", borderRadius: 12,
     height: 56, paddingHorizontal: 16,
+    borderWidth: 1.5, borderColor: "transparent",
+  },
+  fieldError: {
+    borderColor: ERROR_C, backgroundColor: "#FEF9F9",
+  },
+  fieldErrText: {
+    fontSize: 12, fontFamily: "Inter_400Regular",
+    color: ERROR_C, marginTop: 5, marginBottom: 2,
+  },
+  hintText: {
+    fontSize: 12, fontFamily: "Inter_400Regular",
+    color: "#AAAAAA", marginTop: 5, marginBottom: 2,
   },
   input: {
     flex: 1, fontSize: 15, fontFamily: "Inter_400Regular",
@@ -148,9 +261,11 @@ const s = StyleSheet.create({
   cta: {
     backgroundColor: LIME, borderRadius: 28, height: 58,
     alignItems: "center", justifyContent: "center",
-    marginTop: 30, marginBottom: 18,
+    marginTop: 28, marginBottom: 18,
   },
+  ctaDim: { backgroundColor: "#E8E8E8" },
   ctaText: { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK },
+  ctaTextDim: { color: "#AAAAAA" },
 
   divRow: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
   divLine: { flex: 1, height: 1, backgroundColor: "#E8E8E8" },
@@ -159,15 +274,7 @@ const s = StyleSheet.create({
     color: "#AAAAAA", marginHorizontal: 12,
   },
 
-  appleBtn: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: 10, height: 56, borderRadius: 14,
-    borderWidth: 1.5, borderColor: "#D0D0D0",
-    backgroundColor: "#FFFFFF",
-    marginBottom: 12,
-  },
-  appleBtnText: {
-    fontSize: 16, fontFamily: "Inter_600SemiBold", color: "#000000",
-  },
-
+  signinRow: { alignItems: "center", paddingVertical: 8, marginTop: 4 },
+  signinText: { fontSize: 14, fontFamily: "Inter_400Regular", color: "#888888" },
+  signinBold: { fontFamily: "Inter_600SemiBold", color: BLACK },
 });

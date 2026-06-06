@@ -22,12 +22,13 @@ const queryClient = new QueryClient();
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="signup" options={{ headerShown: false, presentation: "modal" }} />
-      <Stack.Screen name="phone-verify" options={{ headerShown: false }} />
-      <Stack.Screen name="signin" options={{ headerShown: false, presentation: "modal" }} />
+      <Stack.Screen name="index"          options={{ headerShown: false }} />
+      <Stack.Screen name="signup"         options={{ headerShown: false, presentation: "modal" }} />
+      <Stack.Screen name="phone-verify"   options={{ headerShown: false }} />
+      <Stack.Screen name="signin"         options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="reset-password" options={{ headerShown: false }} />
-      <Stack.Screen name="verify-code" options={{ headerShown: false }} />
+      <Stack.Screen name="verify-code"    options={{ headerShown: false }} />
+      <Stack.Screen name="dashboard"      options={{ headerShown: false, gestureEnabled: false }} />
     </Stack>
   );
 }
