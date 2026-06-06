@@ -20,7 +20,6 @@ const SUCCESS = "#16A34A";
 const ERROR_C = "#DC2626";
 const GRAY    = "#F2F2F2";
 
-// Full numpad rows — matches phone-verify layout
 const PAD_ROWS = [
   ["1", "2", "3"],
   ["4", "5", "6"],
@@ -31,13 +30,14 @@ const PAD_ROWS = [
 const RESEND_SECS = 60;
 const DEV_CODE    = "1234";
 
-async function verifyOtpRequest(code: string): Promise<void> {
-  await new Promise<void>((r) => setTimeout(r, 1200));
+// ─── Auth service stubs ────────────────────────────────────────────────────────
+async function verifyOtp(code: string): Promise<void> {
+  // Replace with real API call: POST /api/auth/verify-otp
   if (code !== DEV_CODE) throw new Error("Wrong code. Please try again.");
 }
 
-async function resendOtpRequest(_to: string): Promise<void> {
-  await new Promise<void>((r) => setTimeout(r, 1400));
+async function resendOtp(_to: string): Promise<void> {
+  // Replace with real API call: POST /api/auth/resend-otp
 }
 
 // ─── Blinking cursor ──────────────────────────────────────────────────────────
@@ -84,8 +84,8 @@ function OTPBox({
   );
 }
 
-// ─── Partial numpad ───────────────────────────────────────────────────────────
-function PartialNumPad({ onKey, disabled }: { onKey: (k: string) => void; disabled: boolean }) {
+// ─── Numpad ───────────────────────────────────────────────────────────────────
+function NumPad({ onKey, disabled }: { onKey: (k: string) => void; disabled: boolean }) {
   return (
     <View style={np.wrap}>
       {PAD_ROWS.map((row, ri) => (
@@ -128,12 +128,10 @@ export default function VerifyCodeScreen() {
   const {
     phone    = "",
     dialCode = "+65",
-    flag     = "🇸🇬",
-    mode     = "phone",   // "phone" | "reset"
+    mode     = "phone",
     email    = "",
   } = useLocalSearchParams<{
-    phone: string; dialCode: string; flag: string;
-    mode: string; email: string;
+    phone: string; dialCode: string; mode: string; email: string;
   }>();
 
   const isResetMode = mode === "reset";
@@ -146,8 +144,18 @@ export default function VerifyCodeScreen() {
 
   const shakeAnim  = useRef(new Animated.Value(0)).current;
   const hiddenRef  = useRef<TextInput>(null);
+  const mountedRef = useRef(true);
+  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // 60 s resend countdown
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (navTimerRef.current) clearTimeout(navTimerRef.current);
+    };
+  }, []);
+
+  // 60-second resend countdown
   useEffect(() => {
     if (countdown <= 0) return;
     const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
@@ -168,16 +176,15 @@ export default function VerifyCodeScreen() {
     setStatus("loading");
     setErrorMsg("");
     try {
-      await verifyOtpRequest(c);
+      await verifyOtp(c);
+      if (!mountedRef.current) return;
       setStatus("success");
-      if (isResetMode) {
-        // Reset flow: go to sign in with a success notice
-        setTimeout(() => router.replace("/signin"), 1800);
-      } else {
-        // Phone verification flow: authenticated — go to dashboard
-        setTimeout(() => router.replace("/dashboard"), 1800);
-      }
+      const dest = isResetMode ? "/signin" : "/dashboard";
+      navTimerRef.current = setTimeout(() => {
+        if (mountedRef.current) router.replace(dest);
+      }, 1800);
     } catch (e: any) {
+      if (!mountedRef.current) return;
       setStatus("error");
       setErrorMsg(e?.message ?? "Invalid code. Please try again.");
       shake();
@@ -207,7 +214,9 @@ export default function VerifyCodeScreen() {
   const handleAutofill = (text: string) => {
     const digits = text.replace(/\D/g, "").slice(0, 4);
     setCode(digits);
-    if (digits.length === 4 && status === "idle") submit(digits);
+    if (digits.length === 4 && status !== "loading" && status !== "success") {
+      submit(digits);
+    }
   };
 
   const handleResend = async () => {
@@ -218,14 +227,15 @@ export default function VerifyCodeScreen() {
     setErrorMsg("");
     try {
       const to = isResetMode ? email : `${dialCode}${phone}`;
-      await resendOtpRequest(to);
+      await resendOtp(to);
+      if (!mountedRef.current) return;
       setCountdown(RESEND_SECS);
     } finally {
-      setResending(false);
+      if (mountedRef.current) setResending(false);
     }
   };
 
-  // Masked address shown in subtitle
+  // Masked destination shown in subtitle
   const maskedAddress = isResetMode
     ? email.replace(/(.{2}).+(@.+)/, (_, a, b) => `${a}*****${b}`)
     : phone.length > 3
@@ -273,9 +283,7 @@ export default function VerifyCodeScreen() {
 
         <Text style={s.title} accessibilityRole="header">Verify your Code</Text>
         <Text style={s.subtitle}>
-          {isResetMode
-            ? "Enter the code we sent to"
-            : "Enter the security code we sent to"}{"\n"}
+          {isResetMode ? "Enter the code we sent to" : "Enter the security code we sent to"}{"\n"}
           <Text style={s.maskedAddr}>{maskedAddress}</Text>
         </Text>
 
@@ -296,7 +304,7 @@ export default function VerifyCodeScreen() {
           ))}
         </Animated.View>
 
-        {/* Dev hint — hidden in production */}
+        {/* Dev hint — stripped in production builds */}
         {__DEV__ && !isSuccess && (
           <Text style={s.devHint}>
             Test code: <Text style={{ fontFamily: "Inter_600SemiBold" }}>{DEV_CODE}</Text>
@@ -368,9 +376,9 @@ export default function VerifyCodeScreen() {
         <View style={{ height: 16 }} />
       </View>
 
-      {/* Partial numpad */}
+      {/* Numpad */}
       <View style={{ paddingBottom: botPad + 6 }}>
-        <PartialNumPad onKey={handleKey} disabled={padDisabled} />
+        <NumPad onKey={handleKey} disabled={padDisabled} />
       </View>
     </View>
   );

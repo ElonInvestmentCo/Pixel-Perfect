@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -14,47 +14,47 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { isValidEmail, validateEmail } from "../lib/validation";
+
 const LIME    = "#C8FF00";
 const BLACK   = "#1A1A1A";
 const ERROR_C = "#DC2626";
-
-function isValidEmail(v: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
-}
 
 export default function ResetPasswordScreen() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 55 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
 
-  const [email, setEmail]     = useState("");
-  const [emailErr, setEmailErr] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail]         = useState("");
+  const [emailErr, setEmailErr]   = useState("");
+  const [loading, setLoading]     = useState(false);
   const [submitErr, setSubmitErr] = useState("");
 
-  const validateEmail = (v: string) =>
-    !v.trim() ? "Email is required" : !isValidEmail(v) ? "Enter a valid email address" : "";
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const isFormValid = isValidEmail(email);
 
   const handleContinue = async () => {
     const err = validateEmail(email);
     setEmailErr(err);
-    if (err) return;
-    if (loading) return;
+    if (err || loading) return;
 
     setLoading(true);
     setSubmitErr("");
     try {
-      // Simulate sending reset code — replace with real API call
-      await new Promise<void>((r) => setTimeout(r, 1000));
+      await requestPasswordReset(email.trim());
       router.push(
         `/verify-code?mode=reset&email=${encodeURIComponent(email.trim())}`,
       );
     } catch (e: any) {
+      if (!mountedRef.current) return;
       setSubmitErr(e?.message ?? "Failed to send code. Please try again.");
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   };
 
@@ -142,6 +142,11 @@ export default function ResetPasswordScreen() {
       </KeyboardAvoidingView>
     </View>
   );
+}
+
+// ─── Auth service stub ─────────────────────────────────────────────────────────
+async function requestPasswordReset(_email: string): Promise<void> {
+  // Replace with real API call: POST /api/auth/forgot-password
 }
 
 const s = StyleSheet.create({

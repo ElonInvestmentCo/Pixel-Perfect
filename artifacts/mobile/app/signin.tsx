@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -16,6 +16,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppleSignInButton } from "../components/AppleSignInButton";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
+import {
+  isValidEmail,
+  validateEmail,
+  validateSignInPassword,
+} from "../lib/validation";
 
 const isIOS = Platform.OS === "ios";
 
@@ -23,10 +28,6 @@ const LIME   = "#C8FF00";
 const BLACK  = "#1A1A1A";
 const INDIGO = "#4F46E5";
 const ERROR_C = "#DC2626";
-
-function isValidEmail(v: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
-}
 
 export default function SignInScreen() {
   const insets = useSafeAreaInsets();
@@ -41,40 +42,33 @@ export default function SignInScreen() {
   const [passwordErr, setPasswordErr] = useState("");
   const [submitErr, setSubmitErr] = useState("");
 
+  const mountedRef  = useRef(true);
   const passwordRef = useRef<TextInput>(null);
 
-  const validateEmail = (v: string) => {
-    if (!v.trim()) return "Email is required";
-    if (!isValidEmail(v)) return "Enter a valid email address";
-    return "";
-  };
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
-  const validatePassword = (v: string) => {
-    if (!v) return "Password is required";
-    return "";
-  };
-
-  const isFormValid =
-    isValidEmail(email) && password.length > 0;
+  const isFormValid = isValidEmail(email) && password.length > 0;
 
   const handleSignIn = async () => {
     const eErr = validateEmail(email);
-    const pErr = validatePassword(password);
+    const pErr = validateSignInPassword(password);
     setEmailErr(eErr);
     setPasswordErr(pErr);
-    if (eErr || pErr) return;
-    if (loading) return;
+    if (eErr || pErr || loading) return;
 
     setLoading(true);
     setSubmitErr("");
     try {
-      // Simulate auth — replace with real API call
-      await new Promise<void>((r) => setTimeout(r, 1200));
+      await signIn(email.trim(), password);
       router.replace("/dashboard");
     } catch (e: any) {
+      if (!mountedRef.current) return;
       setSubmitErr(e?.message ?? "Sign in failed. Please try again.");
     } finally {
-      setLoading(false);
+      if (mountedRef.current) setLoading(false);
     }
   };
 
@@ -133,7 +127,7 @@ export default function SignInScreen() {
               style={[s.input, { flex: 1 }]}
               value={password}
               onChangeText={(v) => { setPassword(v); if (passwordErr) setPasswordErr(""); setSubmitErr(""); }}
-              onBlur={() => setPasswordErr(validatePassword(password))}
+              onBlur={() => setPasswordErr(validateSignInPassword(password))}
               placeholder="Your password"
               placeholderTextColor="#C0C0C0"
               secureTextEntry={!showPw}
@@ -176,6 +170,7 @@ export default function SignInScreen() {
           <TouchableOpacity
             style={s.forgotRow}
             onPress={() => router.push("/reset-password")}
+            disabled={loading}
             accessibilityRole="button"
             accessibilityLabel="Forgot Password"
           >
@@ -199,6 +194,7 @@ export default function SignInScreen() {
           <TouchableOpacity
             style={s.signupRow}
             onPress={() => router.push("/signup")}
+            disabled={loading}
             accessibilityRole="button"
             accessibilityLabel="Don't have an account? Sign Up"
           >
@@ -211,6 +207,11 @@ export default function SignInScreen() {
       </KeyboardAvoidingView>
     </View>
   );
+}
+
+// ─── Auth service stub ─────────────────────────────────────────────────────────
+async function signIn(_email: string, _password: string): Promise<void> {
+  // Replace with real API call: POST /api/auth/signin
 }
 
 const s = StyleSheet.create({

@@ -2,7 +2,6 @@ import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Dimensions,
   Platform,
   ScrollView,
   StyleSheet,
@@ -14,7 +13,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const LIME  = "#C8FF00";
 const BLACK = "#1A1A1A";
-const { width: SW } = Dimensions.get("window");
 
 // ─── Quick Action ─────────────────────────────────────────────────────────────
 function QuickAction({
@@ -117,7 +115,7 @@ export default function DashboardScreen() {
         contentContainerStyle={[s.scroll, { paddingTop: topPad + 16, paddingBottom: botPad + 32 }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Header ─────────────────────────────────────────────────── */}
+        {/* Header */}
         <View style={s.header}>
           <View style={s.greeting}>
             <Text style={s.greetSub}>Good morning 👋</Text>
@@ -134,7 +132,7 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ── Balance card ────────────────────────────────────────────── */}
+        {/* Balance card */}
         <View style={s.card}>
           <View style={s.cardTop}>
             <Text style={s.cardLabel}>Total Balance</Text>
@@ -161,7 +159,7 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* ── Quick actions ────────────────────────────────────────────── */}
+        {/* Quick actions */}
         <View style={s.section}>
           <View style={s.qaRow}>
             <QuickAction icon="arrow-up" label="Send" />
@@ -171,7 +169,7 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        {/* ── Recent transactions ──────────────────────────────────────── */}
+        {/* Recent transactions */}
         <View style={s.section}>
           <View style={s.sectionHeader}>
             <Text style={s.sectionTitle}>Recent Transactions</Text>
@@ -184,15 +182,15 @@ export default function DashboardScreen() {
           </View>
 
           <View style={s.txCard}>
-            <TxRow icon="shopping-bag"   title="Amazon"        subtitle="Today, 09:24 AM"      amount="$34.99"  positive={false} />
+            <TxRow icon="shopping-bag"   title="Amazon"        subtitle="Today, 09:24 AM"  amount="$34.99"  positive={false} />
             <View style={s.divider} />
-            <TxRow icon="coffee"         title="Starbucks"     subtitle="Today, 07:15 AM"      amount="$6.50"   positive={false} />
+            <TxRow icon="coffee"         title="Starbucks"     subtitle="Today, 07:15 AM"  amount="$6.50"   positive={false} />
             <View style={s.divider} />
-            <TxRow icon="briefcase"      title="Salary"        subtitle="Jun 1, 12:00 PM"      amount="$3,200"  positive />
+            <TxRow icon="briefcase"      title="Salary"        subtitle="Jun 1, 12:00 PM"  amount="$3,200"  positive />
             <View style={s.divider} />
-            <TxRow icon="zap"            title="Netflix"       subtitle="May 31, 09:00 AM"     amount="$15.99"  positive={false} />
+            <TxRow icon="zap"            title="Netflix"       subtitle="May 31, 09:00 AM" amount="$15.99"  positive={false} />
             <View style={s.divider} />
-            <TxRow icon="user"           title="John sent you" subtitle="May 30, 04:45 PM"     amount="$120.00" positive />
+            <TxRow icon="user"           title="John sent you" subtitle="May 30, 04:45 PM" amount="$120.00" positive />
           </View>
         </View>
       </ScrollView>

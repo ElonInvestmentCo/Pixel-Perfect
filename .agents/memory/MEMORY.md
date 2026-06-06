@@ -1,1 +1,3 @@
 - [SVG in Expo mobile](svg-expo-setup.md) — react-native-svg-transformer required to import .svg as React components; metro.config.js must be updated.
+- [Auth validation module](auth-validation.md) — shared validation lives in artifacts/mobile/lib/validation.ts; all auth screens import from there, no duplication.
+- [Unmount-safe async in Expo screens](expo-unmount-safety.md) — after router.replace/push, use mountedRef + navTimerRef pattern to avoid setting state or navigating on unmounted components.

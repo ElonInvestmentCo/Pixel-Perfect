@@ -15,24 +15,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppleSignInButton } from "../components/AppleSignInButton";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
+import {
+  isStrongPassword,
+  isValidEmail,
+  isValidName,
+  validateEmail,
+  validateName,
+  validateSignUpPassword,
+} from "../lib/validation";
 
 const isIOS = Platform.OS === "ios";
 
 const LIME    = "#C8FF00";
 const BLACK   = "#1A1A1A";
 const ERROR_C = "#DC2626";
-
-function isValidEmail(v: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
-}
-
-function isValidName(v: string) {
-  return v.trim().length >= 2;
-}
-
-function isValidPassword(v: string) {
-  return v.length >= 8;
-}
 
 export default function SignUpScreen() {
   const insets = useSafeAreaInsets();
@@ -51,16 +47,12 @@ export default function SignUpScreen() {
   const emailRef    = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
 
-  const validateName     = (v: string) => !isValidName(v) ? "Full name must be at least 2 characters" : "";
-  const validateEmail    = (v: string) => !v.trim() ? "Email is required" : !isValidEmail(v) ? "Enter a valid email address" : "";
-  const validatePassword = (v: string) => !isValidPassword(v) ? "Password must be at least 8 characters" : "";
-
-  const isFormValid = isValidName(name) && isValidEmail(email) && isValidPassword(password);
+  const isFormValid = isValidName(name) && isValidEmail(email) && isStrongPassword(password);
 
   const handleSignUp = () => {
     const nErr = validateName(name);
     const eErr = validateEmail(email);
-    const pErr = validatePassword(password);
+    const pErr = validateSignUpPassword(password);
     setNameErr(nErr);
     setEmailErr(eErr);
     setPasswordErr(pErr);
@@ -143,7 +135,7 @@ export default function SignUpScreen() {
               style={[s.input, { flex: 1 }]}
               value={password}
               onChangeText={(v) => { setPassword(v); if (passwordErr) setPasswordErr(""); }}
-              onBlur={() => setPasswordErr(validatePassword(password))}
+              onBlur={() => setPasswordErr(validateSignUpPassword(password))}
               placeholder="Min. 8 characters"
               placeholderTextColor="#C0C0C0"
               secureTextEntry={!showPw}
@@ -164,9 +156,11 @@ export default function SignUpScreen() {
           </View>
           {passwordErr ? <Text style={s.fieldErrText} accessibilityLiveRegion="polite">{passwordErr}</Text> : null}
 
-          {/* Password hint */}
-          {!passwordErr && password.length > 0 && password.length < 8 ? (
-            <Text style={s.hintText}>{8 - password.length} more character{8 - password.length !== 1 ? "s" : ""} needed</Text>
+          {/* Password strength hint */}
+          {!passwordErr && password.length > 0 && !isStrongPassword(password) ? (
+            <Text style={s.hintText}>
+              {8 - password.length} more character{8 - password.length !== 1 ? "s" : ""} needed
+            </Text>
           ) : null}
 
           {/* Sign Up CTA */}

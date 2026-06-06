@@ -20,7 +20,6 @@ import type { Country } from "../lib/countries";
 
 const LIME    = "#C8FF00";
 const BLACK   = "#1A1A1A";
-const TEAL    = "#0D9488";
 const ERROR_C = "#DC2626";
 const GRAY    = "#F2F2F2";
 
@@ -31,10 +30,9 @@ const PAD_ROWS = [
   ["*", "0", "⌫"],
 ];
 
-// ─── Mock OTP service ─────────────────────────────────────────────────────────
-// Swap this body for a real POST /api/auth/send-otp in production.
-async function sendOtpRequest(_dialCode: string, _phone: string): Promise<void> {
-  await new Promise<void>((resolve) => setTimeout(resolve, 1400));
+// ─── Auth service stub ─────────────────────────────────────────────────────────
+async function sendOtp(_dialCode: string, _phone: string): Promise<void> {
+  // Replace with real API call: POST /api/auth/send-otp
 }
 
 // ─── Blinking cursor ──────────────────────────────────────────────────────────
@@ -91,7 +89,7 @@ function CountryPickerModal({
       statusBarTranslucent
       onRequestClose={handleClose}
     >
-      {/* ── Full-screen overlay: tap outside to close ── */}
+      {/* Full-screen overlay: tap outside to close */}
       <View style={pk.overlay}>
         <TouchableOpacity
           style={StyleSheet.absoluteFillObject}
@@ -99,7 +97,7 @@ function CountryPickerModal({
           onPress={handleClose}
         />
 
-        {/* ── Bottom sheet ── */}
+        {/* Bottom sheet */}
         <View style={[pk.sheet, { paddingBottom: insets.bottom + 16 }]}>
           {/* Handle */}
           <View style={pk.handle} />
@@ -107,7 +105,12 @@ function CountryPickerModal({
           {/* Header row */}
           <View style={pk.header}>
             <Text style={pk.title}>Select Country</Text>
-            <TouchableOpacity onPress={handleClose} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+            <TouchableOpacity
+              onPress={handleClose}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              accessibilityRole="button"
+              accessibilityLabel="Close country picker"
+            >
               <Feather name="x" size={20} color="#999" />
             </TouchableOpacity>
           </View>
@@ -124,9 +127,15 @@ function CountryPickerModal({
               autoCapitalize="none"
               autoCorrect={false}
               returnKeyType="search"
+              accessibilityLabel="Search countries"
             />
             {query.length > 0 && (
-              <TouchableOpacity onPress={() => setQuery("")} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <TouchableOpacity
+                onPress={() => setQuery("")}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                accessibilityRole="button"
+                accessibilityLabel="Clear search"
+              >
                 <Feather name="x-circle" size={15} color="#BBBBBB" />
               </TouchableOpacity>
             )}
@@ -151,6 +160,8 @@ function CountryPickerModal({
                     setQuery("");
                     onClose();
                   }}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${item.name} ${item.dialCode}${selected ? ", selected" : ""}`}
                 >
                   <Text style={pk.flag}>{item.flag}</Text>
                   <Text
@@ -201,6 +212,9 @@ function NumPad({
                   if (k === "⌫") onChange(value.slice(0, -1));
                   else onChange(value + k);
                 }}
+                accessibilityRole="button"
+                accessibilityLabel={k === "⌫" ? "Delete" : k === "*" ? "" : k}
+                accessibilityElementsHidden={isStar}
               >
                 {k === "⌫" ? (
                   <Feather name="delete" size={22} color={BLACK} />
@@ -224,11 +238,17 @@ export default function PhoneVerifyScreen() {
   const topPad = Platform.OS === "web" ? 55 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
 
-  const [country, setCountry]     = useState<Country>(DEFAULT_COUNTRY);
-  const [phone, setPhone]         = useState("");
+  const [country, setCountry]       = useState<Country>(DEFAULT_COUNTRY);
+  const [phone, setPhone]           = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [sendStatus, setSendStatus] = useState<SendStatus>("idle");
-  const [errorMsg, setErrorMsg]   = useState("");
+  const [errorMsg, setErrorMsg]     = useState("");
+
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   const isValid   = phone.length >= country.minLen && phone.length <= country.maxLen;
   const isLoading = sendStatus === "loading";
@@ -239,13 +259,13 @@ export default function PhoneVerifyScreen() {
     setSendStatus("loading");
     setErrorMsg("");
     try {
-      await sendOtpRequest(country.dialCode, phone);
-      // Navigate to OTP screen with params
+      await sendOtp(country.dialCode, phone);
       router.push(
-        `/verify-code?phone=${encodeURIComponent(phone)}&dialCode=${encodeURIComponent(country.dialCode)}&flag=${encodeURIComponent(country.flag)}`,
+        `/verify-code?phone=${encodeURIComponent(phone)}&dialCode=${encodeURIComponent(country.dialCode)}`,
       );
-      setSendStatus("idle");
+      if (mountedRef.current) setSendStatus("idle");
     } catch (e: any) {
+      if (!mountedRef.current) return;
       setSendStatus("error");
       setErrorMsg(e?.message ?? "Failed to send code. Please try again.");
     }
@@ -265,14 +285,22 @@ export default function PhoneVerifyScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      {/* ── Header + inputs ─────────────────────────────────────────── */}
+      {/* Header + inputs */}
       <View style={[s.top, { paddingTop: topPad + 14 }]}>
         {/* Close (X) */}
-        <TouchableOpacity style={s.closeBtn} onPress={() => router.back()} activeOpacity={0.7}>
+        <TouchableOpacity
+          style={s.closeBtn}
+          onPress={() => router.back()}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+        >
           <Feather name="x" size={15} color="#999999" />
         </TouchableOpacity>
 
-        <Text style={s.title}>{"Verify your phone\nnumber with a code"}</Text>
+        <Text style={s.title} accessibilityRole="header">
+          {"Verify your phone\nnumber with a code"}
+        </Text>
         <Text style={s.subtitle}>We will send you a confirmation code</Text>
 
         <Text style={s.label}>Phone number</Text>
@@ -284,6 +312,8 @@ export default function PhoneVerifyScreen() {
             style={s.countryPill}
             onPress={() => setPickerOpen(true)}
             activeOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={`Country code: ${country.flag} ${country.dialCode}. Tap to change.`}
           >
             <Text style={s.pillFlag}>{country.flag}</Text>
             <Text style={s.pillCode}>{country.dialCode}</Text>
@@ -291,7 +321,11 @@ export default function PhoneVerifyScreen() {
           </TouchableOpacity>
 
           {/* Phone number display */}
-          <View style={[s.phoneBox, sendStatus === "error" && s.phoneBoxError]}>
+          <View
+            style={[s.phoneBox, sendStatus === "error" && s.phoneBoxError]}
+            accessibilityLabel={`Phone number: ${phone || "empty"}`}
+            accessibilityRole="none"
+          >
             <Text style={s.phoneText} numberOfLines={1}>{phone}</Text>
             {!isLoading && <BlinkingCursor />}
           </View>
@@ -309,7 +343,7 @@ export default function PhoneVerifyScreen() {
 
         {/* Error message */}
         {sendStatus === "error" && errorMsg ? (
-          <Text style={s.errorText}>{errorMsg}</Text>
+          <Text style={s.errorText} accessibilityLiveRegion="polite">{errorMsg}</Text>
         ) : null}
 
         {/* Send Code button */}
@@ -318,6 +352,9 @@ export default function PhoneVerifyScreen() {
           activeOpacity={0.85}
           disabled={!canSend}
           onPress={handleSend}
+          accessibilityRole="button"
+          accessibilityLabel="Send Code"
+          accessibilityState={{ disabled: !canSend }}
         >
           {isLoading ? (
             <ActivityIndicator color={BLACK} size="small" />
@@ -327,16 +364,12 @@ export default function PhoneVerifyScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* ── Custom numpad ────────────────────────────────────────────── */}
+      {/* Custom numpad */}
       <View style={{ paddingBottom: botPad + 6 }}>
         <NumPad value={phone} onChange={handlePhoneChange} disabled={isLoading} />
-        {/* Resend via email fallback */}
-        <TouchableOpacity style={np.resendWrap} activeOpacity={0.7}>
-          <Text style={np.resendText}>Resend code via email</Text>
-        </TouchableOpacity>
       </View>
 
-      {/* ── Country picker ───────────────────────────────────────────── */}
+      {/* Country picker */}
       <CountryPickerModal
         visible={pickerOpen}
         current={country}
@@ -413,8 +446,6 @@ const np = StyleSheet.create({
   },
   keyDim: { opacity: 0.32 },
   keyText: { fontSize: 26, fontFamily: "Inter_400Regular", color: BLACK },
-  resendWrap: { paddingVertical: 10, alignItems: "center" },
-  resendText: { fontSize: 14, fontFamily: "Inter_500Medium", color: TEAL },
 });
 
 // ─── Screen styles ────────────────────────────────────────────────────────────

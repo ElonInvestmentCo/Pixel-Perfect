@@ -71,12 +71,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
-  appleIcon: {
-    fontSize: 20,
-    color: "#FFFFFF",
-    lineHeight: 24,
-    fontFamily: "Inter_400Regular",
-  },
   label: {
     fontSize: 16,
     fontFamily: "Inter_600SemiBold",
