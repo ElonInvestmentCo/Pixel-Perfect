@@ -1,0 +1,80 @@
+The authentication system still appears only partially integrated. I now need the entire authentication experience fully completed, production-ready, and fully connected throughout the actual Expo mobile application — not isolated mockups, demo-only screens, placeholders, or partially wired flows.
+
+You should now fully and completely implement EVERYTHING related to authentication across the entire app.
+
+Critical requirements:
+
+* Fully integrate all authentication screens into the real Expo Router navigation structure.
+* Ensure every auth screen is reachable naturally from the actual app entry flow.
+* Remove all mockup-only/demo-only implementations and replace them with real production components.
+* Ensure all auth screens function correctly on real iOS and Android devices inside Expo Go.
+
+Complete the full authentication ecosystem, including:
+
+* Welcome / onboarding auth entry
+* Sign In
+* Sign Up
+* Verify phone number
+* OTP verification
+* Reset Password
+* Forgot Password
+* Social authentication
+* Apple Sign In
+* Google Sign In
+* Country selector
+* Loading states
+* Validation states
+* Error states
+* Success states
+* Session handling UI
+* Back navigation behavior
+* Keyboard handling
+* Accessibility
+* Safe area handling
+* Responsive layouts
+* Native transitions
+* Native autofill support
+
+Fully implement all functionality, including:
+
+* Real navigation wiring
+* Form state handling
+* Input validation
+* Disabled/enabled button logic
+* OTP input management
+* SMS OTP autofill support
+* Country picker interaction
+* Keyboard avoidance behavior
+* Touch interactions
+* Proper focus management
+* Native-feeling transitions and gestures
+* Real loading indicators
+* Proper error handling
+* Smooth animations
+* Production-ready reusable components
+
+UI/Design requirements:
+
+* Preserve pixel-perfect fidelity to all provided references.
+* Maintain exact spacing, typography, colors, gradients, borders, shadows, blur, radii, icons, SVGs, and animations.
+* Use the attached official Google and Apple SVG button assets directly.
+* Preserve platform-specific styling for iOS and Android.
+* Ensure crisp rendering on all device sizes and pixel densities.
+* Do not redesign, simplify, approximate, or substitute any element.
+
+Technical requirements:
+
+* Ensure all screens exist inside the real app routing structure.
+* Ensure no dead routes or inaccessible screens remain.
+* Ensure no console warnings or runtime errors exist.
+* Ensure no layout overflow, flickering, lag, or broken gestures occur.
+* Ensure proper modular architecture and reusable components throughout.
+* Ensure the entire auth system works end-to-end in Expo Go on real devices.
+
+Verification requirements:
+
+* Launch Expo Go after implementation.
+* Test every auth flow manually from start to finish.
+* Verify every button, field, transition, route, and interaction works correctly.
+* Confirm Sign In and Sign Up are visible immediately from the app entry screen.
+* Confirm all auth flows are fully accessible and production-ready.

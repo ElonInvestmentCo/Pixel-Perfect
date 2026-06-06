@@ -22,4 +22,16 @@ config.resolver.nodeModulesPaths = [
 // Ensure native extensions take priority over web extensions
 config.resolver.platforms = ["ios", "android", "native", "web"];
 
+// SVG transformer — lets .svg files be imported as React components via react-native-svg
+const { transformer, resolver } = config;
+config.transformer = {
+  ...transformer,
+  babelTransformerPath: require.resolve("react-native-svg-transformer"),
+};
+config.resolver = {
+  ...resolver,
+  assetExts: resolver.assetExts.filter((ext) => ext !== "svg"),
+  sourceExts: [...resolver.sourceExts, "svg"],
+};
+
 module.exports = config;

@@ -1,0 +1,1 @@
+- [SVG in Expo mobile](svg-expo-setup.md) — react-native-svg-transformer required to import .svg as React components; metro.config.js must be updated.

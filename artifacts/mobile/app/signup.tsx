@@ -2,7 +2,6 @@ import { Feather, FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -14,10 +13,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { GoogleSignInButton } from "../components/GoogleSignInButton";
+
 const LIME  = "#C8FF00";
 const BLACK = "#1A1A1A";
-
-const googleLogo = require("../assets/images/google-logo.png");
 
 export default function SignUpScreen() {
   const insets = useSafeAreaInsets();
@@ -103,11 +102,8 @@ export default function SignUpScreen() {
             <Text style={s.appleBtnText}>Apple</Text>
           </TouchableOpacity>
 
-          {/* Google button */}
-          <TouchableOpacity style={s.googleBtn} activeOpacity={0.85}>
-            <Image source={googleLogo} style={s.googleLogo} resizeMode="contain" />
-            <Text style={s.googleBtnText}>Google</Text>
-          </TouchableOpacity>
+          {/* Google button — official SVG asset, platform-appropriate variant */}
+          <GoogleSignInButton variant="signup" horizontalPadding={24} />
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -174,14 +170,4 @@ const s = StyleSheet.create({
     fontSize: 16, fontFamily: "Inter_600SemiBold", color: "#000000",
   },
 
-  googleBtn: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: 10, height: 56, borderRadius: 14,
-    borderWidth: 1.5, borderColor: "#D0D0D0",
-    backgroundColor: "#FFFFFF",
-  },
-  googleLogo: { width: 22, height: 22 },
-  googleBtnText: {
-    fontSize: 16, fontFamily: "Inter_600SemiBold", color: "#1A1A1A",
-  },
 });
