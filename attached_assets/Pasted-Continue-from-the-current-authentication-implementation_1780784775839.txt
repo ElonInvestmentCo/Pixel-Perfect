@@ -1,0 +1,69 @@
+Continue from the current authentication implementation state exactly where work stopped.
+
+Do not restart or rebuild the auth system from scratch — continue improving and completing the existing implementation already inside the Expo app.
+
+Current completed foundation already exists:
+
+* Onboarding flow
+* Sign In
+* Sign Up
+* Phone verification
+* OTP verification
+* Reset Password
+* Expo Router stack registration
+* Google SVG button integration
+* Country data support
+* KeyboardAvoidingView setup
+* OTP countdown + animations
+* Platform-specific Google button rendering
+
+Now finish the remaining production-level implementation work completely.
+
+Priority tasks to complete next:
+
+1. Build and integrate a reusable AppleSignInButton component matching the official provided Apple asset/design.
+2. Replace all temporary Apple auth buttons with the new reusable production component.
+3. Add production-quality validation to:
+
+   * Sign Up
+   * Sign In
+   * Reset Password
+4. Add proper disabled/enabled CTA states.
+5. Add loading states and duplicate-submit prevention.
+6. Add proper focus management between inputs.
+7. Add accessibility labels/roles throughout auth screens.
+8. Improve keyboard navigation and native form behavior.
+9. Ensure OTP flow correctly differentiates:
+
+   * Phone verification
+   * Password reset verification
+10. Ensure Verify Code success routes to a real authenticated destination instead of looping back incorrectly.
+11. Create a minimal authenticated dashboard/home destination after successful auth.
+12. Add proper sign-out routing behavior.
+13. Ensure all auth transitions feel native on iOS and Android.
+14. Ensure Apple and Google buttons match visually in sizing/alignment.
+15. Ensure all SVG/image assets render crisply without distortion.
+16. Remove all placeholder/demo-only behavior still remaining.
+
+Technical requirements:
+
+* Continue using the existing Expo Router architecture.
+* Preserve the existing visual design system exactly.
+* Maintain pixel-perfect fidelity to provided references/assets.
+* Keep all auth screens production-ready and modular.
+* Ensure zero TypeScript errors.
+* Ensure zero runtime warnings/errors.
+* Ensure Expo Go works cleanly after all changes.
+* Ensure no broken routes or dead screens remain.
+
+Verification required after implementation:
+
+* Manually test the entire auth flow end-to-end inside Expo Go.
+* Verify Sign In → Dashboard flow.
+* Verify Sign Up → Phone Verify → OTP → Dashboard flow.
+* Verify Forgot Password → Reset Password → OTP flow.
+* Verify Apple and Google buttons render correctly on both iOS and Android.
+* Verify all loading/error/validation states behave correctly.
+* Verify keyboard, gestures, transitions, safe areas, and responsiveness feel production quality.
+
+Do not begin payments, transactions, or advanced dashboard features until the full authentication system is polished and verified complete.
