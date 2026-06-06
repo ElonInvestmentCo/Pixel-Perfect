@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Finance App",
+    "name": "QPay",
     "slug": "mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,15 +8,23 @@
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "projectType": "MOBILE_APP_EXPO_NATIVE",
     "splash": {
       "image": "./assets/images/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#C8FF00"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.qpay.mobile"
     },
-    "android": {},
+    "android": {
+      "package": "com.qpay.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#C8FF00"
+      }
+    },
     "web": {
       "favicon": "./assets/images/icon.png"
     },
