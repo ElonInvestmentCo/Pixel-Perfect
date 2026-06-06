@@ -23,6 +23,8 @@ function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="signup" options={{ headerShown: false, presentation: "modal" }} />
+      <Stack.Screen name="signin" options={{ headerShown: false, presentation: "modal" }} />
     </Stack>
   );
 }

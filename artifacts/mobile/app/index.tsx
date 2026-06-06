@@ -1,4 +1,5 @@
 import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
   Dimensions,
@@ -445,7 +446,7 @@ export default function OnboardingScreen() {
         </View>
 
         {/* Get Started */}
-        <TouchableOpacity style={root.getStartedBtn} activeOpacity={0.85}>
+        <TouchableOpacity style={root.getStartedBtn} activeOpacity={0.85} onPress={() => router.push("/signup")}>
           <Text style={root.getStartedText}>Get Started</Text>
         </TouchableOpacity>
       </View>
