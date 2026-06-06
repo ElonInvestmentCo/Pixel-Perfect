@@ -12,29 +12,30 @@ env = { "CI" = "true" }
 runButton = "Project"
 
 [[workflows.workflow]]
+name = "Start Expo Native App"
+mode = "sequential"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/mobile run start -- --port 8082"
+
+[[workflows.workflow]]
 name = "Project"
 mode = "parallel"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
-
-[[workflows.workflow]]
-name = "Start application"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "webview"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "PORT=18115 node artifacts/mobile/server/dev-qr.js"
-waitForPort = 18115
+args = "Start Expo Native App"
 
 [agent]
 stack = "PNPM_WORKSPACE"
 expertMode = true
+appType = "MOBILE_APP_EXPO_NATIVE"
 
 [postMerge]
 path = "scripts/post-merge.sh"
@@ -47,6 +48,10 @@ externalPort = 80
 [[ports]]
 localPort = 8081
 externalPort = 8081
+
+[[ports]]
+localPort = 8082
+externalPort = 3003
 
 [[ports]]
 localPort = 18115
