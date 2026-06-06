@@ -63,24 +63,23 @@ function Slide1() {
   return (
     <View style={il.wrap}>
       <View style={il.circle} />
-      {/* Dark card */}
-      <View style={dk.card}>
+      <View style={il.card}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text style={dk.label}>Total Balance</Text>
-          <Feather name="eye" size={15} color="rgba(255,255,255,0.55)" style={{ marginLeft: 6 }} />
+          <Text style={il.cardLabel}>Total Balance</Text>
+          <Feather name="eye" size={15} color="#8A8A8A" style={{ marginLeft: 6 }} />
         </View>
-        <Text style={dk.amount}>$0.00</Text>
+        <Text style={il.cardAmount}>$0.00</Text>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <TouchableOpacity style={dk.pill}>
-            <View style={dk.iconCircle}><Feather name="arrow-up" size={13} color={BLACK} /></View>
-            <Text style={dk.pillText}>Transfer</Text>
+          <TouchableOpacity style={il.pill}>
+            <View style={il.iconCircle}><Feather name="arrow-up" size={12} color={BLACK} /></View>
+            <Text style={il.pillText}>Transfer</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[dk.pill, { marginLeft: 10 }]}>
-            <View style={dk.iconCircle}><Feather name="arrow-down" size={13} color={BLACK} /></View>
-            <Text style={dk.pillText}>Receive</Text>
+          <TouchableOpacity style={[il.pill, { marginLeft: 8 }]}>
+            <View style={il.iconCircle}><Feather name="arrow-down" size={12} color={BLACK} /></View>
+            <Text style={il.pillText}>Receive</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[dk.menuBtn, { marginLeft: 10 }]}>
-            <Feather name="menu" size={17} color={BLACK} />
+          <TouchableOpacity style={[il.menuBtn, { marginLeft: 8 }]}>
+            <Feather name="menu" size={16} color={BLACK} />
           </TouchableOpacity>
         </View>
       </View>
