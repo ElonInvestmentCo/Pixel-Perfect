@@ -2,6 +2,7 @@ import { Feather, FontAwesome } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -16,32 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 const LIME  = "#C8FF00";
 const BLACK = "#1A1A1A";
 
-function GoogleIcon() {
-  return (
-    <View style={g.wrap}>
-      <View style={g.outer}>
-        <View style={[g.slice, g.blue]} />
-        <View style={[g.slice, g.red,  { transform: [{ rotate: "90deg"  }] }]} />
-        <View style={[g.slice, g.yellow,{ transform: [{ rotate: "180deg" }] }]} />
-        <View style={[g.slice, g.green, { transform: [{ rotate: "270deg" }] }]} />
-        <View style={g.inner} />
-        <View style={g.cutout} />
-      </View>
-    </View>
-  );
-}
-const G = 22;
-const g = StyleSheet.create({
-  wrap: { width: G, height: G, alignItems: "center", justifyContent: "center" },
-  outer: { width: G, height: G, borderRadius: G / 2, overflow: "hidden", position: "relative" },
-  slice: { position: "absolute", width: G / 2, height: G / 2, top: 0, left: G / 2 },
-  blue:   { backgroundColor: "#4285F4", top: 0,      left: G / 2 },
-  red:    { backgroundColor: "#EA4335", top: G / 2,   left: G / 2 },
-  yellow: { backgroundColor: "#FBBC05", top: G / 2,   left: 0 },
-  green:  { backgroundColor: "#34A853", top: 0,       left: 0 },
-  inner:  { position: "absolute", width: G * 0.55, height: G * 0.55, borderRadius: G * 0.275, backgroundColor: "#fff", top: G * 0.225, left: G * 0.225 },
-  cutout: { position: "absolute", width: G * 0.3, height: G * 0.25, backgroundColor: "#fff", top: G * 0.375, left: G * 0.5 },
-});
+const googleLogo = require("../assets/images/google-logo.png");
 
 export default function SignUpScreen() {
   const insets = useSafeAreaInsets();
@@ -127,9 +103,8 @@ export default function SignUpScreen() {
               <FontAwesome name="apple" size={20} color={BLACK} />
               <Text style={s.socialText}>Apple</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={s.socialBtn}>
-              <GoogleIcon />
-              <Text style={s.socialText}>Google</Text>
+            <TouchableOpacity style={s.googleBtn} activeOpacity={0.85}>
+              <Image source={googleLogo} style={s.googleImg} resizeMode="cover" />
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -196,4 +171,9 @@ const s = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   socialText: { fontSize: 16, fontFamily: "Inter_600SemiBold", color: BLACK },
+  googleBtn: {
+    flex: 1, borderRadius: 14, height: 56,
+    overflow: "hidden", backgroundColor: "#000000",
+  },
+  googleImg: { width: "100%", height: "100%" },
 });
