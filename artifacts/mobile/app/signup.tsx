@@ -86,7 +86,7 @@ export default function SignUpScreen() {
           </View>
 
           {/* Sign Up button */}
-          <TouchableOpacity style={s.cta} activeOpacity={0.85}>
+          <TouchableOpacity style={s.cta} activeOpacity={0.85} onPress={() => router.push("/phone-verify")}>
             <Text style={s.ctaText}>Sign Up</Text>
           </TouchableOpacity>
 
