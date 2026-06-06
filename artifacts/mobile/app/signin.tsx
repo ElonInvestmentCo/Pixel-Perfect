@@ -15,132 +15,115 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const LIME   = "#C8FF00";
 const BLACK  = "#1A1A1A";
-const INDIGO = "#4338CA";
+const INDIGO = "#4F46E5";
 
-function GoogleG() {
+function GoogleIcon() {
   return (
-    <View style={{ flexDirection: "row" }}>
-      {(["G","o","o","g","l","e"] as const).map((c, i) => {
-        const colors = ["#4285F4","#EA4335","#FBBC05","#34A853","#EA4335","#34A853"];
-        return <Text key={i} style={{ fontSize:14, fontFamily:"Inter_700Bold", color:colors[i] }}>{c}</Text>;
-      })}
-    </View>
-  );
-}
-
-function FieldRow({ icon, children }: { icon: string; children: React.ReactNode }) {
-  return (
-    <View style={s.fieldOuter}>
-      <View style={s.fieldIcon}>
-        <Feather name={icon as any} size={17} color="#AAAAAA" />
+    <View style={g.wrap}>
+      <View style={g.outer}>
+        <View style={[g.slice, g.blue]} />
+        <View style={[g.slice, g.red,   { transform: [{ rotate: "90deg"  }] }]} />
+        <View style={[g.slice, g.yellow, { transform: [{ rotate: "180deg" }] }]} />
+        <View style={[g.slice, g.green,  { transform: [{ rotate: "270deg" }] }]} />
+        <View style={g.inner} />
+        <View style={g.cutout} />
       </View>
-      <View style={s.fieldDivider} />
-      {children}
     </View>
   );
 }
+const G = 22;
+const g = StyleSheet.create({
+  wrap:   { width: G, height: G, alignItems: "center", justifyContent: "center" },
+  outer:  { width: G, height: G, borderRadius: G / 2, overflow: "hidden", position: "relative" },
+  slice:  { position: "absolute", width: G / 2, height: G / 2, top: 0, left: G / 2 },
+  blue:   { backgroundColor: "#4285F4", top: 0,     left: G / 2 },
+  red:    { backgroundColor: "#EA4335", top: G / 2, left: G / 2 },
+  yellow: { backgroundColor: "#FBBC05", top: G / 2, left: 0 },
+  green:  { backgroundColor: "#34A853", top: 0,     left: 0 },
+  inner:  { position: "absolute", width: G * 0.55, height: G * 0.55, borderRadius: G * 0.275, backgroundColor: "#fff", top: G * 0.225, left: G * 0.225 },
+  cutout: { position: "absolute", width: G * 0.3, height: G * 0.25, backgroundColor: "#fff", top: G * 0.375, left: G * 0.5 },
+});
 
 export default function SignInScreen() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 55 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
-
   const [showPw, setShowPw] = useState(false);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <ScrollView
-          contentContainerStyle={[s.scroll, { paddingTop: topPad + 14, paddingBottom: botPad + 32 }]}
+          contentContainerStyle={[s.scroll, { paddingTop: topPad + 14, paddingBottom: botPad + 24 }]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Top nav */}
-          <View style={s.navRow}>
-            <TouchableOpacity style={s.backBtn} onPress={() => router.back()}>
-              <Feather name="arrow-left" size={20} color={BLACK} />
-            </TouchableOpacity>
-
-            {/* QPay badge */}
-            <View style={s.badge}>
-              <Text style={s.badgeText}>QPay</Text>
-            </View>
+          {/* Emoji avatar */}
+          <View style={s.avatarWrap}>
+            <Text style={s.avatarEmoji}>🎒</Text>
           </View>
 
-          {/* Greeting */}
-          <View style={s.greetBlock}>
-            <Text style={s.greet}>Welcome back 👋</Text>
-            <Text style={s.greetSub}>Sign in to continue to QPay</Text>
-          </View>
-
-          {/* Social first (switched layout) */}
-          <View style={s.socialRow}>
-            <TouchableOpacity style={s.socialBtn}>
-              <FontAwesome name="apple" size={19} color={BLACK} />
-              <Text style={s.socialText}>Apple</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.socialBtn}>
-              <GoogleG />
-              <Text style={s.socialText}>Google</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Divider */}
-          <View style={s.divRow}>
-            <View style={s.divLine} />
-            <Text style={s.divText}>or sign in with email</Text>
-            <View style={s.divLine} />
-          </View>
+          {/* Title */}
+          <Text style={s.title}>Welcome back</Text>
+          <Text style={s.subtitle}>Sign in to your account</Text>
 
           {/* Email */}
-          <Text style={s.label}>Email address</Text>
-          <FieldRow icon="mail">
+          <Text style={s.label}>Your email</Text>
+          <View style={s.field}>
             <TextInput
               style={s.input}
               placeholder="johndoe@mail.com"
-              placeholderTextColor="#CCCCCC"
+              placeholderTextColor="#C0C0C0"
               keyboardType="email-address"
               autoCapitalize="none"
               returnKeyType="next"
             />
-          </FieldRow>
+          </View>
 
           {/* Password */}
-          <Text style={[s.label, { marginTop: 16 }]}>Password</Text>
-          <FieldRow icon="lock">
+          <Text style={[s.label, { marginTop: 20 }]}>Password</Text>
+          <View style={s.field}>
             <TextInput
               style={[s.input, { flex: 1 }]}
-              placeholder="Enter your password"
-              placeholderTextColor="#CCCCCC"
+              placeholder=""
+              placeholderTextColor="#C0C0C0"
               secureTextEntry={!showPw}
               autoCapitalize="none"
               returnKeyType="done"
             />
-            <TouchableOpacity onPress={() => setShowPw(!showPw)} style={{ paddingRight: 16 }}>
-              <Feather name={showPw ? "eye" : "eye-off"} size={18} color="#AAAAAA" />
+            <TouchableOpacity onPress={() => setShowPw(!showPw)} style={s.eyeBtn}>
+              <Feather name={showPw ? "eye" : "eye-off"} size={20} color="#AAAAAA" />
             </TouchableOpacity>
-          </FieldRow>
+          </View>
 
-          {/* Forgot */}
-          <TouchableOpacity style={s.forgotRow}>
-            <Text style={s.forgotText}>Forgot Password?</Text>
-          </TouchableOpacity>
-
-          {/* CTA */}
+          {/* Sign In button */}
           <TouchableOpacity style={s.cta} activeOpacity={0.85}>
             <Text style={s.ctaText}>Sign In</Text>
           </TouchableOpacity>
 
-          {/* Switch to sign up */}
-          <TouchableOpacity style={s.switchLink} onPress={() => router.replace("/signup")}>
-            <Text style={s.switchText}>
-              Don't have an account?{"  "}
-              <Text style={s.switchBold}>Sign Up</Text>
-            </Text>
+          {/* Forgot password */}
+          <TouchableOpacity style={s.forgotRow}>
+            <Text style={s.forgotText}>Forgot Password?</Text>
           </TouchableOpacity>
+
+          {/* Divider */}
+          <View style={s.divRow}>
+            <View style={s.divLine} />
+            <Text style={s.divText}>Or sign in with</Text>
+            <View style={s.divLine} />
+          </View>
+
+          {/* Social */}
+          <View style={s.socialRow}>
+            <TouchableOpacity style={s.socialBtn}>
+              <FontAwesome name="apple" size={20} color={BLACK} />
+              <Text style={s.socialText}>Apple</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={s.socialBtn}>
+              <GoogleIcon />
+              <Text style={s.socialText}>Google</Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -150,63 +133,63 @@ export default function SignInScreen() {
 const s = StyleSheet.create({
   scroll: { flexGrow: 1, paddingHorizontal: 24, backgroundColor: "#FFFFFF" },
 
-  navRow: {
-    flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between", marginBottom: 36,
-  },
-  backBtn: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: "#F5F5F5",
+  avatarWrap: {
+    width: 52, height: 52, borderRadius: 16,
+    backgroundColor: "#FFF3DC",
     alignItems: "center", justifyContent: "center",
+    marginBottom: 28,
   },
-  badge: {
-    backgroundColor: "#1A1A1A",
-    paddingHorizontal: 14, paddingVertical: 7,
-    borderRadius: 20,
+  avatarEmoji: { fontSize: 28 },
+
+  title: {
+    fontSize: 30, fontFamily: "Inter_700Bold",
+    color: BLACK, letterSpacing: -0.3, marginBottom: 8,
   },
-  badgeText: { fontSize: 13, fontFamily: "Inter_700Bold", color: LIME, letterSpacing: 0.5 },
-
-  greetBlock: { marginBottom: 28 },
-  greet: { fontSize: 30, fontFamily: "Inter_700Bold", color: BLACK, letterSpacing: -0.3, marginBottom: 6 },
-  greetSub: { fontSize: 15, fontFamily: "Inter_400Regular", color: "#888888" },
-
-  socialRow: { flexDirection: "row", gap: 12, marginBottom: 24 },
-  socialBtn: {
-    flex: 1, flexDirection: "row", alignItems: "center",
-    justifyContent: "center", gap: 8,
-    borderWidth: 1.5, borderColor: "#E0E0E0",
-    borderRadius: 14, height: 52,
+  subtitle: {
+    fontSize: 15, fontFamily: "Inter_400Regular",
+    color: "#888888", lineHeight: 22, marginBottom: 32,
   },
-  socialText: { fontSize: 15, fontFamily: "Inter_600SemiBold", color: BLACK },
 
-  divRow: { flexDirection: "row", alignItems: "center", marginBottom: 22 },
-  divLine: { flex: 1, height: 1, backgroundColor: "#EEEEEE" },
-  divText: { fontSize: 12, fontFamily: "Inter_400Regular", color: "#AAAAAA", marginHorizontal: 10 },
-
-  label: { fontSize: 13, fontFamily: "Inter_500Medium", color: "#555555", marginBottom: 8 },
-  fieldOuter: {
+  label: {
+    fontSize: 14, fontFamily: "Inter_400Regular",
+    color: "#888888", marginBottom: 10,
+  },
+  field: {
     flexDirection: "row", alignItems: "center",
-    backgroundColor: "#F7F7F7", borderRadius: 14,
-    borderWidth: 1, borderColor: "#EEEEEE", height: 54,
+    backgroundColor: "#F5F5F5", borderRadius: 12,
+    height: 56, paddingHorizontal: 16,
   },
-  fieldIcon: { width: 50, alignItems: "center", justifyContent: "center" },
-  fieldDivider: { width: 1, height: 28, backgroundColor: "#E0E0E0" },
   input: {
     flex: 1, fontSize: 15, fontFamily: "Inter_400Regular",
-    color: BLACK, paddingHorizontal: 14, height: "100%",
+    color: BLACK, height: "100%",
     outlineStyle: "none",
   } as any,
-
-  forgotRow: { alignSelf: "flex-end", marginTop: 12, marginBottom: 24 },
-  forgotText: { fontSize: 14, fontFamily: "Inter_600SemiBold", color: INDIGO },
+  eyeBtn: { paddingLeft: 8 },
 
   cta: {
-    backgroundColor: LIME, borderRadius: 28, height: 56,
-    alignItems: "center", justifyContent: "center", marginBottom: 20,
+    backgroundColor: LIME, borderRadius: 28, height: 58,
+    alignItems: "center", justifyContent: "center",
+    marginTop: 30, marginBottom: 16,
   },
   ctaText: { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK },
 
-  switchLink: { alignItems: "center", paddingVertical: 4 },
-  switchText: { fontSize: 14, fontFamily: "Inter_400Regular", color: "#888888" },
-  switchBold: { fontFamily: "Inter_700Bold", color: BLACK },
+  forgotRow: { alignItems: "center", paddingVertical: 4, marginBottom: 28 },
+  forgotText: { fontSize: 15, fontFamily: "Inter_600SemiBold", color: INDIGO },
+
+  divRow: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
+  divLine: { flex: 1, height: 1, backgroundColor: "#E8E8E8" },
+  divText: {
+    fontSize: 13, fontFamily: "Inter_400Regular",
+    color: "#AAAAAA", marginHorizontal: 12,
+  },
+
+  socialRow: { flexDirection: "row", gap: 14 },
+  socialBtn: {
+    flex: 1, flexDirection: "row", alignItems: "center",
+    justifyContent: "center", gap: 10,
+    borderWidth: 1.5, borderColor: "#E0E0E0",
+    borderRadius: 14, height: 56,
+    backgroundColor: "#FFFFFF",
+  },
+  socialText: { fontSize: 16, fontFamily: "Inter_600SemiBold", color: BLACK },
 });
