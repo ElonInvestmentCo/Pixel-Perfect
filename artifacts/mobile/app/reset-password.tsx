@@ -35,6 +35,7 @@ export default function ResetPasswordScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          {/* 💰 emoji avatar */}
           <View style={s.avatarWrap}>
             <Text style={s.avatarEmoji}>💰</Text>
           </View>
@@ -45,6 +46,8 @@ export default function ResetPasswordScreen() {
           </Text>
 
           <Text style={s.label}>Your email</Text>
+
+          {/* Bordered input — matches mockup (NOT gray-filled) */}
           <View style={s.borderedField}>
             <TextInput
               style={s.input}
@@ -54,8 +57,10 @@ export default function ResetPasswordScreen() {
               placeholderTextColor="#C0C0C0"
               keyboardType="email-address"
               autoCapitalize="none"
+              autoCorrect={false}
               returnKeyType="done"
               autoFocus
+              onSubmitEditing={() => router.push("/verify-code")}
             />
           </View>
 
@@ -73,9 +78,7 @@ export default function ResetPasswordScreen() {
 }
 
 const s = StyleSheet.create({
-  scroll: {
-    flexGrow: 1, paddingHorizontal: 24, backgroundColor: "#FFFFFF",
-  },
+  scroll: { flexGrow: 1, paddingHorizontal: 24, backgroundColor: "#FFFFFF" },
 
   avatarWrap: {
     width: 52, height: 52, borderRadius: 16,
@@ -99,7 +102,7 @@ const s = StyleSheet.create({
     color: "#888888", marginBottom: 10,
   },
   borderedField: {
-    height: 56, borderWidth: 1.5, borderColor: BLACK,
+    height: 52, borderWidth: 1.5, borderColor: BLACK,
     borderRadius: 12, paddingHorizontal: 16,
     justifyContent: "center", marginBottom: 26,
   },
@@ -109,8 +112,8 @@ const s = StyleSheet.create({
   } as any,
 
   cta: {
-    backgroundColor: LIME, borderRadius: 28, height: 58,
+    backgroundColor: LIME, borderRadius: 28, height: 54,
     alignItems: "center", justifyContent: "center",
   },
-  ctaText: { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK },
+  ctaText: { fontSize: 16, fontFamily: "Inter_700Bold", color: BLACK },
 });

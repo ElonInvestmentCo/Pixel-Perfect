@@ -1,7 +1,8 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
+  Animated,
   Platform,
   StyleSheet,
   Text,
@@ -20,19 +21,104 @@ const PAD_ROWS = [
   ["*", "0", "⌫"],
 ];
 
+// ─── Blinking cursor ──────────────────────────────────────────────────────────
+function BlinkingCursor() {
+  const opacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, { toValue: 0, duration: 500, useNativeDriver: true }),
+        Animated.timing(opacity, { toValue: 1, duration: 500, useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [opacity]);
+
+  return <Animated.View style={{ width: 2, height: 28, backgroundColor: BLACK, opacity }} />;
+}
+
+// ─── Close button ─────────────────────────────────────────────────────────────
+function CloseBtn({ onPress }: { onPress: () => void }) {
+  return (
+    <TouchableOpacity style={close.btn} onPress={onPress} activeOpacity={0.7}>
+      <Feather name="x" size={15} color="#999999" />
+    </TouchableOpacity>
+  );
+}
+const close = StyleSheet.create({
+  btn: {
+    width: 36, height: 36, borderRadius: 18,
+    backgroundColor: "#EBEBEB",
+    alignItems: "center", justifyContent: "center",
+    marginBottom: 28,
+  },
+});
+
+// ─── OTP Box ──────────────────────────────────────────────────────────────────
 function OTPBox({ digit, active }: { digit: string; active: boolean }) {
   const filled = digit !== "";
   return (
-    <View style={[otp.box, filled && otp.boxFilled, active && otp.boxActive]}>
+    <View style={[otp.box, active ? otp.boxActive : otp.boxIdle]}>
       {filled ? (
         <Text style={otp.digit}>{digit}</Text>
       ) : active ? (
-        <View style={otp.cursor} />
+        <BlinkingCursor />
       ) : null}
     </View>
   );
 }
+const otp = StyleSheet.create({
+  box: {
+    flex: 1, height: 64, borderRadius: 14,
+    alignItems: "center", justifyContent: "center",
+  },
+  boxIdle: { backgroundColor: "#F2F2F2" },
+  boxActive: {
+    backgroundColor: "#FFFFFF",
+    borderWidth: 2, borderColor: BLACK,
+  },
+  digit: { fontSize: 26, fontFamily: "Inter_600SemiBold", color: BLACK },
+});
 
+// ─── Partial numpad (rows 4–9, *, 0, ⌫) ──────────────────────────────────────
+function PartialNumPad({ onKey }: { onKey: (k: string) => void }) {
+  return (
+    <View style={np.wrap}>
+      {PAD_ROWS.map((row, ri) => (
+        <View key={ri} style={np.row}>
+          {row.map((k) => (
+            <TouchableOpacity
+              key={k}
+              style={np.key}
+              activeOpacity={0.55}
+              onPress={() => onKey(k)}
+            >
+              {k === "⌫" ? (
+                <Feather name="delete" size={22} color={BLACK} />
+              ) : (
+                <Text style={np.keyText}>{k}</Text>
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+}
+const np = StyleSheet.create({
+  wrap: { paddingHorizontal: 20 },
+  row: { flexDirection: "row", gap: 8, marginBottom: 8 },
+  key: {
+    flex: 1, height: 62,
+    backgroundColor: "#F2F2F2", borderRadius: 12,
+    alignItems: "center", justifyContent: "center",
+  },
+  keyText: { fontSize: 26, fontFamily: "Inter_400Regular", color: BLACK },
+});
+
+// ─── Screen ───────────────────────────────────────────────────────────────────
 export default function VerifyCodeScreen() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 55 : insets.top;
@@ -48,19 +134,17 @@ export default function VerifyCodeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      {/* ── Top content ─────────────────────────────── */}
       <View style={[s.top, { paddingTop: topPad + 14 }]}>
-        <TouchableOpacity style={s.closeBtn} onPress={() => router.back()}>
-          <Feather name="x" size={15} color="#999999" />
-        </TouchableOpacity>
+        <CloseBtn onPress={() => router.back()} />
 
         <Text style={s.title}>Verify your Code</Text>
         <Text style={s.subtitle}>
           Enter the security code we sent to{"\n"}
-          <Text style={{ fontFamily: "Inter_600SemiBold", color: BLACK }}>
-            *********341
-          </Text>
+          <Text style={s.maskedAddress}>*********341</Text>
         </Text>
 
+        {/* OTP row */}
         <View style={s.otpRow}>
           {[0, 1, 2, 3].map((i) => (
             <OTPBox
@@ -71,86 +155,30 @@ export default function VerifyCodeScreen() {
           ))}
         </View>
 
+        {/* Resend link */}
         <TouchableOpacity style={s.resendRow}>
           <Text style={s.resendText}>Didn't receive a code?</Text>
         </TouchableOpacity>
 
         <View style={{ flex: 1 }} />
 
+        {/* Done CTA */}
         <TouchableOpacity style={s.cta} activeOpacity={0.85}>
           <Text style={s.ctaText}>Done</Text>
         </TouchableOpacity>
         <View style={{ height: 16 }} />
       </View>
 
-      <View style={{ paddingBottom: botPad + 8 }}>
-        <View style={np.wrap}>
-          {PAD_ROWS.map((row, ri) => (
-            <View key={ri} style={np.row}>
-              {row.map((k) => (
-                <TouchableOpacity
-                  key={k}
-                  style={np.key}
-                  activeOpacity={0.6}
-                  onPress={() => handleKey(k)}
-                >
-                  {k === "⌫" ? (
-                    <Feather name="delete" size={22} color={BLACK} />
-                  ) : (
-                    <Text style={np.keyText}>{k}</Text>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          ))}
-        </View>
+      {/* ── Partial numpad ──────────────────────────── */}
+      <View style={{ paddingBottom: botPad + 6 }}>
+        <PartialNumPad onKey={handleKey} />
       </View>
     </View>
   );
 }
 
-const otp = StyleSheet.create({
-  box: {
-    flex: 1, height: 64,
-    backgroundColor: "#F2F2F2", borderRadius: 14,
-    alignItems: "center", justifyContent: "center",
-    borderWidth: 0,
-  },
-  boxFilled: {
-    backgroundColor: "#F2F2F2",
-  },
-  boxActive: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 2, borderColor: BLACK,
-  },
-  digit: {
-    fontSize: 26, fontFamily: "Inter_600SemiBold", color: BLACK,
-  },
-  cursor: { width: 2, height: 28, backgroundColor: BLACK },
-});
-
-const np = StyleSheet.create({
-  wrap: { paddingHorizontal: 20 },
-  row: { flexDirection: "row", gap: 8, marginBottom: 8 },
-  key: {
-    flex: 1, height: 62,
-    backgroundColor: "#F2F2F2", borderRadius: 12,
-    alignItems: "center", justifyContent: "center",
-  },
-  keyText: {
-    fontSize: 26, fontFamily: "Inter_400Regular", color: BLACK,
-  },
-});
-
 const s = StyleSheet.create({
   top: { flex: 1, paddingHorizontal: 22 },
-
-  closeBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: "#EBEBEB",
-    alignItems: "center", justifyContent: "center",
-    marginBottom: 30,
-  },
 
   title: {
     fontSize: 28, fontFamily: "Inter_700Bold",
@@ -160,19 +188,16 @@ const s = StyleSheet.create({
     fontSize: 15, fontFamily: "Inter_400Regular",
     color: BLACK, lineHeight: 23, marginBottom: 24,
   },
+  maskedAddress: { fontFamily: "Inter_600SemiBold", color: BLACK },
 
-  otpRow: {
-    flexDirection: "row", gap: 10, marginBottom: 20,
-  },
+  otpRow: { flexDirection: "row", gap: 10, marginBottom: 20 },
 
-  resendRow: { alignItems: "center", paddingVertical: 4 },
-  resendText: {
-    fontSize: 15, fontFamily: "Inter_500Medium", color: INDIGO,
-  },
+  resendRow: { alignItems: "center", paddingVertical: 6 },
+  resendText: { fontSize: 15, fontFamily: "Inter_500Medium", color: INDIGO },
 
   cta: {
-    backgroundColor: LIME, borderRadius: 28, height: 56,
+    backgroundColor: LIME, borderRadius: 28, height: 54,
     alignItems: "center", justifyContent: "center",
   },
-  ctaText: { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK },
+  ctaText: { fontSize: 16, fontFamily: "Inter_700Bold", color: BLACK },
 });
