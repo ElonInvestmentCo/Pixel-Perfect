@@ -21,7 +21,8 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pnpm --filter @workspace/mobile run start -- --port 8082"
+args = "PORT=8081 pnpm --filter @workspace/mobile run dev"
+waitForPort = 8081
 
 [[workflows.workflow]]
 name = "Project"
