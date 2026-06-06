@@ -18,6 +18,7 @@ const BLACK   = "#1A1A1A";
 const INDIGO  = "#4F46E5";
 const SUCCESS = "#16A34A";
 const ERROR_C = "#DC2626";
+const GRAY    = "#F2F2F2";
 
 const PAD_ROWS = [
   ["4", "5", "6"],
@@ -25,18 +26,19 @@ const PAD_ROWS = [
   ["*", "0", "⌫"],
 ];
 
-// ─── Development config ───────────────────────────────────────────────────────
-// In production: verify against your backend (POST /api/auth/verify-otp).
-// The dev code is printed below the OTP boxes in __DEV__ mode.
-const DEV_OTP = "1234";
+const RESEND_SECS = 60;
 
-async function verifyOtp(code: string): Promise<void> {
-  await new Promise<void>((resolve) => setTimeout(resolve, 1200));
-  if (code !== DEV_OTP) throw new Error("Wrong code. Please try again.");
+// ─── Development config ───────────────────────────────────────────────────────
+// In production: call POST /api/auth/verify-otp and check against your backend.
+const DEV_CODE = "1234";
+
+async function verifyOtpRequest(code: string): Promise<void> {
+  await new Promise<void>((r) => setTimeout(r, 1200));
+  if (code !== DEV_CODE) throw new Error("Wrong code. Please try again.");
 }
 
-async function resendOtp(dialCode: string, phone: string): Promise<void> {
-  await new Promise<void>((resolve) => setTimeout(resolve, 1400));
+async function resendOtpRequest(_dialCode: string, _phone: string): Promise<void> {
+  await new Promise<void>((r) => setTimeout(r, 1400));
 }
 
 // ─── Blinking cursor ──────────────────────────────────────────────────────────
@@ -55,7 +57,7 @@ function BlinkingCursor() {
   return <Animated.View style={{ width: 2, height: 28, backgroundColor: BLACK, opacity }} />;
 }
 
-// ─── OTP box ──────────────────────────────────────────────────────────────────
+// ─── Single OTP box ───────────────────────────────────────────────────────────
 function OTPBox({
   digit,
   active,
@@ -72,14 +74,20 @@ function OTPBox({
     <View
       style={[
         otp.box,
-        active  && otp.boxActive,
-        !active && !hasError && otp.boxIdle,
-        hasError  && otp.boxError,
-        isSuccess && otp.boxSuccess,
+        active    && otp.active,
+        hasError  && otp.error,
+        isSuccess && otp.success,
+        !active && !hasError && !isSuccess && otp.idle,
       ]}
     >
       {filled ? (
-        <Text style={[otp.digit, hasError && { color: ERROR_C }, isSuccess && { color: SUCCESS }]}>
+        <Text
+          style={[
+            otp.digit,
+            hasError  && { color: ERROR_C },
+            isSuccess && { color: SUCCESS },
+          ]}
+        >
           {digit}
         </Text>
       ) : active ? (
@@ -89,7 +97,7 @@ function OTPBox({
   );
 }
 
-// ─── Partial numpad ───────────────────────────────────────────────────────────
+// ─── Partial numpad (4–9, *, 0, ⌫) ───────────────────────────────────────────
 function PartialNumPad({
   onKey,
   disabled,
@@ -101,21 +109,24 @@ function PartialNumPad({
     <View style={np.wrap}>
       {PAD_ROWS.map((row, ri) => (
         <View key={ri} style={np.row}>
-          {row.map((k) => (
-            <TouchableOpacity
-              key={k}
-              style={[np.key, (disabled || k === "*") && { opacity: 0.35 }]}
-              activeOpacity={0.55}
-              disabled={disabled || k === "*"}
-              onPress={() => onKey(k)}
-            >
-              {k === "⌫" ? (
-                <Feather name="delete" size={22} color={BLACK} />
-              ) : (
-                <Text style={np.keyText}>{k}</Text>
-              )}
-            </TouchableOpacity>
-          ))}
+          {row.map((k) => {
+            const isStar = k === "*";
+            return (
+              <TouchableOpacity
+                key={k}
+                style={[np.key, (disabled || isStar) && np.keyDim]}
+                activeOpacity={0.55}
+                disabled={disabled || isStar}
+                onPress={() => onKey(k)}
+              >
+                {k === "⌫" ? (
+                  <Feather name="delete" size={22} color={BLACK} />
+                ) : (
+                  <Text style={np.keyText}>{k}</Text>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
       ))}
     </View>
@@ -124,8 +135,6 @@ function PartialNumPad({
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 type Status = "idle" | "loading" | "success" | "error";
-
-const RESEND_SECONDS = 60;
 
 export default function VerifyCodeScreen() {
   const insets = useSafeAreaInsets();
@@ -138,27 +147,26 @@ export default function VerifyCodeScreen() {
     flag     = "🇸🇬",
   } = useLocalSearchParams<{ phone: string; dialCode: string; flag: string }>();
 
-  const [code, setCode]       = useState("");
-  const [status, setStatus]   = useState<Status>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [countdown, setCountdown] = useState(RESEND_SECONDS);
+  const [code, setCode]           = useState("");
+  const [status, setStatus]       = useState<Status>("idle");
+  const [errorMsg, setErrorMsg]   = useState("");
+  const [countdown, setCountdown] = useState(RESEND_SECS);
   const [resending, setResending] = useState(false);
 
   const shakeAnim = useRef(new Animated.Value(0)).current;
 
-  // Hidden TextInput enables iOS SMS OTP autofill (textContentType="oneTimeCode").
-  // iOS surfaces the code suggestion above the keyboard / in QuickType bar
-  // and fills this field automatically when the user taps it.
+  // Hidden TextInput for iOS SMS OTP autofill (textContentType="oneTimeCode").
+  // iOS presents the code in the QuickType bar even without the keyboard showing.
   const hiddenRef = useRef<TextInput>(null);
 
-  // ── Countdown ──
+  // ── 60 s resend countdown ──
   useEffect(() => {
     if (countdown <= 0) return;
     const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(t);
   }, [countdown]);
 
-  // ── Shake helper ──
+  // ── Horizontal shake animation ──
   const shake = useCallback(() => {
     Animated.sequence([
       Animated.timing(shakeAnim, { toValue:  9, duration: 65, useNativeDriver: true }),
@@ -168,53 +176,63 @@ export default function VerifyCodeScreen() {
     ]).start();
   }, [shakeAnim]);
 
-  // ── Verify OTP ──
+  // ── OTP verification ──
   const submit = useCallback(async (c: string) => {
-    if (c.length < 4 || status === "loading" || status === "success") return;
+    if (c.length < 4) return;
     setStatus("loading");
     setErrorMsg("");
     try {
-      await verifyOtp(c);
+      await verifyOtpRequest(c);
       setStatus("success");
-      // Navigate out after the success flash
       setTimeout(() => router.replace("/"), 1800);
     } catch (e: any) {
       setStatus("error");
       setErrorMsg(e?.message ?? "Invalid code. Please try again.");
       shake();
     }
-  }, [status, shake]);
+  }, [shake]);
 
-  // ── Numpad key handler ──
+  // ── Numpad key press ──
+  // NOTE: side-effects (submit) live here, NOT inside the setCode updater,
+  // to avoid double-invocation in React StrictMode.
   const handleKey = (k: string) => {
     if (status === "loading" || status === "success") return;
+
+    // Any key after an error resets the field
     if (status === "error") {
-      // First keypress clears the error and resets
       setStatus("idle");
       setErrorMsg("");
       setCode("");
       return;
     }
-    setCode((prev) => {
-      const next =
-        k === "⌫" ? prev.slice(0, -1) :
-        prev.length < 4 ? prev + k : prev;
-      // Auto-submit when 4 digits complete
-      if (next.length === 4 && k !== "⌫") {
-        setTimeout(() => submit(next), 0);
-      }
-      return next;
-    });
+
+    let next: string;
+    if (k === "⌫") {
+      next = code.slice(0, -1);
+    } else if (code.length < 4) {
+      next = code + k;
+    } else {
+      return; // 4 digits already filled, ignore extra keys
+    }
+
+    setCode(next);
+
+    // Auto-submit when the 4th digit is entered
+    if (next.length === 4) {
+      submit(next);
+    }
   };
 
-  // ── SMS autofill (iOS) ──
+  // ── SMS autofill (iOS textContentType="oneTimeCode") ──
   const handleAutofill = (text: string) => {
     const digits = text.replace(/\D/g, "").slice(0, 4);
     setCode(digits);
-    if (digits.length === 4) setTimeout(() => submit(digits), 0);
+    if (digits.length === 4 && status === "idle") {
+      submit(digits);
+    }
   };
 
-  // ── Resend ──
+  // ── Resend code ──
   const handleResend = async () => {
     if (countdown > 0 || resending) return;
     setResending(true);
@@ -222,28 +240,29 @@ export default function VerifyCodeScreen() {
     setStatus("idle");
     setErrorMsg("");
     try {
-      await resendOtp(dialCode, phone);
-      setCountdown(RESEND_SECONDS);
+      await resendOtpRequest(dialCode, phone);
+      setCountdown(RESEND_SECS);
     } finally {
       setResending(false);
     }
   };
 
-  // ── Derived display ──
+  // ── Derived values ──
   const maskedPhone =
     phone.length > 3
       ? "*".repeat(Math.max(0, phone.length - 3)) + phone.slice(-3)
       : phone || "*****341";
 
-  const digits   = code.split("").concat(["", "", "", ""]).slice(0, 4);
-  const isLoading = status === "loading";
-  const isSuccess = status === "success";
-  const hasError  = status === "error";
+  const digits     = code.split("").concat(["", "", "", ""]).slice(0, 4);
+  const isLoading  = status === "loading";
+  const isSuccess  = status === "success";
+  const hasError   = status === "error";
   const padDisabled = isLoading || isSuccess;
+  const doneEnabled = code.length === 4 && !padDisabled;
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      {/* Hidden TextInput for iOS SMS OTP autofill */}
+      {/* Hidden TextInput — enables iOS SMS OTP autofill */}
       <TextInput
         ref={hiddenRef}
         style={s.hiddenInput}
@@ -270,7 +289,7 @@ export default function VerifyCodeScreen() {
           <Text style={s.maskedAddr}>{dialCode} {maskedPhone}</Text>
         </Text>
 
-        {/* OTP boxes with shake on error */}
+        {/* 4 OTP boxes — shake on wrong code */}
         <Animated.View
           style={[s.otpRow, { transform: [{ translateX: shakeAnim }] }]}
         >
@@ -285,25 +304,26 @@ export default function VerifyCodeScreen() {
           ))}
         </Animated.View>
 
-        {/* Dev hint */}
+        {/* Dev hint — hidden in production builds */}
         {__DEV__ && !isSuccess && (
           <Text style={s.devHint}>
-            Dev code: <Text style={{ fontFamily: "Inter_600SemiBold" }}>{DEV_OTP}</Text>
+            Test code:{" "}
+            <Text style={{ fontFamily: "Inter_600SemiBold" }}>{DEV_CODE}</Text>
           </Text>
         )}
 
-        {/* Error */}
+        {/* Error message */}
         {hasError && <Text style={s.errorMsg}>{errorMsg}</Text>}
 
-        {/* Success */}
+        {/* Success banner */}
         {isSuccess && (
           <View style={s.successRow}>
-            <Feather name="check-circle" size={16} color={SUCCESS} />
+            <Feather name="check-circle" size={15} color={SUCCESS} />
             <Text style={s.successMsg}>Verified! Signing you in…</Text>
           </View>
         )}
 
-        {/* Resend row */}
+        {/* Resend countdown / button */}
         {!isSuccess && (
           <View style={s.resendRow}>
             {countdown > 0 ? (
@@ -327,15 +347,15 @@ export default function VerifyCodeScreen() {
 
         <View style={{ flex: 1 }} />
 
-        {/* Done CTA */}
+        {/* Done / verify button */}
         <TouchableOpacity
           style={[
             s.cta,
-            code.length < 4 && !isSuccess && s.ctaDisabled,
+            !doneEnabled && !isSuccess && s.ctaDim,
             isSuccess && s.ctaSuccess,
           ]}
           activeOpacity={0.85}
-          disabled={code.length < 4 || padDisabled}
+          disabled={!doneEnabled}
           onPress={() => submit(code)}
         >
           {isLoading ? (
@@ -343,7 +363,7 @@ export default function VerifyCodeScreen() {
           ) : isSuccess ? (
             <Feather name="check" size={22} color="#FFFFFF" />
           ) : (
-            <Text style={[s.ctaText, code.length < 4 && s.ctaTextDim]}>Done</Text>
+            <Text style={[s.ctaText, !doneEnabled && s.ctaTextDim]}>Done</Text>
           )}
         </TouchableOpacity>
         <View style={{ height: 16 }} />
@@ -357,35 +377,37 @@ export default function VerifyCodeScreen() {
   );
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
+// ─── OTP box styles ───────────────────────────────────────────────────────────
 const otp = StyleSheet.create({
   box: {
     flex: 1, height: 64, borderRadius: 14,
     alignItems: "center", justifyContent: "center",
   },
-  boxIdle:    { backgroundColor: "#F2F2F2" },
-  boxActive:  { backgroundColor: "#FFFFFF", borderWidth: 2, borderColor: BLACK },
-  boxError:   { backgroundColor: "#FEF2F2", borderWidth: 2, borderColor: ERROR_C },
-  boxSuccess: { backgroundColor: "#F0FDF4", borderWidth: 2, borderColor: SUCCESS },
-  digit: { fontSize: 26, fontFamily: "Inter_600SemiBold", color: BLACK },
+  idle:    { backgroundColor: GRAY },
+  active:  { backgroundColor: "#FFFFFF", borderWidth: 2, borderColor: BLACK },
+  error:   { backgroundColor: "#FEF2F2", borderWidth: 2, borderColor: ERROR_C },
+  success: { backgroundColor: "#F0FDF4", borderWidth: 2, borderColor: SUCCESS },
+  digit:   { fontSize: 26, fontFamily: "Inter_600SemiBold", color: BLACK },
 });
 
+// ─── Numpad styles ────────────────────────────────────────────────────────────
 const np = StyleSheet.create({
   wrap: { paddingHorizontal: 20 },
   row: { flexDirection: "row", gap: 8, marginBottom: 8 },
   key: {
     flex: 1, height: 62,
-    backgroundColor: "#F2F2F2", borderRadius: 12,
+    backgroundColor: GRAY, borderRadius: 12,
     alignItems: "center", justifyContent: "center",
   },
+  keyDim: { opacity: 0.32 },
   keyText: { fontSize: 26, fontFamily: "Inter_400Regular", color: BLACK },
 });
 
+// ─── Screen styles ────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   hiddenInput: {
     position: "absolute", left: -9999, height: 1, width: 1, opacity: 0,
   },
-
   top: { flex: 1, paddingHorizontal: 22 },
 
   closeBtn: {
@@ -409,35 +431,32 @@ const s = StyleSheet.create({
 
   devHint: {
     fontSize: 12, color: "#AAAAAA", fontFamily: "Inter_400Regular",
-    textAlign: "center", marginBottom: 6,
+    textAlign: "center", marginBottom: 4,
   },
   errorMsg: {
     fontSize: 13, color: ERROR_C, fontFamily: "Inter_400Regular",
-    textAlign: "center", marginBottom: 4,
-  },
-  successRow: {
-    flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: 6, marginBottom: 4,
-  },
-  successMsg: {
-    fontSize: 13, color: SUCCESS, fontFamily: "Inter_500Medium",
+    textAlign: "center", marginBottom: 2,
   },
 
-  resendRow: { alignItems: "center", paddingVertical: 8 },
+  successRow: {
+    flexDirection: "row", alignItems: "center",
+    justifyContent: "center", gap: 6, marginBottom: 2,
+  },
+  successMsg: { fontSize: 13, color: SUCCESS, fontFamily: "Inter_500Medium" },
+
+  resendRow: { alignItems: "center", paddingVertical: 10 },
   resendCountdown: {
     fontSize: 14, fontFamily: "Inter_400Regular", color: "#AAAAAA",
   },
   resendTimer: { fontFamily: "Inter_600SemiBold", color: BLACK },
-  resendNow: {
-    fontSize: 15, fontFamily: "Inter_600SemiBold", color: INDIGO,
-  },
+  resendNow: { fontSize: 15, fontFamily: "Inter_600SemiBold", color: INDIGO },
 
   cta: {
     backgroundColor: LIME, borderRadius: 28, height: 54,
     alignItems: "center", justifyContent: "center",
   },
-  ctaDisabled: { backgroundColor: "#E8E8E8" },
-  ctaSuccess:  { backgroundColor: SUCCESS },
-  ctaText: { fontSize: 16, fontFamily: "Inter_700Bold", color: BLACK },
+  ctaDim:     { backgroundColor: "#E8E8E8" },
+  ctaSuccess: { backgroundColor: SUCCESS },
+  ctaText:    { fontSize: 16, fontFamily: "Inter_700Bold", color: BLACK },
   ctaTextDim: { color: "#AAAAAA" },
 });

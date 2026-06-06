@@ -15,12 +15,14 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { COUNTRIES, DEFAULT_COUNTRY, type Country } from "@/lib/countries";
+import { COUNTRIES, DEFAULT_COUNTRY } from "../lib/countries";
+import type { Country } from "../lib/countries";
 
-const LIME  = "#C8FF00";
-const BLACK = "#1A1A1A";
-const TEAL  = "#0D9488";
+const LIME    = "#C8FF00";
+const BLACK   = "#1A1A1A";
+const TEAL    = "#0D9488";
 const ERROR_C = "#DC2626";
+const GRAY    = "#F2F2F2";
 
 const PAD_ROWS = [
   ["1", "2", "3"],
@@ -30,10 +32,9 @@ const PAD_ROWS = [
 ];
 
 // ─── Mock OTP service ─────────────────────────────────────────────────────────
-// Replace body with real SMS provider (Twilio, AWS SNS, etc.) in production.
-async function sendOtp(_dialCode: string, _phone: string): Promise<void> {
+// Swap this body for a real POST /api/auth/send-otp in production.
+async function sendOtpRequest(_dialCode: string, _phone: string): Promise<void> {
   await new Promise<void>((resolve) => setTimeout(resolve, 1400));
-  // throw new Error("Network error"); // uncomment to test error state
 }
 
 // ─── Blinking cursor ──────────────────────────────────────────────────────────
@@ -77,90 +78,108 @@ function CountryPickerModal({
     [query],
   );
 
+  const handleClose = () => {
+    setQuery("");
+    onClose();
+  };
+
   return (
     <Modal
       visible={visible}
       animationType="slide"
       transparent
       statusBarTranslucent
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
-      <TouchableOpacity
-        style={pk.backdrop}
-        activeOpacity={1}
-        onPress={onClose}
-      />
-      <View style={[pk.sheet, { paddingBottom: insets.bottom + 16 }]}>
-        {/* Handle bar */}
-        <View style={pk.handle} />
-
-        {/* Header */}
-        <View style={pk.header}>
-          <Text style={pk.title}>Select Country</Text>
-          <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Feather name="x" size={20} color="#999" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Search */}
-        <View style={pk.searchWrap}>
-          <Feather name="search" size={16} color="#AAAAAA" style={{ marginRight: 8 }} />
-          <TextInput
-            style={pk.searchInput}
-            value={query}
-            onChangeText={setQuery}
-            placeholder="Search country or code…"
-            placeholderTextColor="#AAAAAA"
-            autoCapitalize="none"
-            autoCorrect={false}
-            returnKeyType="search"
-          />
-          {query.length > 0 && (
-            <TouchableOpacity onPress={() => setQuery("")}>
-              <Feather name="x-circle" size={16} color="#AAAAAA" />
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* List */}
-        <FlatList
-          data={filtered}
-          keyExtractor={(c) => c.dialCode + c.name}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View style={pk.separator} />}
-          renderItem={({ item }) => {
-            const selected = item.dialCode === current.dialCode && item.name === current.name;
-            return (
-              <TouchableOpacity
-                style={pk.row}
-                activeOpacity={0.7}
-                onPress={() => { onSelect(item); onClose(); setQuery(""); }}
-              >
-                <Text style={pk.flag}>{item.flag}</Text>
-                <Text style={[pk.countryName, selected && pk.countryNameSelected]}>
-                  {item.name}
-                </Text>
-                <Text style={[pk.dialCode, selected && pk.dialCodeSelected]}>
-                  {item.dialCode}
-                </Text>
-                {selected && (
-                  <Feather name="check" size={16} color={BLACK} style={{ marginLeft: 8 }} />
-                )}
-              </TouchableOpacity>
-            );
-          }}
+      {/* ── Full-screen overlay: tap outside to close ── */}
+      <View style={pk.overlay}>
+        <TouchableOpacity
+          style={StyleSheet.absoluteFillObject}
+          activeOpacity={1}
+          onPress={handleClose}
         />
+
+        {/* ── Bottom sheet ── */}
+        <View style={[pk.sheet, { paddingBottom: insets.bottom + 16 }]}>
+          {/* Handle */}
+          <View style={pk.handle} />
+
+          {/* Header row */}
+          <View style={pk.header}>
+            <Text style={pk.title}>Select Country</Text>
+            <TouchableOpacity onPress={handleClose} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
+              <Feather name="x" size={20} color="#999" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Search bar */}
+          <View style={pk.searchRow}>
+            <Feather name="search" size={15} color="#AAAAAA" style={{ marginRight: 8 }} />
+            <TextInput
+              style={pk.searchInput}
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Search country or dial code…"
+              placeholderTextColor="#AAAAAA"
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="search"
+            />
+            {query.length > 0 && (
+              <TouchableOpacity onPress={() => setQuery("")} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Feather name="x-circle" size={15} color="#BBBBBB" />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Country list */}
+          <FlatList
+            data={filtered}
+            keyExtractor={(c) => `${c.dialCode}-${c.name}`}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+            ItemSeparatorComponent={() => <View style={pk.separator} />}
+            renderItem={({ item }) => {
+              const selected =
+                item.dialCode === current.dialCode && item.name === current.name;
+              return (
+                <TouchableOpacity
+                  style={pk.row}
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    onSelect(item);
+                    setQuery("");
+                    onClose();
+                  }}
+                >
+                  <Text style={pk.flag}>{item.flag}</Text>
+                  <Text
+                    style={[pk.countryName, selected && pk.countryNameBold]}
+                    numberOfLines={1}
+                  >
+                    {item.name}
+                  </Text>
+                  <Text style={[pk.dialCode, selected && pk.dialCodeBold]}>
+                    {item.dialCode}
+                  </Text>
+                  {selected && (
+                    <Feather name="check" size={15} color={BLACK} style={{ marginLeft: 6 }} />
+                  )}
+                </TouchableOpacity>
+              );
+            }}
+          />
+        </View>
       </View>
     </Modal>
   );
 }
 
-// ─── Numeric pad ──────────────────────────────────────────────────────────────
+// ─── Numeric keypad ───────────────────────────────────────────────────────────
 function NumPad({
   value,
   onChange,
-  disabled,
+  disabled = false,
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -170,24 +189,27 @@ function NumPad({
     <View style={np.wrap}>
       {PAD_ROWS.map((row, ri) => (
         <View key={ri} style={np.row}>
-          {row.map((k) => (
-            <TouchableOpacity
-              key={k}
-              style={[np.key, (disabled || k === "*") && { opacity: 0.35 }]}
-              activeOpacity={0.55}
-              disabled={disabled || k === "*"}
-              onPress={() => {
-                if (k === "⌫") onChange(value.slice(0, -1));
-                else onChange(value + k);
-              }}
-            >
-              {k === "⌫" ? (
-                <Feather name="delete" size={22} color={BLACK} />
-              ) : (
-                <Text style={np.keyText}>{k}</Text>
-              )}
-            </TouchableOpacity>
-          ))}
+          {row.map((k) => {
+            const isStar = k === "*";
+            return (
+              <TouchableOpacity
+                key={k}
+                style={[np.key, (disabled || isStar) && np.keyDim]}
+                activeOpacity={0.55}
+                disabled={disabled || isStar}
+                onPress={() => {
+                  if (k === "⌫") onChange(value.slice(0, -1));
+                  else onChange(value + k);
+                }}
+              >
+                {k === "⌫" ? (
+                  <Feather name="delete" size={22} color={BLACK} />
+                ) : (
+                  <Text style={np.keyText}>{k}</Text>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
       ))}
     </View>
@@ -202,21 +224,23 @@ export default function PhoneVerifyScreen() {
   const topPad = Platform.OS === "web" ? 55 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
 
-  const [country, setCountry] = useState<Country>(DEFAULT_COUNTRY);
-  const [phone, setPhone]     = useState("");
+  const [country, setCountry]     = useState<Country>(DEFAULT_COUNTRY);
+  const [phone, setPhone]         = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [sendStatus, setSendStatus] = useState<SendStatus>("idle");
-  const [errorMsg, setErrorMsg]     = useState("");
+  const [errorMsg, setErrorMsg]   = useState("");
 
-  const isValid = phone.length >= country.minLen && phone.length <= country.maxLen;
+  const isValid   = phone.length >= country.minLen && phone.length <= country.maxLen;
   const isLoading = sendStatus === "loading";
+  const canSend   = isValid && !isLoading;
 
   const handleSend = async () => {
-    if (!isValid || isLoading) return;
+    if (!canSend) return;
     setSendStatus("loading");
     setErrorMsg("");
     try {
-      await sendOtp(country.dialCode, phone);
+      await sendOtpRequest(country.dialCode, phone);
+      // Navigate to OTP screen with params
       router.push(
         `/verify-code?phone=${encodeURIComponent(phone)}&dialCode=${encodeURIComponent(country.dialCode)}&flag=${encodeURIComponent(country.flag)}`,
       );
@@ -232,11 +256,18 @@ export default function PhoneVerifyScreen() {
     setPhone(v);
   };
 
+  const handleCountrySelect = (c: Country) => {
+    setCountry(c);
+    setPhone("");
+    setSendStatus("idle");
+    setErrorMsg("");
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      {/* ── Top content ─────────────────────────────────────────────── */}
+      {/* ── Header + inputs ─────────────────────────────────────────── */}
       <View style={[s.top, { paddingTop: topPad + 14 }]}>
-        {/* Close */}
+        {/* Close (X) */}
         <TouchableOpacity style={s.closeBtn} onPress={() => router.back()} activeOpacity={0.7}>
           <Feather name="x" size={15} color="#999999" />
         </TouchableOpacity>
@@ -245,29 +276,32 @@ export default function PhoneVerifyScreen() {
         <Text style={s.subtitle}>We will send you a confirmation code</Text>
 
         <Text style={s.label}>Phone number</Text>
+
+        {/* Phone row */}
         <View style={s.phoneRow}>
-          {/* Country code selector */}
+          {/* Country selector pill */}
           <TouchableOpacity
-            style={s.countryBox}
+            style={s.countryPill}
             onPress={() => setPickerOpen(true)}
             activeOpacity={0.7}
           >
-            <Text style={s.countryFlag}>{country.flag}</Text>
-            <Text style={s.countryCode}>{country.dialCode}</Text>
-            <Feather name="chevron-down" size={13} color="#888" />
+            <Text style={s.pillFlag}>{country.flag}</Text>
+            <Text style={s.pillCode}>{country.dialCode}</Text>
+            <Feather name="chevron-down" size={13} color="#888888" />
           </TouchableOpacity>
 
-          {/* Phone display with blinking cursor */}
-          <View style={[s.phoneInputBox, sendStatus === "error" && s.phoneInputBoxError]}>
-            <Text style={s.phoneDisplayText} numberOfLines={1}>{phone}</Text>
+          {/* Phone number display */}
+          <View style={[s.phoneBox, sendStatus === "error" && s.phoneBoxError]}>
+            <Text style={s.phoneText} numberOfLines={1}>{phone}</Text>
             {!isLoading && <BlinkingCursor />}
           </View>
         </View>
 
-        {/* Validation hint */}
+        {/* Length hint */}
         {phone.length > 0 && !isValid && (
           <Text style={s.hintText}>
-            {country.name} numbers are {country.minLen === country.maxLen
+            {country.name} numbers:{" "}
+            {country.minLen === country.maxLen
               ? `${country.minLen} digits`
               : `${country.minLen}–${country.maxLen} digits`}
           </Text>
@@ -278,28 +312,27 @@ export default function PhoneVerifyScreen() {
           <Text style={s.errorText}>{errorMsg}</Text>
         ) : null}
 
-        {/* Send Code CTA */}
+        {/* Send Code button */}
         <TouchableOpacity
-          style={[s.cta, (!isValid || isLoading) && s.ctaDisabled]}
+          style={[s.cta, !canSend && s.ctaDim]}
           activeOpacity={0.85}
-          disabled={!isValid || isLoading}
+          disabled={!canSend}
           onPress={handleSend}
         >
           {isLoading ? (
             <ActivityIndicator color={BLACK} size="small" />
           ) : (
-            <Text style={[s.ctaText, (!isValid || isLoading) && s.ctaTextDisabled]}>
-              Send Code
-            </Text>
+            <Text style={[s.ctaText, !canSend && s.ctaTextDim]}>Send Code</Text>
           )}
         </TouchableOpacity>
       </View>
 
-      {/* ── Numpad ──────────────────────────────────────────────────── */}
+      {/* ── Custom numpad ────────────────────────────────────────────── */}
       <View style={{ paddingBottom: botPad + 6 }}>
         <NumPad value={phone} onChange={handlePhoneChange} disabled={isLoading} />
+        {/* Resend via email fallback */}
         <TouchableOpacity style={np.resendWrap} activeOpacity={0.7}>
-          <Text style={np.resendLabel}>Resend code via email</Text>
+          <Text style={np.resendText}>Resend code via email</Text>
         </TouchableOpacity>
       </View>
 
@@ -307,22 +340,25 @@ export default function PhoneVerifyScreen() {
       <CountryPickerModal
         visible={pickerOpen}
         current={country}
-        onSelect={(c) => { setCountry(c); setPhone(""); setSendStatus("idle"); }}
+        onSelect={handleCountrySelect}
         onClose={() => setPickerOpen(false)}
       />
     </View>
   );
 }
 
-// ─── Styles ───────────────────────────────────────────────────────────────────
+// ─── Country picker styles ────────────────────────────────────────────────────
 const pk = StyleSheet.create({
-  backdrop: {
-    flex: 1, backgroundColor: "rgba(0,0,0,0.45)",
+  overlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.45)",
   },
   sheet: {
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 24, borderTopRightRadius: 24,
-    maxHeight: "72%",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: "74%",
     paddingTop: 12,
   },
   handle: {
@@ -337,10 +373,10 @@ const pk = StyleSheet.create({
   },
   title: { fontSize: 17, fontFamily: "Inter_600SemiBold", color: BLACK },
 
-  searchWrap: {
+  searchRow: {
     flexDirection: "row", alignItems: "center",
-    backgroundColor: "#F2F2F2", borderRadius: 12,
-    marginHorizontal: 18, marginBottom: 8,
+    backgroundColor: GRAY, borderRadius: 12,
+    marginHorizontal: 18, marginBottom: 10,
     paddingHorizontal: 14, height: 46,
   },
   searchInput: {
@@ -348,7 +384,11 @@ const pk = StyleSheet.create({
     color: BLACK, outlineStyle: "none",
   } as any,
 
-  separator: { height: StyleSheet.hairlineWidth, backgroundColor: "#F0F0F0", marginLeft: 58 },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: "#F0F0F0",
+    marginLeft: 58,
+  },
   row: {
     flexDirection: "row", alignItems: "center",
     paddingHorizontal: 18, height: 52,
@@ -357,26 +397,27 @@ const pk = StyleSheet.create({
   countryName: {
     flex: 1, fontSize: 15, fontFamily: "Inter_400Regular", color: BLACK,
   },
-  countryNameSelected: { fontFamily: "Inter_600SemiBold" },
-  dialCode: {
-    fontSize: 14, fontFamily: "Inter_400Regular", color: "#888",
-  },
-  dialCodeSelected: { color: BLACK, fontFamily: "Inter_600SemiBold" },
+  countryNameBold: { fontFamily: "Inter_600SemiBold" },
+  dialCode: { fontSize: 14, fontFamily: "Inter_400Regular", color: "#888888" },
+  dialCodeBold: { color: BLACK, fontFamily: "Inter_600SemiBold" },
 });
 
+// ─── Numpad styles ────────────────────────────────────────────────────────────
 const np = StyleSheet.create({
   wrap: { paddingHorizontal: 20 },
   row: { flexDirection: "row", gap: 8, marginBottom: 8 },
   key: {
     flex: 1, height: 62,
-    backgroundColor: "#F2F2F2", borderRadius: 12,
+    backgroundColor: GRAY, borderRadius: 12,
     alignItems: "center", justifyContent: "center",
   },
+  keyDim: { opacity: 0.32 },
   keyText: { fontSize: 26, fontFamily: "Inter_400Regular", color: BLACK },
   resendWrap: { paddingVertical: 10, alignItems: "center" },
-  resendLabel: { fontSize: 14, fontFamily: "Inter_500Medium", color: TEAL },
+  resendText: { fontSize: 14, fontFamily: "Inter_500Medium", color: TEAL },
 });
 
+// ─── Screen styles ────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
   top: { flex: 1, paddingHorizontal: 22 },
 
@@ -402,38 +443,37 @@ const s = StyleSheet.create({
 
   phoneRow: { flexDirection: "row", gap: 10, marginBottom: 6 },
 
-  countryBox: {
+  countryPill: {
     flexDirection: "row", alignItems: "center", gap: 5,
     paddingHorizontal: 10,
-    backgroundColor: "#F2F2F2", borderRadius: 10, height: 50,
+    backgroundColor: GRAY, borderRadius: 10, height: 50,
+    minWidth: 80,
   },
-  countryFlag: { fontSize: 18 },
-  countryCode: { fontSize: 14, fontFamily: "Inter_500Medium", color: BLACK },
+  pillFlag: { fontSize: 18 },
+  pillCode: { fontSize: 14, fontFamily: "Inter_500Medium", color: BLACK },
 
-  phoneInputBox: {
+  phoneBox: {
     flex: 1, height: 50,
     borderWidth: 1.5, borderColor: BLACK, borderRadius: 10,
     flexDirection: "row", alignItems: "center", paddingHorizontal: 14, gap: 2,
   },
-  phoneInputBoxError: { borderColor: ERROR_C },
-  phoneDisplayText: {
-    flex: 1, fontSize: 16, fontFamily: "Inter_400Regular", color: BLACK,
-  },
+  phoneBoxError: { borderColor: ERROR_C },
+  phoneText: { flex: 1, fontSize: 16, fontFamily: "Inter_400Regular", color: BLACK },
 
   hintText: {
     fontSize: 12, fontFamily: "Inter_400Regular",
-    color: "#AAAAAA", marginBottom: 10,
+    color: "#AAAAAA", marginBottom: 8, marginTop: 4,
   },
   errorText: {
     fontSize: 13, fontFamily: "Inter_400Regular",
-    color: ERROR_C, marginBottom: 10,
+    color: ERROR_C, marginBottom: 8, marginTop: 4,
   },
 
   cta: {
     backgroundColor: LIME, borderRadius: 28, height: 54,
-    alignItems: "center", justifyContent: "center", marginTop: 14,
+    alignItems: "center", justifyContent: "center", marginTop: 16,
   },
-  ctaDisabled: { backgroundColor: "#E8E8E8" },
+  ctaDim: { backgroundColor: "#E8E8E8" },
   ctaText: { fontSize: 16, fontFamily: "Inter_700Bold", color: BLACK },
-  ctaTextDisabled: { color: "#AAAAAA" },
+  ctaTextDim: { color: "#AAAAAA" },
 });
