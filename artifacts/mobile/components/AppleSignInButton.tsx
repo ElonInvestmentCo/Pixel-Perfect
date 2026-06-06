@@ -1,3 +1,4 @@
+import { FontAwesome } from "@expo/vector-icons";
 import React from "react";
 import {
   ActivityIndicator,
@@ -44,8 +45,7 @@ export function AppleSignInButton({
         <ActivityIndicator color="#FFFFFF" size="small" />
       ) : (
         <View style={styles.inner}>
-          {/* Apple logo rendered as Unicode symbol — crisp on all platforms */}
-          <Text style={styles.appleIcon}></Text>
+          <FontAwesome name="apple" size={20} color="#FFFFFF" />
           <Text style={styles.label}>{LABEL[variant]}</Text>
         </View>
       )}

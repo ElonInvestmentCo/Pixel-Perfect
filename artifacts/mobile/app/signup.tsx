@@ -16,6 +16,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppleSignInButton } from "../components/AppleSignInButton";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
 
+const isIOS = Platform.OS === "ios";
+
 const LIME    = "#C8FF00";
 const BLACK   = "#1A1A1A";
 const ERROR_C = "#DC2626";
@@ -187,16 +189,16 @@ export default function SignUpScreen() {
             <View style={s.divLine} />
           </View>
 
-          {/* Apple */}
-          <AppleSignInButton variant="signup" />
+          {/* Apple — iOS only */}
+          {isIOS && <AppleSignInButton variant="signup" />}
 
-          {/* Google */}
+          {/* Google — both platforms */}
           <GoogleSignInButton variant="signup" horizontalPadding={24} />
 
           {/* Sign in link */}
           <TouchableOpacity
             style={s.signinRow}
-            onPress={() => { router.back(); router.push("/signin"); }}
+            onPress={() => router.replace("/signin")}
             accessibilityRole="button"
             accessibilityLabel="Already have an account? Sign In"
           >

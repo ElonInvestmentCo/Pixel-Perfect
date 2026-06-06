@@ -1,0 +1,53 @@
+Do not add biometrics or new product/payment features yet.
+
+Now focus entirely on polishing, stress-testing, and production-hardening the complete authentication experience already implemented.
+
+Priority now is refinement, stability, native feel, and eliminating edge-case UX issues.
+
+Polish + QA checklist:
+
+* Manually test every auth route repeatedly in Expo Go on-device.
+* Verify there are no visual jumps, flickers, layout shifts, or transition glitches.
+* Verify keyboard appearance/disappearance feels smooth on all auth screens.
+* Verify safe areas and bottom spacing across different device sizes.
+* Verify no input clipping or overflow occurs on smaller screens.
+* Verify all loading states animate smoothly and never freeze.
+* Verify all disabled states still match the visual design system.
+* Verify rapid taps cannot break navigation or duplicate submissions.
+* Verify back navigation behaves correctly throughout every flow.
+* Verify no stale state persists incorrectly between auth flows.
+
+Validation + UX refinement:
+
+* Ensure validation errors appear/disappear smoothly.
+* Ensure password/email validation feels polished and non-intrusive.
+* Ensure OTP entry is smooth with proper focus handling.
+* Ensure resend timer cannot be abused or broken.
+* Ensure social auth buttons maintain exact sizing/alignment consistency.
+* Ensure Apple and Google buttons remain visually balanced together.
+
+Routing + state management:
+
+* Verify authenticated users cannot accidentally navigate back into onboarding/auth unintentionally.
+* Verify sign-out fully resets navigation state cleanly.
+* Verify reset-password and signup verification flows remain fully separated internally.
+* Verify deep navigation replacements use the correct router behavior.
+
+Code quality requirements:
+
+* Remove any temporary mock delays, placeholder handlers, console logs, or fake state logic still remaining.
+* Ensure reusable auth components are abstracted cleanly.
+* Ensure no duplicated validation logic exists.
+* Ensure all TypeScript types are strict and clean.
+* Ensure no unnecessary re-renders or animation jank occur.
+
+Final verification before moving beyond auth:
+
+* Expo Go runs completely clean.
+* Zero TypeScript errors.
+* Zero runtime warnings/errors.
+* Zero broken gestures/routes.
+* Zero unfinished placeholder behavior.
+* Entire authentication system feels like a polished production mobile app.
+
+Only after the auth system is fully polished and verified should development continue into biometrics, dashboard expansion, payments, or transaction features.

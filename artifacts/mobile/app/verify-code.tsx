@@ -20,8 +20,9 @@ const SUCCESS = "#16A34A";
 const ERROR_C = "#DC2626";
 const GRAY    = "#F2F2F2";
 
-// Partial numpad rows (4–9, *, 0, ⌫) — same layout as phone-verify
+// Full numpad rows — matches phone-verify layout
 const PAD_ROWS = [
+  ["1", "2", "3"],
   ["4", "5", "6"],
   ["7", "8", "9"],
   ["*", "0", "⌫"],

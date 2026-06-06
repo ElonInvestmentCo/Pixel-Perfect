@@ -1,3 +1,4 @@
+import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useRef, useState } from "react";
 import {
@@ -15,7 +16,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppleSignInButton } from "../components/AppleSignInButton";
 import { GoogleSignInButton } from "../components/GoogleSignInButton";
-import { Feather } from "@expo/vector-icons";
+
+const isIOS = Platform.OS === "ios";
 
 const LIME   = "#C8FF00";
 const BLACK  = "#1A1A1A";
@@ -187,10 +189,10 @@ export default function SignInScreen() {
             <View style={s.divLine} />
           </View>
 
-          {/* Apple */}
-          <AppleSignInButton variant="signin" disabled={loading} />
+          {/* Apple — iOS only (Apple guidelines prohibit showing it on Android) */}
+          {isIOS && <AppleSignInButton variant="signin" disabled={loading} />}
 
-          {/* Google */}
+          {/* Google — both platforms */}
           <GoogleSignInButton variant="signin" horizontalPadding={24} disabled={loading} />
 
           {/* Sign up link */}
