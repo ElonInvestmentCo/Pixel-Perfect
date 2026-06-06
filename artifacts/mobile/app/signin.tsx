@@ -89,16 +89,17 @@ export default function SignInScreen() {
             <View style={s.divLine} />
           </View>
 
-          {/* Social */}
-          <View style={s.socialRow}>
-            <TouchableOpacity style={s.socialBtn}>
-              <FontAwesome name="apple" size={20} color={BLACK} />
-              <Text style={s.socialText}>Apple</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={s.googleBtn} activeOpacity={0.85}>
-              <Image source={googleLogo} style={s.googleImg} resizeMode="cover" />
-            </TouchableOpacity>
-          </View>
+          {/* Apple button */}
+          <TouchableOpacity style={s.appleBtn} activeOpacity={0.85}>
+            <FontAwesome name="apple" size={20} color="#000000" />
+            <Text style={s.appleBtnText}>Apple</Text>
+          </TouchableOpacity>
+
+          {/* Google button */}
+          <TouchableOpacity style={s.googleBtn} activeOpacity={0.85}>
+            <Image source={googleLogo} style={s.googleLogo} resizeMode="contain" />
+            <Text style={s.googleBtnText}>Google</Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -151,26 +152,32 @@ const s = StyleSheet.create({
   forgotRow: { alignItems: "center", paddingVertical: 4, marginBottom: 28 },
   forgotText: { fontSize: 15, fontFamily: "Inter_600SemiBold", color: INDIGO },
 
-  divRow: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
+  divRow: { flexDirection: "row", alignItems: "center", marginBottom: 16 },
   divLine: { flex: 1, height: 1, backgroundColor: "#E8E8E8" },
   divText: {
     fontSize: 13, fontFamily: "Inter_400Regular",
     color: "#AAAAAA", marginHorizontal: 12,
   },
 
-  socialRow: { flexDirection: "row", gap: 14 },
-  socialBtn: {
-    flex: 1, flexDirection: "row", alignItems: "center",
-    justifyContent: "center", gap: 10,
-    borderWidth: 1.5, borderColor: "#E0E0E0",
-    borderRadius: 14, height: 56,
+  appleBtn: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    gap: 10, height: 56, borderRadius: 14,
+    borderWidth: 1.5, borderColor: "#D0D0D0",
+    backgroundColor: "#FFFFFF",
+    marginBottom: 12,
+  },
+  appleBtnText: {
+    fontSize: 16, fontFamily: "Inter_600SemiBold", color: "#000000",
+  },
+
+  googleBtn: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    gap: 10, height: 56, borderRadius: 14,
+    borderWidth: 1.5, borderColor: "#D0D0D0",
     backgroundColor: "#FFFFFF",
   },
-  socialText: { fontSize: 16, fontFamily: "Inter_600SemiBold", color: BLACK },
-  googleBtn: {
-    flex: 1, borderRadius: 14, height: 56,
-    overflow: "hidden", backgroundColor: "#FFFFFF",
-    borderWidth: 1.5, borderColor: "#E0E0E0",
+  googleLogo: { width: 22, height: 22 },
+  googleBtnText: {
+    fontSize: 16, fontFamily: "Inter_600SemiBold", color: "#1A1A1A",
   },
-  googleImg: { width: "100%", height: "100%" },
 });
