@@ -1,0 +1,63 @@
+Good — the Metro/Expo runtime issue is now properly diagnosed and resolved without reverting the authentication implementation.
+
+Now stop adding new product features and focus entirely on final production hardening, verification, and cleanup of the existing authentication system.
+
+Current verified fixes:
+
+* Metro cache corruption resolved
+* Expo Go iOS bundle now builds successfully
+* SVG transformer configuration corrected
+* Workspace package exports resolution fixed
+* Expo Router bundle resolution working again
+* Authentication flows preserved and operational
+
+Next phase: final production QA and stabilization only.
+
+Required final verification pass:
+
+Runtime + stability:
+
+* Repeatedly launch the app in Expo Go on both iOS and Android.
+* Verify there are zero startup crashes or white screens.
+* Verify there are zero HTTP 502 errors remaining.
+* Verify Metro reconnect/reload works reliably after edits.
+* Verify hot reload/Fast Refresh remains stable.
+
+Authentication QA:
+
+* Fully retest:
+
+  * Onboarding → Sign Up → Phone Verify → OTP → Dashboard
+  * Sign In → Dashboard
+  * Forgot Password → Reset Password → OTP → Sign In
+  * Dashboard → Sign Out → Onboarding
+* Verify auth state resets cleanly after sign out.
+* Verify no route leakage into authenticated screens.
+* Verify back gestures/navigation history behave correctly everywhere.
+
+UI + rendering QA:
+
+* Verify Google SVG buttons render correctly at all widths and DPIs.
+* Verify Apple sign-in buttons render correctly only on iOS.
+* Verify there are no clipped SVGs, distorted scaling, or layout shifts.
+* Verify keyboard transitions and safe-area spacing remain polished.
+* Verify no flickering or animation stutter exists during transitions.
+* Verify loading states and disabled states remain visually consistent.
+
+Code cleanup:
+
+* Remove any remaining temporary debugging code, mock delays, or console logs.
+* Ensure no stale routes, placeholder screens, or dead Expo scaffolding remain.
+* Ensure Metro config remains minimal and stable after fixes.
+* Ensure no unnecessary workspace/watchFolder overrides remain.
+* Ensure all auth components remain modular and reusable.
+
+Final technical validation:
+
+* Zero TypeScript errors
+* Zero runtime warnings/errors
+* Zero Metro resolution errors
+* Zero broken routes/gestures
+* Zero unfinished placeholder behavior
+
+Do not begin biometrics, notifications, payments, transactions, or expanded dashboard functionality until the authentication system passes this full production verification phase cleanly.
