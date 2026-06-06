@@ -173,7 +173,8 @@ const s = StyleSheet.create({
   socialText: { fontSize: 16, fontFamily: "Inter_600SemiBold", color: BLACK },
   googleBtn: {
     flex: 1, borderRadius: 14, height: 56,
-    overflow: "hidden", backgroundColor: "#000000",
+    overflow: "hidden", backgroundColor: "#FFFFFF",
+    borderWidth: 1.5, borderColor: "#E0E0E0",
   },
   googleImg: { width: "100%", height: "100%" },
 });
