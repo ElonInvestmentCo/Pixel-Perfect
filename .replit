@@ -33,7 +33,7 @@ task = "workflow.run"
 args = "Start Expo Native App"
 
 [agent]
-stack = "PNPM_WORKSPACE"
+stack = "BEST_EFFORT_FALLBACK"
 expertMode = true
 appType = "MOBILE_APP_EXPO_NATIVE"
 
