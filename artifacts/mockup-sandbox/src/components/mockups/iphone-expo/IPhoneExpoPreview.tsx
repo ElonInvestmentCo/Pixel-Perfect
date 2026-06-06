@@ -471,7 +471,7 @@ function ScreenSignUp({ push, pop }: { push: (s: Screen) => void; pop: () => voi
   return (
     <div style={{ flex: 1, backgroundColor: "#fff", display: "flex", flexDirection: "column", overflowY: "auto", padding: "52px 24px 30px" }}>
       <CloseBtn onPress={pop}/>
-      <div style={{ marginTop: 26, fontSize: 27, fontWeight: 700, color: BLACK, letterSpacing: -0.3, marginBottom: 8 }}>Welcome to QPay</div>
+      <div style={{ marginTop: 26, fontSize: 27, fontWeight: 700, color: BLACK, letterSpacing: -0.3, marginBottom: 8 }}>Welcome to PayVora</div>
       <div style={{ fontSize: 14, color: "#888", lineHeight: 1.6, marginBottom: 26 }}>Create a commitment-free profile to<br/>explore financial products</div>
 
       <div style={{ fontSize: 13, color: "#888", marginBottom: 8 }}>Full name</div>
@@ -762,7 +762,7 @@ export function IPhoneExpoPreview() {
         <div style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #333", fontSize: 18 }}>⬡</div>
         <div>
           <div style={{ color: "#fff", fontSize: 15, fontWeight: 600 }}>Expo Go</div>
-          <div style={{ color: "#888", fontSize: 11 }}>QPay · Development build</div>
+          <div style={{ color: "#888", fontSize: 11 }}>PayVora · Development build</div>
         </div>
         <div style={{ marginLeft: 8, backgroundColor: "#1a3a1a", border: "1px solid #2a6a2a", borderRadius: 20, padding: "3px 10px" }}>
           <span style={{ color: "#4caf50", fontSize: 11, fontWeight: 600 }}>● LIVE</span>

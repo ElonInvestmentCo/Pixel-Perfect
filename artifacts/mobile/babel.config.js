@@ -1,4 +1,4 @@
-// QPay — React Native Expo mobile app
+// PayVora — React Native Expo mobile app
 // Babel config for Expo — DO NOT replace with a web-only Babel config
 
 module.exports = function (api) {

@@ -1,4 +1,4 @@
-# QPay — Finance Mobile App
+# PayVora — Finance Mobile App
 
 A React Native Expo mobile finance app with onboarding, sign-in, and sign-up screens.
 
@@ -82,7 +82,7 @@ artifacts/
 
 ## Product
 
-QPay is a fintech onboarding experience featuring:
+PayVora is a fintech onboarding experience featuring:
 - **3-slide animated carousel** — Balance card, credit cards, portfolio growth
 - **Sign Up** — Full name, email, password, Apple + Google social login
 - **Sign In** — Email, password, Forgot Password, Apple + Google social login

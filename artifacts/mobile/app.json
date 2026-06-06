@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "QPay",
+    "name": "PayVora",
     "slug": "mobile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -16,10 +16,10 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.qpay.mobile"
+      "bundleIdentifier": "com.payvora.mobile"
     },
     "android": {
-      "package": "com.qpay.mobile",
+      "package": "com.payvora.mobile",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#C8FF00"

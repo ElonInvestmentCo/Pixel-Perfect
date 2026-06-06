@@ -1,4 +1,4 @@
-# QPay — GitHub Import Rules
+# PayVora — GitHub Import Rules
 
 > **Read this first.** These rules apply to every AI agent, automated scanner, and Replit session that imports or clones this repository.
 
@@ -8,7 +8,7 @@
 
 | Field | Value |
 |---|---|
-| Project name | QPay |
+| Project name | PayVora |
 | Project type | **MOBILE_APP_EXPO_NATIVE** |
 | Primary runtime | Expo SDK ~54 + Metro Bundler |
 | Framework | React Native + Expo Router |

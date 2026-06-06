@@ -1,4 +1,4 @@
-// QPay — React Native Expo mobile app
+// PayVora — React Native Expo mobile app
 // Metro bundler config for pnpm monorepo workspace
 // DO NOT replace this with a web bundler config (Vite, Webpack, etc.)
 

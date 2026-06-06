@@ -39,7 +39,7 @@ export default function SignUpScreen() {
           </TouchableOpacity>
 
           {/* Title */}
-          <Text style={s.title}>Welcome to QPay</Text>
+          <Text style={s.title}>Welcome to PayVora</Text>
           <Text style={s.subtitle}>
             Create a commitment-free profile to{"\n"}explore financial products
           </Text>

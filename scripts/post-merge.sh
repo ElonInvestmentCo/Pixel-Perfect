@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# QPay — Post-merge setup script
+# PayVora — Post-merge setup script
 # THIS IS A REACT NATIVE EXPO MOBILE APPLICATION — DO NOT CONVERT TO WEB PROJECT.
 #
 # Runs automatically after task agent merges. Restores pnpm workspace
@@ -10,15 +10,15 @@
 set -e
 
 echo ""
-echo "▸ QPay post-merge: restoring pnpm workspace..."
+echo "▸ PayVora post-merge: restoring pnpm workspace..."
 pnpm install --frozen-lockfile
 
 echo ""
-echo "▸ QPay post-merge: pushing DB schema (dev only)..."
+echo "▸ PayVora post-merge: pushing DB schema (dev only)..."
 pnpm --filter db push 2>/dev/null || echo "  (no DB changes or DB not available — skipping)"
 
 echo ""
-echo "▸ QPay post-merge: validating native Expo environment..."
+echo "▸ PayVora post-merge: validating native Expo environment..."
 bash scripts/validate-native-env.sh
 
 echo ""

@@ -1,4 +1,4 @@
-# QPay — Mobile Runtime Reference
+# PayVora — Mobile Runtime Reference
 
 > How this app boots, how Metro runs, how QR codes work, and why nothing here is a web app.
 

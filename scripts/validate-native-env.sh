@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-# QPay — Native Environment Validator
+# PayVora — Native Environment Validator
 # THIS IS A REACT NATIVE EXPO MOBILE APPLICATION — DO NOT CONVERT TO WEB PROJECT.
 #
 # Run this script after GitHub import or any dependency change to confirm
@@ -22,7 +22,7 @@ WARNINGS=0
 
 echo ""
 echo -e "${BOLD}${CYAN}═══════════════════════════════════════════════${NC}"
-echo -e "${BOLD}${CYAN}  QPay — Native Environment Validation${NC}"
+echo -e "${BOLD}${CYAN}  PayVora — Native Environment Validation${NC}"
 echo -e "${BOLD}${CYAN}  Project type: MOBILE_APP_EXPO_NATIVE${NC}"
 echo -e "${BOLD}${CYAN}═══════════════════════════════════════════════${NC}"
 echo ""

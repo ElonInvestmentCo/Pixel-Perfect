@@ -1,4 +1,4 @@
-# QPay — Agent & AI Instructions
+# PayVora — Agent & AI Instructions
 
 ## 🚨 PROJECT TYPE: REACT NATIVE EXPO MOBILE APP
 

@@ -5,7 +5,7 @@ const QR_URL = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=
 const STEPS = [
   { icon: "📲", text: "Download Expo Go from the App Store" },
   { icon: "📷", text: "Open the Camera app (iOS) or Expo Go" },
-  { icon: "✅", text: "Scan the QR code — QPay opens instantly" },
+  { icon: "✅", text: "Scan the QR code — PayVora opens instantly" },
 ];
 
 export function ExpoGoLauncher() {
@@ -33,7 +33,7 @@ export function ExpoGoLauncher() {
         }}>⬡</div>
         <div>
           <div style={{ color: "#fff", fontSize: 18, fontWeight: 700, letterSpacing: -0.3 }}>Expo Go</div>
-          <div style={{ color: "#666", fontSize: 12, marginTop: 1 }}>QPay · iOS Preview</div>
+          <div style={{ color: "#666", fontSize: 12, marginTop: 1 }}>PayVora · iOS Preview</div>
         </div>
         <div style={{
           marginLeft: 6,

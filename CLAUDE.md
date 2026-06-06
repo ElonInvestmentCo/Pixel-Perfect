@@ -1,4 +1,4 @@
-# QPay — Instructions for Claude
+# PayVora — Instructions for Claude
 
 ## Project type: React Native Expo mobile app (NOT a web app)
 

@@ -1,4 +1,4 @@
-# QPay — Final Native Lock Report
+# PayVora — Final Native Lock Report
 
 **THIS IS A REACT NATIVE EXPO MOBILE APPLICATION — DO NOT CONVERT TO WEB PROJECT.**
 
@@ -16,8 +16,8 @@ The following verification was run against the live repository, using the same c
 | Signal | Location | Value | Result |
 |---|---|---|---|
 | `app.json` expo key | `artifacts/mobile/app.json` | `{ "expo": { "projectType": "MOBILE_APP_EXPO_NATIVE" } }` | ✓ NATIVE |
-| `app.json` name | `artifacts/mobile/app.json` | `"QPay"` | ✓ NATIVE |
-| `app.json` bundleIdentifier | `artifacts/mobile/app.json` | `com.qpay.mobile` | ✓ NATIVE |
+| `app.json` name | `artifacts/mobile/app.json` | `"PayVora"` | ✓ NATIVE |
+| `app.json` bundleIdentifier | `artifacts/mobile/app.json` | `com.payvora.mobile` | ✓ NATIVE |
 | `metro.config.js` bundler | `artifacts/mobile/metro.config.js` | `expo/metro-config` | ✓ NATIVE |
 | `babel.config.js` preset | `artifacts/mobile/babel.config.js` | `babel-preset-expo` | ✓ NATIVE |
 | `tsconfig.json` base | `artifacts/mobile/tsconfig.json` | `expo/tsconfig.base` | ✓ NATIVE |
@@ -137,7 +137,7 @@ Web fallback only activates when no native implementation exists. It cannot over
 | File | Safeguard |
 |---|---|
 | `artifacts/mobile/app.json` | `"projectType": "MOBILE_APP_EXPO_NATIVE"` inside expo block |
-| `artifacts/mobile/app.json` | `"bundleIdentifier": "com.qpay.mobile"` — native iOS/Android IDs |
+| `artifacts/mobile/app.json` | `"bundleIdentifier": "com.payvora.mobile"` — native iOS/Android IDs |
 | `artifacts/mobile/package.json` | `"main": "expo-router/entry"` — native entry (not `index.html`) |
 | `artifacts/mobile/package.json` | `"keywords": ["expo","react-native","mobile","ios","android","native"]` |
 | `artifacts/mobile/package.json` | `"expo": { "projectType": "MOBILE_APP_EXPO_NATIVE" }` |
@@ -253,6 +253,6 @@ bash scripts/post-merge.sh
 
 ## Conclusion
 
-**The QPay repository is permanently hardened as a React Native Expo mobile application.**
+**The PayVora repository is permanently hardened as a React Native Expo mobile application.**
 
 Zero checks failed. Zero web configs exist in the mobile workspace. Metro is running. The Expo Go QR code is live. All 16 native detection signals are active. All 22 validation checks pass. Every future session, import, or merge will encounter these safeguards before a single line of code is written.
