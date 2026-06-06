@@ -1,0 +1,48 @@
+Starting Metro Bundler
+▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+█ ▄▄▄▄▄ █▄▀▀▄▄██▄ ▀ ▀▀ ▄██▄▀█▄█ ▄▄▄▄▄ █
+█ █   █ ███▄█ ██▄ ▀▀██ █▄▄ ▀▄▄█ █   █ █
+█ █▄▄▄█ ██▄▀▄▀█▄  █▄▄▀▄▄▀█▀██▀█ █▄▄▄█ █
+█▄▄▄▄▄▄▄█ █ ▀▄▀▄▀ █ ▀ █▄▀ ▀▄█▄█▄▄▄▄▄▄▄█
+█▄ ▀ ▄█▄▀▀ ▄▄▀ ██▀▄█▀███ ▄█  ▀█▄▀▀▀██▄█
+██  ▄█▄▄ ▀   ▀ █▄ ▀ ▀█▄ ▄▄██▄▄▄  ▄▀ ▄▄█
+█▄█▀█ ▄▄ ▀▀▄▄▄ ▀▄ █▀█▄▀▀▀▄▀▀▀▄▄▄▀▀ ████
+███▄█ ▀▄▀█ ▄ ▄▄█▀▄██ █▄ █▀▄█▄▀ ▀▀▀▄▀█▄█
+█▀▀█▀▄▀▄██▄▄▀▀▀ █ ▀█ ▄██▄▀  ▀ ▄▄▄██ ▄██
+█ ▀▀▀█ ▄▄█ █▄▀█▀▄█▄ ▄██ ▄█  ▄ █  ▀▀█▄ █
+██ █  ▄▄█  ▀█▄▄ ▄▄ ▀▀█▀▀  █  ▄▀▄█ ▄▀▀▄█
+█▀██▀▄ ▄▄ █▀█▄█ ▀█ ▀█▄█▄  ▄▄▄ █▄  ▀▀▀ █
+█▀▄▀▀▄ ▄█ ▄ █▀▄▄█▄▀▀▄███ ▀▀▄▀██▄ ▀ █ ██
+█ ▄ ▄▀▀▄▄█ ██▀▀  ▄█▄▄▀▄▄█ ▄ ▄▀▀ █▀▄   █
+█▄█▄██▄▄▄▀▀▀ ▄██ ▄▀█ ▀██▄▀▄ ▀ ▄▄▄ █ ▀▄█
+█ ▄▄▄▄▄ ██▀▀▀▄ ▄▄▀▄▀ █▄ ▄█  █ █▄█ ▄▄█ █
+█ █   █ █ ▄▄▄▀ █ ▄   █▀▀  ▀█     ▄█▀▀ █
+█ █▄▄▄█ █▀ ▀ ▀ █▄█▀▀▀ ██ ▀█ █▄▄▀▀▄▀ ▀ █
+█▄▄▄▄▄▄▄█▄██▄▄▄█▄▄███▄█▄▄▄██▄▄█▄█▄▄██▄█
+
+› Metro waiting on
+exp://f3ad03e1-255a-47ae-99d9-0023da8b409a-00-1nkscttx3oa1k.expo.kirk.replit.dev
+› Scan the QR code above with Expo Go (Android) or the Camera app (iOS)
+
+› Web is waiting on http://localhost:18115
+
+› Using Expo Go
+› Press s │ switch to development build
+
+› Press a │ open Android
+› Press w │ open web
+
+› Press j │ open debugger
+› Press r │ reload app
+› Press m │ toggle menu
+› shift+m │ more tools
+› Press o │ open project code in your editor
+
+› Press ? │ show all commands
+
+Logs for your project will appear below. Press Ctrl+C to exit.
+Web Bundled 12802ms node_modules/.pnpm/expo-router@6.0.24_@types+react-dom@19.1.11_@types+react@19.1.17__@types+react@19.1.17__4094ee48018c5b5c8f1246009fce9036/node_modules/expo-router/entry.js (1426 modules)
+Error: Unauthorized request from https://f3ad03e1-255a-47ae-99d9-0023da8b409a-00-1nkscttx3oa1k.kirk.replit.dev:3000. This may happen because of a conflicting browser extension to intercept HTTP requests. Disable browser extensions or use incognito mode and try again.
+    at /home/runner/workspace/node_modules/.pnpm/@expo+cli@54.0.25_expo-router@6.0.24_expo@54.0.35_react-native@0.81.5_@babel+core@7.29._d2692a18a3c9d9eb24f2d1bd1f7e96db/node_modules/@expo/cli/src/start/server/middleware/CorsMiddleware.ts:51:11
+    at call (/home/runner/workspace/node_modules/.pnpm/connect@3.7.0/node_modules/connect/index.js:239:7)
+    at next (/home/runner/workspace/node_modules/.pnpm/connect@3.7.0/node_modules/connect/index.js:183:5)
