@@ -1,0 +1,75 @@
+The Replit Preview failure confirms the Expo/Metro server is still not exposing a valid HTTP endpoint correctly after the recent workspace + Metro changes.
+
+The issue is now affecting both:
+
+* Expo Go bundle requests (HTTP 502)
+* Replit Preview HTTP detection
+
+This strongly indicates the dev server root/configuration is broken rather than the authentication UI itself.
+
+Continue debugging from the current Metro/workspace root investigation.
+
+Critical next debugging tasks:
+
+1. Verify the actual running server
+
+* Confirm Expo/Metro is actively listening on a valid port.
+* Confirm the process is running from:
+  `artifacts/mobile`
+* Confirm the server exposes HTTP traffic correctly to Replit.
+
+2. Verify Expo startup command
+
+* Ensure the workflow/start command uses:
+  `cd artifacts/mobile && npx expo start --clear --tunnel`
+* Ensure no commands execute from `/home/runner/workspace` root.
+* Ensure pnpm workspace context is not overriding Expo root resolution.
+
+3. Verify Replit Preview compatibility
+
+* Expo tunnel mode alone may not expose a standard HTTP preview server for Replit.
+* Ensure Expo web mode is also available if Preview depends on HTTP traffic:
+
+  * verify `expo start --web`
+  * or ensure Metro serves a reachable local endpoint.
+* Confirm the app binds correctly to:
+  `0.0.0.0`
+
+4. Re-check metro.config.js
+
+* Verify `projectRoot` explicitly points to:
+  `artifacts/mobile`
+* Verify `watchFolders` do not accidentally override resolver origin.
+* Verify no malformed resolver config remains after SVG transformer edits.
+
+5. Verify Expo Router entry resolution
+
+* Ensure:
+  `"main": "expo-router/entry"`
+  exists only in the mobile app package.json.
+* Ensure no workspace-root package.json conflicts with Expo entry resolution.
+
+6. Full cleanup again before restart
+   Perform another complete reset:
+
+* stop all running Metro/Expo processes
+* delete `.expo`
+* delete `.expo-shared`
+* clear Metro cache
+* clear Expo cache
+* clear node_modules/.cache
+* restart fresh from `artifacts/mobile`
+
+7. Verification after restart
+   After fixes:
+
+* Replit Preview should load correctly
+* Expo Go should connect without HTTP 502
+* iOS bundle should compile successfully
+* Android bundle should compile successfully
+* onboarding/auth screens should render normally
+* SVG assets should still render correctly
+
+Important:
+Do NOT revert the completed authentication implementation.
+Focus only on fixing the Expo/Metro/Replit runtime environment and project-root resolution cleanly.
