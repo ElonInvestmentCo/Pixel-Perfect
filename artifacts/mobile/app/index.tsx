@@ -59,6 +59,33 @@ function Rings({ color }: { color: string }) {
 }
 
 // ─── Slide illustrations ──────────────────────────────────────────────────────
+function Slide1() {
+  return (
+    <View style={il.wrap}>
+      <View style={il.circle} />
+      <View style={il.card}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={il.cardLabel}>Total Balance</Text>
+          <Feather name="eye" size={15} color="#8A8A8A" style={{ marginLeft: 6 }} />
+        </View>
+        <Text style={il.cardAmount}>$0.00</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <TouchableOpacity style={il.pill}>
+            <View style={il.iconCircle}><Feather name="arrow-up" size={12} color={BLACK} /></View>
+            <Text style={il.pillText}>Transfer</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[il.pill, { marginLeft: 8 }]}>
+            <View style={il.iconCircle}><Feather name="arrow-down" size={12} color={BLACK} /></View>
+            <Text style={il.pillText}>Receive</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[il.menuBtn, { marginLeft: 8 }]}>
+            <Feather name="menu" size={16} color={BLACK} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+}
 
 const CARD_W = SW * 0.7;
 const CARD_H = CARD_W * 0.615;
@@ -182,6 +209,12 @@ const il = StyleSheet.create({
 
 // ─── Slide metadata ───────────────────────────────────────────────────────────
 const SLIDES = [
+  {
+    id: "balance",
+    render: () => <Slide1 />,
+    headline: "The Modern Way\nYour Money",
+    sub: "Spend, save, and grow your money all\ntogether in one place.",
+  },
   {
     id: "cards",
     render: () => <Slide2 />,
