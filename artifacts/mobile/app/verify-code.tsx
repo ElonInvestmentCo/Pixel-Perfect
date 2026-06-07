@@ -185,7 +185,7 @@ export default function VerifyCodeScreen() {
       await verifyOtp(c);
       if (!mountedRef.current) return;
       setStatus("success");
-      const dest = isResetMode ? "/signin" : "/dashboard";
+      const dest = isResetMode ? "/signin" : "/account-reason";
       navTimerRef.current = setTimeout(() => {
         if (mountedRef.current) router.replace(dest);
       }, 1800);

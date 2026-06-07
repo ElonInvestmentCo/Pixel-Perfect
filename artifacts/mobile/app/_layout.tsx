@@ -28,7 +28,9 @@ function RootLayoutNav() {
       <Stack.Screen name="signin"         options={{ headerShown: false, presentation: "modal" }} />
       <Stack.Screen name="reset-password" options={{ headerShown: false }} />
       <Stack.Screen name="verify-code"    options={{ headerShown: false }} />
-      <Stack.Screen name="dashboard"      options={{ headerShown: false, gestureEnabled: false }} />
+      <Stack.Screen name="account-reason"  options={{ headerShown: false }} />
+      <Stack.Screen name="identity-upload" options={{ headerShown: false }} />
+      <Stack.Screen name="dashboard"       options={{ headerShown: false, gestureEnabled: false }} />
     </Stack>
   );
 }
