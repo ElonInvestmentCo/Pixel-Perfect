@@ -36,8 +36,9 @@ pnpm --filter @workspace/mobile exec expo start --tunnel --port 8082     # start
 ```javascript
 await configureWorkflow({
   name: "Start Expo Native App",
-  command: "pnpm --filter @workspace/mobile exec expo start --tunnel --port 8082",
-  outputType: "console",   // console only — NO webview, NO waitForPort
+  command: "pnpm --filter @workspace/mobile exec expo start --tunnel --port 8080",
+  waitForPort: 8080,       // needed so Replit's canvas preview can connect
+  outputType: "console",   // console — not webview
   autoStart: true
 });
 ```
