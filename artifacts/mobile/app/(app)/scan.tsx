@@ -1,3 +1,16 @@
+/**
+ * Scan / QR Code screen — pixel-perfect reference: IMG_1351
+ *
+ * Layout (dark navy full screen):
+ *  • Top-left: circular X close button
+ *  • Centre: phone-frame card showing the QR modal (white screen inside dark bezel)
+ *    – "My QR Code" header + ×
+ *    – Generated QR pattern with lime "R." centre badge
+ *    – Lime "Share Code" pill button
+ *  • Bottom row: [image icon] [lime "My Code" pill] [lightning icon]
+ *  • Standard tab bar visible at very bottom
+ */
+
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -11,56 +24,55 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const LIME  = "#C8FF00";
-const BLACK = "#1A1A1A";
+const LIME   = "#C8FF00";
+const BLACK  = "#1A1A1A";
 const INDIGO = "#4F46E5";
+const NAVY   = "#0D1421";
 
-// ─── Simple QR visual ─────────────────────────────────────────────────────────
+// ─── QR code pattern ──────────────────────────────────────────────────────────
+// A realistic 21×21 QR-like grid used as a static placeholder.
+const PATTERN: number[][] = [
+  [1,1,1,1,1,1,1,0,1,0,1,0,0,0,1,1,1,1,1,1,1],
+  [1,0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,0,0,0,0,1],
+  [1,0,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1],
+  [1,0,1,1,1,0,1,0,0,1,0,0,0,0,1,0,1,1,1,0,1],
+  [1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1],
+  [1,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0,0,1],
+  [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],
+  [0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0],
+  [1,0,1,1,0,1,1,1,0,0,1,0,1,1,1,0,1,1,0,1,1],
+  [0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0],
+  [1,0,1,0,1,1,0,1,0,0,1,0,1,0,1,0,1,0,0,1,0],
+  [0,1,0,1,0,0,0,1,1,0,0,1,0,1,0,0,0,1,1,0,1],
+  [1,0,0,0,1,0,1,0,0,1,1,0,1,0,1,1,0,0,0,1,0],
+  [0,0,0,0,0,0,0,0,1,0,1,1,0,0,0,0,1,1,0,0,1],
+  [1,1,1,1,1,1,1,0,0,1,0,0,1,0,1,0,0,1,1,0,0],
+  [1,0,0,0,0,0,1,0,1,0,1,0,0,1,0,1,0,0,0,1,0],
+  [1,0,1,1,1,0,1,0,0,1,0,1,1,0,1,0,1,1,0,0,1],
+  [1,0,1,1,1,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,0],
+  [1,0,1,1,1,0,1,0,0,1,1,0,1,1,1,0,1,0,0,1,1],
+  [1,0,0,0,0,0,1,0,1,0,0,1,0,0,0,1,0,1,0,0,0],
+  [1,1,1,1,1,1,1,0,0,1,1,0,1,0,1,0,1,0,1,1,0],
+];
+
 function QRCodeView() {
-  const CELL = 8;
-  const SIZE = 22;
-
-  const pattern: number[][] = [
-    [1,1,1,1,1,1,1,0,1,0,1,0,0,0,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,0,0,0,0,1],
-    [1,0,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1],
-    [1,0,1,1,1,0,1,0,0,1,0,0,0,0,1,0,1,1,1,0,1],
-    [1,0,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1,1,1,0,1],
-    [1,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],
-    [0,0,0,0,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0],
-    [1,0,1,1,0,1,1,1,0,0,1,0,1,1,1,0,1,1,0,1,1],
-    [0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0],
-    [1,0,1,0,1,1,0,1,0,0,1,0,1,0,1,0,1,0,0,1,0],
-    [0,1,0,1,0,0,0,1,1,0,0,1,0,1,0,0,0,1,1,0,1],
-    [1,0,0,0,1,0,1,0,0,1,1,0,1,0,1,1,0,0,0,1,0],
-    [0,0,0,0,0,0,0,0,1,0,1,1,0,0,0,0,1,1,0,0,1],
-    [1,1,1,1,1,1,1,0,0,1,0,0,1,0,1,0,0,1,1,0,0],
-    [1,0,0,0,0,0,1,0,1,0,1,0,0,1,0,1,0,0,0,1,0],
-    [1,0,1,1,1,0,1,0,0,1,0,1,1,0,1,0,1,1,0,0,1],
-    [1,0,1,1,1,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,0],
-    [1,0,1,1,1,0,1,0,0,1,1,0,1,1,1,0,1,0,0,1,1],
-    [1,0,0,0,0,0,1,0,1,0,0,1,0,0,0,1,0,1,0,0,0],
-    [1,1,1,1,1,1,1,0,0,1,1,0,1,0,1,0,1,0,1,1,0],
-  ];
-
+  const CELL = 7;
   return (
     <View style={qr.outer}>
-      {pattern.map((row, ri) => (
+      {PATTERN.map((row, ri) => (
         <View key={ri} style={qr.row}>
           {row.map((cell, ci) => (
             <View
               key={ci}
               style={[
-                qr.cell,
                 { width: CELL, height: CELL },
-                cell === 1 ? qr.black : qr.white,
+                cell === 1 ? qr.dark : qr.light,
               ]}
             />
           ))}
         </View>
       ))}
-      {/* Lime center badge */}
+      {/* Lime badge overlay in the centre */}
       <View style={qr.badge}>
         <Text style={qr.badgeText}>R.</Text>
       </View>
@@ -72,24 +84,26 @@ const qr = StyleSheet.create({
   outer: {
     alignSelf: "center",
     backgroundColor: "#FFFFFF",
-    padding: 12,
-    borderRadius: 12,
+    padding: 6,
+    borderRadius: 4,
     position: "relative",
     alignItems: "center",
   },
   row:   { flexDirection: "row" },
-  cell:  { },
-  black: { backgroundColor: "#1A1A1A" },
-  white: { backgroundColor: "#FFFFFF" },
+  dark:  { backgroundColor: "#1A1A1A" },
+  light: { backgroundColor: "#FFFFFF" },
   badge: {
-    position: "absolute", top: "38%", left: "35%",
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: LIME, alignItems: "center", justifyContent: "center",
+    position: "absolute",
+    top: "36%", left: "36%",
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: LIME,
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 2, borderColor: "#FFFFFF",
   },
-  badgeText: { fontSize: 13, fontFamily: "Inter_700Bold", color: INDIGO },
+  badgeText: { fontSize: 10, fontFamily: "Inter_700Bold", color: INDIGO },
 });
 
-// ─── My QR Code Modal ─────────────────────────────────────────────────────────
+// ─── QR Code Modal (bottom sheet) ─────────────────────────────────────────────
 function MyQRModal({
   visible,
   onClose,
@@ -118,23 +132,20 @@ function MyQRModal({
           activeOpacity={1}
           onPress={onClose}
         />
-        <View style={[m.sheet, { paddingBottom: insets.bottom + 24 }]}>
-          {/* Header */}
+        <View style={[m.sheet, { paddingBottom: insets.bottom + 28 }]}>
+          <View style={m.handle} />
           <View style={m.header}>
             <Text style={m.title}>My QR Code</Text>
-            <TouchableOpacity onPress={onClose} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-              <Feather name="x" size={20} color="#999" />
+            <TouchableOpacity
+              onPress={onClose}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <Feather name="x" size={20} color="#9CA3AF" />
             </TouchableOpacity>
           </View>
-
-          {/* QR code */}
           <View style={m.qrWrap}>
             <QRCodeView />
           </View>
-
-          <Text style={m.hint}>Show and scan this QR code{"\n"}to start transactions</Text>
-
-          {/* Share button */}
           <TouchableOpacity style={m.shareBtn} activeOpacity={0.85} onPress={handleShare}>
             <Text style={m.shareBtnText}>Share Code</Text>
           </TouchableOpacity>
@@ -147,30 +158,135 @@ function MyQRModal({
 const m = StyleSheet.create({
   overlay: {
     flex: 1, justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0,0,0,0.55)",
   },
   sheet: {
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    paddingHorizontal: 24, paddingTop: 24,
+    paddingHorizontal: 28, paddingTop: 16,
+  },
+  handle: {
+    width: 40, height: 4, borderRadius: 2,
+    backgroundColor: "#E5E7EB",
+    alignSelf: "center", marginBottom: 20,
   },
   header: {
     flexDirection: "row", alignItems: "center",
     justifyContent: "space-between", marginBottom: 28,
   },
   title: { fontSize: 20, fontFamily: "Inter_700Bold", color: BLACK },
-
-  qrWrap: { alignItems: "center", marginBottom: 20 },
-
-  hint: {
-    fontSize: 13, fontFamily: "Inter_400Regular", color: "#888888",
-    textAlign: "center", lineHeight: 20, marginBottom: 28,
-  },
+  qrWrap: { alignItems: "center", marginBottom: 28 },
   shareBtn: {
-    backgroundColor: LIME, borderRadius: 16, height: 56,
+    backgroundColor: LIME, borderRadius: 14, height: 54,
     alignItems: "center", justifyContent: "center",
   },
   shareBtnText: { fontSize: 16, fontFamily: "Inter_700Bold", color: BLACK },
+});
+
+// ─── Phone-frame card with embedded QR modal preview ──────────────────────────
+// Matches the reference: white card inside a dark-bordered phone bezel,
+// showing "My QR Code" header, QR code, and "Share Code" lime button.
+function PhoneFrameCard() {
+  return (
+    <View style={ph.frame}>
+      {/* Inner white screen */}
+      <View style={ph.screen}>
+        {/* Modal header */}
+        <View style={ph.modalHeader}>
+          <Text style={ph.modalTitle}>My QR Code</Text>
+          <Feather name="x" size={13} color="#9CA3AF" />
+        </View>
+        {/* QR code */}
+        <View style={ph.qrArea}>
+          <View style={ph.qrOuter}>
+            {PATTERN.slice(0, 13).map((row, ri) => (
+              <View key={ri} style={{ flexDirection: "row" }}>
+                {row.map((cell, ci) => (
+                  <View
+                    key={ci}
+                    style={{
+                      width: 5.5, height: 5.5,
+                      backgroundColor: cell === 1 ? "#1A1A1A" : "#FFFFFF",
+                    }}
+                  />
+                ))}
+              </View>
+            ))}
+            <View style={ph.qrBadge}>
+              <Text style={ph.qrBadgeText}>R.</Text>
+            </View>
+          </View>
+        </View>
+        {/* Share Code pill */}
+        <View style={ph.sharePill}>
+          <Text style={ph.sharePillText}>Share Code</Text>
+        </View>
+      </View>
+      {/* Phone home bar */}
+      <View style={ph.homeBar} />
+    </View>
+  );
+}
+
+const ph = StyleSheet.create({
+  frame: {
+    width: 220,
+    borderRadius: 22,
+    backgroundColor: "#2A3040",
+    borderWidth: 5,
+    borderColor: "#2A3040",
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.5,
+    shadowRadius: 32,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 12,
+  },
+  screen: {
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 14,
+    paddingTop: 14,
+    paddingBottom: 18,
+    alignItems: "center",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 14,
+  },
+  modalTitle: { fontSize: 13, fontFamily: "Inter_700Bold", color: BLACK },
+  qrArea: { alignItems: "center", marginBottom: 14 },
+  qrOuter: {
+    position: "relative",
+    backgroundColor: "#FFFFFF",
+    padding: 4,
+    borderRadius: 3,
+    alignItems: "center",
+  },
+  qrBadge: {
+    position: "absolute", top: "28%", left: "34%",
+    width: 22, height: 22, borderRadius: 11,
+    backgroundColor: LIME,
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 1.5, borderColor: "#FFFFFF",
+  },
+  qrBadgeText: { fontSize: 7, fontFamily: "Inter_700Bold", color: INDIGO },
+  sharePill: {
+    backgroundColor: LIME,
+    borderRadius: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 7,
+  },
+  sharePillText: { fontSize: 11, fontFamily: "Inter_700Bold", color: BLACK },
+  homeBar: {
+    height: 4,
+    backgroundColor: "#3D4557",
+    marginHorizontal: 70,
+    marginVertical: 8,
+    borderRadius: 2,
+  },
 });
 
 // ─── Scan Screen ──────────────────────────────────────────────────────────────
@@ -180,63 +296,33 @@ export default function ScanScreen() {
 
   return (
     <View style={s.root}>
-      {/* Status bar area */}
+      {/* Safe area top */}
       <View style={{ height: insets.top }} />
 
-      {/* Top bar */}
+      {/* ── Close button ──────────────────────────────────────────────────── */}
       <View style={s.topBar}>
         <TouchableOpacity
           style={s.closeBtn}
           activeOpacity={0.7}
           onPress={() => router.back()}
         >
-          <Feather name="x" size={18} color="#FFFFFF" />
+          <Feather name="x" size={16} color="rgba(255,255,255,0.85)" />
         </TouchableOpacity>
       </View>
 
-      {/* Phone / QR frame illustration */}
+      {/* ── Phone frame card centred ───────────────────────────────────────── */}
       <View style={s.frameArea}>
-        <View style={s.phoneMock}>
-          {/* Simulate scanning another phone showing QR */}
-          <View style={s.phoneMockScreen}>
-            <View style={s.phoneMockHeader}>
-              <Text style={s.phoneMockHeaderText}>My QR Code</Text>
-              <Feather name="x" size={12} color="#999" />
-            </View>
-            <View style={s.miniQrArea}>
-              <View style={s.miniQrGrid}>
-                {[0,1,2,3,4].map(r => (
-                  <View key={r} style={{ flexDirection: "row" }}>
-                    {[0,1,2,3,4].map(c => (
-                      <View
-                        key={c}
-                        style={{
-                          width: 14, height: 14,
-                          backgroundColor: (r===0||r===4||c===0||c===4) ? "#1A1A1A"
-                            : (r===2&&c===2) ? "#1A1A1A" : "#FFFFFF",
-                        }}
-                      />
-                    ))}
-                  </View>
-                ))}
-              </View>
-              <View style={s.miniQrBadge}>
-                <Text style={s.miniQrBadgeText}>R.</Text>
-              </View>
-            </View>
-            <Text style={s.miniShareBtn}>Share Code</Text>
-          </View>
-          {/* Phone home bar */}
-          <View style={s.phoneBar} />
-        </View>
+        <PhoneFrameCard />
       </View>
 
-      {/* Bottom controls */}
-      <View style={[s.controls, { paddingBottom: insets.bottom + 16 }]}>
+      {/* ── Bottom controls ───────────────────────────────────────────────── */}
+      <View style={[s.controls, { paddingBottom: insets.bottom + 20 }]}>
+        {/* Gallery */}
         <TouchableOpacity style={s.sideBtn} activeOpacity={0.7}>
-          <Feather name="image" size={22} color="#FFFFFF" />
+          <Feather name="image" size={22} color="rgba(255,255,255,0.75)" />
         </TouchableOpacity>
 
+        {/* My Code pill */}
         <TouchableOpacity
           style={s.myCodeBtn}
           activeOpacity={0.85}
@@ -246,8 +332,9 @@ export default function ScanScreen() {
           <Text style={s.myCodeText}>My Code</Text>
         </TouchableOpacity>
 
+        {/* Flash */}
         <TouchableOpacity style={s.sideBtn} activeOpacity={0.7}>
-          <Feather name="zap" size={22} color="#FFFFFF" />
+          <Feather name="zap" size={22} color="rgba(255,255,255,0.75)" />
         </TouchableOpacity>
       </View>
 
@@ -257,74 +344,54 @@ export default function ScanScreen() {
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#111827" },
-
+  root: {
+    flex: 1,
+    backgroundColor: NAVY,
+  },
   topBar: {
-    paddingHorizontal: 20, paddingBottom: 12,
+    paddingHorizontal: 20,
+    paddingBottom: 8,
   },
   closeBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    alignItems: "center", justifyContent: "center",
-  },
-
-  frameArea: {
-    flex: 1, alignItems: "center", justifyContent: "center",
-  },
-
-  phoneMock: {
-    width: 200, height: 340, borderRadius: 24,
-    backgroundColor: "#1F2937",
-    borderWidth: 6, borderColor: "#374151",
-    overflow: "hidden",
-    shadowColor: "#000", shadowOpacity: 0.5, shadowRadius: 30, shadowOffset: { width: 0, height: 10 },
-    elevation: 10,
-  },
-  phoneMockScreen: {
-    flex: 1, backgroundColor: "#FFFFFF", padding: 12,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: "rgba(255,255,255,0.14)",
     alignItems: "center",
+    justifyContent: "center",
   },
-  phoneMockHeader: {
-    flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%", marginBottom: 12,
+  frameArea: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  phoneMockHeaderText: { fontSize: 11, fontFamily: "Inter_700Bold", color: BLACK },
-
-  miniQrArea: { position: "relative", alignItems: "center", marginBottom: 8 },
-  miniQrGrid: { borderWidth: 1, borderColor: "#E5E5E5" },
-  miniQrBadge: {
-    position: "absolute", top: "30%", left: "30%",
-    width: 22, height: 22, borderRadius: 11,
-    backgroundColor: LIME, alignItems: "center", justifyContent: "center",
-  },
-  miniQrBadgeText: { fontSize: 7, fontFamily: "Inter_700Bold", color: INDIGO },
-
-  miniShareBtn: {
-    marginTop: 8, fontSize: 9, fontFamily: "Inter_700Bold", color: BLACK,
-    backgroundColor: LIME, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 6,
-  },
-
-  phoneBar: {
-    height: 5, backgroundColor: "#374151",
-    marginHorizontal: 60, marginBottom: 6,
-    borderRadius: 3,
-  },
-
   controls: {
-    flexDirection: "row", alignItems: "center",
+    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 40, paddingTop: 24,
+    paddingHorizontal: 44,
+    paddingTop: 20,
   },
   sideBtn: {
-    width: 48, height: 48, borderRadius: 24,
-    backgroundColor: "rgba(255,255,255,0.12)",
-    alignItems: "center", justifyContent: "center",
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: "rgba(255,255,255,0.10)",
+    alignItems: "center",
+    justifyContent: "center",
   },
   myCodeBtn: {
-    flexDirection: "row", alignItems: "center", gap: 8,
-    backgroundColor: LIME, borderRadius: 50,
-    paddingVertical: 14, paddingHorizontal: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+    backgroundColor: LIME,
+    borderRadius: 50,
+    paddingVertical: 15,
+    paddingHorizontal: 28,
   },
-  myCodeText: { fontSize: 15, fontFamily: "Inter_700Bold", color: BLACK },
+  myCodeText: {
+    fontSize: 16,
+    fontFamily: "Inter_700Bold",
+    color: BLACK,
+  },
 });

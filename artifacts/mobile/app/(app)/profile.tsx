@@ -1,3 +1,16 @@
+/**
+ * Profile tab screen — pixel-perfect reference: IMG_1352
+ *
+ * Layout (white background):
+ *  • Header row: < back (gray circle) | "Profile" centered bold | gray circle (right)
+ *  • Avatar: gray circle with "JL" initials
+ *  • Name + account type
+ *  • Indigo invite-a-friend banner (2 translucent circles as decoration)
+ *  • Menu list: Member ID | Settings | Privacy & Security | Help Center | Log Out (red)
+ *  • Each row: rounded-square icon bg + label + chevron-right
+ *  • Hairline dividers left-inented to clear icon column
+ */
+
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
@@ -10,7 +23,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// ─── Tokens ───────────────────────────────────────────────────────────────────
+// ─── Design tokens ─────────────────────────────────────────────────────────────
 const WHITE   = "#FFFFFF";
 const BLACK   = "#1A1A1A";
 const GRAY    = "#9CA3AF";
@@ -18,47 +31,19 @@ const INDIGO  = "#4F46E5";
 const DIVIDER = "#F2F2F2";
 const ICON_BG = "#F4F4F5";
 
-// ─── Menu rows ────────────────────────────────────────────────────────────────
+// ─── Menu items ───────────────────────────────────────────────────────────────
 const MENU: {
-  key: string;
-  label: string;
-  icon: React.ComponentProps<typeof Feather>["name"];
-  iconBg: string;
-  iconColor: string;
-  textColor: string;
+  key:        string;
+  label:      string;
+  icon:       React.ComponentProps<typeof Feather>["name"];
+  iconBg:     string;
+  iconColor:  string;
+  textColor:  string;
 }[] = [
-  {
-    key: "member",
-    label: "Member ID",
-    icon: "grid",
-    iconBg: ICON_BG,
-    iconColor: BLACK,
-    textColor: BLACK,
-  },
-  {
-    key: "settings",
-    label: "Settings",
-    icon: "settings",
-    iconBg: ICON_BG,
-    iconColor: BLACK,
-    textColor: BLACK,
-  },
-  {
-    key: "privacy",
-    label: "Privacy & Security",
-    icon: "lock",
-    iconBg: ICON_BG,
-    iconColor: BLACK,
-    textColor: BLACK,
-  },
-  {
-    key: "help",
-    label: "Help Center",
-    icon: "help-circle",
-    iconBg: ICON_BG,
-    iconColor: BLACK,
-    textColor: BLACK,
-  },
+  { key: "member",  label: "Member ID",         icon: "grid",        iconBg: ICON_BG,    iconColor: BLACK,     textColor: BLACK     },
+  { key: "settings",label: "Settings",           icon: "settings",    iconBg: ICON_BG,    iconColor: BLACK,     textColor: BLACK     },
+  { key: "privacy", label: "Privacy & Security", icon: "lock",        iconBg: ICON_BG,    iconColor: BLACK,     textColor: BLACK     },
+  { key: "help",    label: "Help Center",        icon: "help-circle", iconBg: ICON_BG,    iconColor: BLACK,     textColor: BLACK     },
 ];
 
 // ─── Profile Screen ───────────────────────────────────────────────────────────
@@ -70,14 +55,15 @@ export default function ProfileScreen() {
       <ScrollView
         contentContainerStyle={[
           s.scroll,
-          { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 96 },
+          { paddingTop: insets.top + 10, paddingBottom: insets.bottom + 100 },
         ]}
         showsVerticalScrollIndicator={false}
       >
         {/* ── Header ───────────────────────────────────────────────────────── */}
         <View style={s.header}>
+          {/* Back button */}
           <TouchableOpacity
-            style={s.backBtn}
+            style={s.headerBtn}
             activeOpacity={0.7}
             onPress={() => router.back()}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
@@ -87,31 +73,29 @@ export default function ProfileScreen() {
 
           <Text style={s.headerTitle}>Profile</Text>
 
-          {/* Invisible spacer keeps title centered */}
-          <View style={s.backBtn} pointerEvents="none" />
+          {/* Right placeholder circle — matches reference design exactly */}
+          <View style={s.headerBtn} />
         </View>
 
         {/* ── Avatar + name ────────────────────────────────────────────────── */}
         <View style={s.avatarSection}>
-          <View style={s.avatarRing}>
-            <View style={s.avatar}>
-              <Text style={s.avatarInitials}>JL</Text>
-            </View>
+          <View style={s.avatarCircle}>
+            <Text style={s.avatarInitials}>JL</Text>
           </View>
-
           <Text style={s.name}>Jennifer Lopez</Text>
           <Text style={s.accountType}>Personal Account</Text>
         </View>
 
         {/* ── Invite banner ────────────────────────────────────────────────── */}
         <TouchableOpacity style={s.banner} activeOpacity={0.88}>
+          {/* Decorative translucent circles */}
           <View style={s.bannerCircle1} />
           <View style={s.bannerCircle2} />
           <Text style={s.bannerText}>{"Invite a friend and\nboth earn cashback"}</Text>
         </TouchableOpacity>
 
         {/* ── Menu list ────────────────────────────────────────────────────── */}
-        <View style={s.menuList}>
+        <View style={s.menuCard}>
           {MENU.map((item, idx) => (
             <React.Fragment key={item.key}>
               <TouchableOpacity style={s.menuRow} activeOpacity={0.65}>
@@ -127,7 +111,7 @@ export default function ProfileScreen() {
             </React.Fragment>
           ))}
 
-          {/* ── Log Out ────────────────────────────────────────────────────── */}
+          {/* Log Out */}
           <View style={s.divider} />
           <TouchableOpacity style={s.menuRow} activeOpacity={0.65}>
             <View style={[s.menuIconWrap, { backgroundColor: "#FEF2F2" }]}>
@@ -152,13 +136,13 @@ const s = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 28,
+    marginBottom: 24,
   },
-  backBtn: {
+  headerBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#F2F2F2",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -170,25 +154,18 @@ const s = StyleSheet.create({
   },
 
   // ── Avatar
-  avatarSection: { alignItems: "center", marginBottom: 24 },
-  avatarRing: {
-    width: 94,
-    height: 94,
-    borderRadius: 47,
-    borderWidth: 2,
-    borderColor: "#E5E7EB",
+  avatarSection: {
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 14,
+    marginBottom: 24,
   },
-  avatar: {
-    width: 82,
-    height: 82,
-    borderRadius: 41,
+  avatarCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     backgroundColor: "#E8E8E8",
     alignItems: "center",
     justifyContent: "center",
-    overflow: "hidden",
+    marginBottom: 14,
   },
   avatarInitials: {
     fontSize: 26,
@@ -197,7 +174,7 @@ const s = StyleSheet.create({
     letterSpacing: 1,
   },
   name: {
-    fontSize: 20,
+    fontSize: 22,
     fontFamily: "Inter_700Bold",
     color: BLACK,
     marginBottom: 4,
@@ -215,15 +192,15 @@ const s = StyleSheet.create({
     borderRadius: 16,
     paddingHorizontal: 22,
     paddingVertical: 22,
-    marginBottom: 30,
+    marginBottom: 28,
     overflow: "hidden",
     minHeight: 90,
     justifyContent: "center",
   },
   bannerCircle1: {
     position: "absolute",
-    right: -20,
-    top: -32,
+    right: -18,
+    top: -30,
     width: 140,
     height: 140,
     borderRadius: 70,
@@ -231,12 +208,12 @@ const s = StyleSheet.create({
   },
   bannerCircle2: {
     position: "absolute",
-    right: 60,
-    bottom: -48,
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    backgroundColor: "rgba(255,255,255,0.07)",
+    right: 58,
+    bottom: -50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: "rgba(255,255,255,0.08)",
   },
   bannerText: {
     fontSize: 18,
@@ -247,7 +224,9 @@ const s = StyleSheet.create({
   },
 
   // ── Menu list
-  menuList: { paddingBottom: 8 },
+  menuCard: {
+    paddingBottom: 4,
+  },
   menuRow: {
     flexDirection: "row",
     alignItems: "center",
