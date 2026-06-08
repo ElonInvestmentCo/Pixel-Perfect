@@ -1,6 +1,5 @@
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { CommonActions } from "@react-navigation/native";
-import { router, useNavigation } from "expo-router";
+import { router } from "expo-router";
 import React, { useCallback, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -24,19 +23,14 @@ const OPTIONS: { id: string; label: string; icon: IconName }[] = [
 ];
 
 export default function IdentityUploadScreen() {
-  const navigation = useNavigation();
   const [selected, setSelected] = useState<string | null>(null);
 
   const handleSelect = useCallback((id: string) => setSelected(id), []);
 
   const handleContinue = useCallback(() => {
     if (!selected) return;
-    // Climb to root Stack and reset — clears the entire (auth) group history
-    const rootNav = navigation.getParent() ?? navigation;
-    rootNav.dispatch(
-      CommonActions.reset({ index: 0, routes: [{ name: "(app)" }] }),
-    );
-  }, [selected, navigation]);
+    router.push("/(auth)/upload-selfie");
+  }, [selected]);
 
   return (
     <OnboardingLayout

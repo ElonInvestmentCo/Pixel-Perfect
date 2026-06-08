@@ -15,6 +15,11 @@ export default function AuthLayout() {
       <Stack.Screen name="verify-code"     options={{ headerShown: false }} />
       <Stack.Screen name="account-reason"  options={{ headerShown: false }} />
       <Stack.Screen name="identity-upload" options={{ headerShown: false }} />
+      <Stack.Screen name="upload-selfie"   options={{ headerShown: false }} />
+      <Stack.Screen name="create-pin"      options={{ headerShown: false }} />
+      <Stack.Screen name="verify-success"  options={{ headerShown: false }} />
+      <Stack.Screen name="referral-code"   options={{ headerShown: false }} />
+      <Stack.Screen name="referral-share"  options={{ headerShown: false }} />
     </Stack>
   );
 }
