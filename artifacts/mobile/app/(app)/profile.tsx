@@ -11,16 +11,17 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const BLACK  = "#1A1A1A";
-const GRAY   = "#9CA3AF";
-const INDIGO = "#5B3EFF";
-const LIME   = "#C8FF00";
+const BLACK  = "#000000";
+const GRAY5  = "#6B7280";
+const GRAY4  = "#9CA3AF";
+const LIME   = "#d4ff00";
+const INDIGO = "#6366f1";
 
 const MENU = [
-  { key: "member",   label: "Member ID",         icon: "grid"        as const, iconBg: "#F0EDFF", iconColor: INDIGO },
-  { key: "settings", label: "Settings",           icon: "settings"    as const, iconBg: "#F0EDFF", iconColor: INDIGO },
-  { key: "privacy",  label: "Privacy & Security", icon: "lock"        as const, iconBg: "#F0EDFF", iconColor: INDIGO },
-  { key: "help",     label: "Help Center",        icon: "help-circle" as const, iconBg: "#F0EDFF", iconColor: INDIGO },
+  { key: "member",   label: "Member ID",         icon: "grid"        as const },
+  { key: "settings", label: "Settings",           icon: "settings"    as const },
+  { key: "privacy",  label: "Privacy & Security", icon: "lock"        as const },
+  { key: "help",     label: "Help Center",        icon: "help-circle" as const },
 ];
 
 export default function ProfileScreen() {
@@ -43,7 +44,7 @@ export default function ProfileScreen() {
             onPress={() => router.back()}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Feather name="chevron-left" size={20} color={BLACK} />
+            <Feather name="chevron-left" size={22} color={BLACK} />
           </TouchableOpacity>
           <Text style={s.headerTitle}>Profile</Text>
           <View style={s.headerBtn} />
@@ -51,9 +52,14 @@ export default function ProfileScreen() {
 
         {/* ── Avatar + name ── */}
         <View style={s.avatarSection}>
-          <View style={s.avatarCircle}>
+          <LinearGradient
+            colors={["#D1D5DB", "#9CA3AF"]}
+            style={s.avatarCircle}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
             <Text style={s.avatarInitials}>JL</Text>
-          </View>
+          </LinearGradient>
           <Text style={s.name}>Jennifer Lopez</Text>
           <Text style={s.accountType}>Personal Account</Text>
         </View>
@@ -61,18 +67,17 @@ export default function ProfileScreen() {
         {/* ── Invite banner ── */}
         <TouchableOpacity activeOpacity={0.88} style={{ marginBottom: 28 }}>
           <LinearGradient
-            colors={["#5540FF", "#6B52FF", "#7B62FF"]}
+            colors={["#6366f1", "#7c3aed", "#8b5cf6"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={s.banner}
           >
             <View style={s.bannerCircle1} />
-            <View style={s.bannerRing1} />
-            <View style={s.bannerRing2} />
             <View style={s.bannerCircle2} />
-            <View style={{ maxWidth: "62%" }}>
-              <Text style={s.bannerTitle}>{"Invite a friend and\nboth earn cashback"}</Text>
-              <Text style={s.bannerLink}>Invite friends →</Text>
+            <Text style={s.bannerTitle}>{"Invite a friend and\nboth earn cashback"}</Text>
+            <View style={s.bannerLink}>
+              <Text style={s.bannerLinkText}>Invite friends</Text>
+              <Feather name="arrow-right" size={16} color={LIME} />
             </View>
           </LinearGradient>
         </TouchableOpacity>
@@ -82,24 +87,23 @@ export default function ProfileScreen() {
           {MENU.map((item, idx) => (
             <React.Fragment key={item.key}>
               <TouchableOpacity style={s.menuRow} activeOpacity={0.65}>
-                <View style={[s.menuIconWrap, { backgroundColor: item.iconBg }]}>
-                  <Feather name={item.icon} size={18} color={item.iconColor} />
+                <View style={s.menuIconWrap}>
+                  <Feather name={item.icon} size={20} color={INDIGO} />
                 </View>
                 <Text style={s.menuLabel}>{item.label}</Text>
-                <Feather name="chevron-right" size={16} color="#ABABAB" />
+                <Feather name="chevron-right" size={18} color={GRAY4} />
               </TouchableOpacity>
               {idx < MENU.length - 1 && <View style={s.divider} />}
             </React.Fragment>
           ))}
 
-          {/* Log Out */}
           <View style={s.divider} />
           <TouchableOpacity style={s.menuRow} activeOpacity={0.65}>
-            <View style={[s.menuIconWrap, { backgroundColor: "#FFF0EE" }]}>
-              <Feather name="log-out" size={18} color="#FF3B30" />
+            <View style={[s.menuIconWrap, { backgroundColor: "#FEF2F2" }]}>
+              <Feather name="log-out" size={20} color="#EF4444" />
             </View>
-            <Text style={[s.menuLabel, { color: "#FF3B30" }]}>Log Out</Text>
-            <Feather name="chevron-right" size={16} color="#ABABAB" />
+            <Text style={[s.menuLabel, { color: "#EF4444" }]}>Log Out</Text>
+            <Feather name="chevron-right" size={18} color={GRAY4} />
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -112,68 +116,58 @@ const s = StyleSheet.create({
 
   header: {
     flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between", marginBottom: 24,
+    justifyContent: "space-between", marginBottom: 28,
   },
   headerBtn: {
-    width: 36, height: 36, borderRadius: 18,
+    width: 38, height: 38, borderRadius: 19,
     backgroundColor: "#F5F5F5", alignItems: "center", justifyContent: "center",
   },
-  headerTitle: { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK, letterSpacing: -0.2 },
+  headerTitle: { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK },
 
-  avatarSection: { alignItems: "center", marginBottom: 24 },
+  avatarSection: { alignItems: "center", marginBottom: 28 },
   avatarCircle: {
     width: 88, height: 88, borderRadius: 44,
-    backgroundColor: "#E5E7EB", alignItems: "center", justifyContent: "center",
-    marginBottom: 14, borderWidth: 3, borderColor: "#F3F4F6",
+    alignItems: "center", justifyContent: "center",
+    marginBottom: 16,
   },
-  avatarInitials: {
-    fontSize: 28, fontFamily: "Inter_700Bold", color: "#8A8A8A", letterSpacing: 1,
-  },
-  name: { fontSize: 20, fontFamily: "Inter_700Bold", color: BLACK, marginBottom: 4, letterSpacing: -0.3 },
-  accountType: { fontSize: 13, fontFamily: "Inter_400Regular", color: GRAY },
+  avatarInitials: { fontSize: 30, fontFamily: "Inter_700Bold", color: "#FFFFFF" },
+  name: { fontSize: 22, fontFamily: "Inter_700Bold", color: BLACK, marginBottom: 4 },
+  accountType: { fontSize: 14, fontFamily: "Inter_400Regular", color: GRAY5 },
 
   banner: {
-    borderRadius: 22, padding: 22,
-    overflow: "hidden", minHeight: 110, justifyContent: "center",
+    borderRadius: 28, padding: 24, overflow: "hidden",
+    minHeight: 140, justifyContent: "center",
   },
   bannerCircle1: {
-    position: "absolute", right: -24, top: -28,
-    width: 130, height: 130, borderRadius: 65,
+    position: "absolute", top: 32, right: 32,
+    width: 112, height: 112, borderRadius: 56,
     backgroundColor: "rgba(255,255,255,0.10)",
   },
-  bannerRing1: {
-    position: "absolute", right: 14, top: 15,
-    width: 80, height: 80, borderRadius: 40,
-    borderWidth: 2, borderColor: "rgba(255,255,255,0.18)",
-  },
-  bannerRing2: {
-    position: "absolute", right: 34, top: 35,
-    width: 40, height: 40, borderRadius: 20,
-    borderWidth: 1.5, borderColor: "rgba(255,255,255,0.12)",
-  },
   bannerCircle2: {
-    position: "absolute", right: -10, bottom: -30,
-    width: 90, height: 90, borderRadius: 45,
-    backgroundColor: "rgba(255,255,255,0.06)",
+    position: "absolute", bottom: 32, right: 64,
+    width: 80, height: 80, borderRadius: 40,
+    backgroundColor: "rgba(255,255,255,0.05)",
   },
   bannerTitle: {
-    color: "#FFFFFF", fontSize: 20, fontFamily: "Inter_700Bold",
-    lineHeight: 28, letterSpacing: -0.4,
+    color: "#FFFFFF", fontSize: 24, fontFamily: "Inter_700Bold",
+    lineHeight: 32, marginBottom: 16,
   },
-  bannerLink: {
-    color: LIME, fontSize: 14, fontFamily: "Inter_700Bold",
-    marginTop: 12, letterSpacing: -0.1,
-  },
+  bannerLink: { flexDirection: "row", alignItems: "center", gap: 8 },
+  bannerLinkText: { color: LIME, fontSize: 16, fontFamily: "Inter_600SemiBold" },
 
   menuCard: { paddingBottom: 4 },
-  menuRow: { flexDirection: "row", alignItems: "center", paddingVertical: 14, gap: 16 },
+  menuRow: {
+    flexDirection: "row", alignItems: "center",
+    paddingVertical: 16, gap: 16,
+  },
   menuIconWrap: {
-    width: 42, height: 42, borderRadius: 12,
+    width: 44, height: 44, borderRadius: 12,
+    backgroundColor: "#EEF2FF",
     alignItems: "center", justifyContent: "center",
   },
   menuLabel: { flex: 1, fontSize: 16, fontFamily: "Inter_500Medium", color: BLACK },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "rgba(0,0,0,0.06)", marginLeft: 58,
+    backgroundColor: "#E5E7EB", marginLeft: 60,
   },
 });

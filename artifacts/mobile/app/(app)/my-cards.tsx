@@ -10,15 +10,16 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const BLACK = "#1A1A1A";
-const GRAY  = "#9CA3AF";
-const INDIGO = "#5B3EFF";
+const BLACK  = "#000000";
+const GRAY5  = "#6B7280";
+const GRAY2  = "#E5E7EB";
+const INDIGO = "#6366f1";
 
 const CARD_DETAILS = [
-  { label: "Available Balance", value: "$8,240.00", highlight: true },
-  { label: "Credit Limit",      value: "$15,000.00", highlight: false },
+  { label: "Available Balance", value: "$8,240.00",    highlight: true  },
+  { label: "Credit Limit",      value: "$15,000.00",   highlight: false },
   { label: "Due Date",          value: "June 28, 2026", highlight: false },
-  { label: "Minimum Payment",   value: "$120.00",     highlight: false },
+  { label: "Minimum Payment",   value: "$120.00",      highlight: false },
 ];
 
 export default function MyCardsScreen() {
@@ -38,7 +39,7 @@ export default function MyCardsScreen() {
 
         {/* ── Virtual card ── */}
         <LinearGradient
-          colors={["#5B3EFF", "#8B6EFF"]}
+          colors={["#6366f1", "#7c3aed", "#8b5cf6"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={s.card}
@@ -49,7 +50,6 @@ export default function MyCardsScreen() {
           {/* Top row */}
           <View style={s.cardTopRow}>
             <Text style={s.cardType}>Visa Platinum</Text>
-            {/* Mastercard-style overlap circles */}
             <View style={s.mcWrap}>
               <View style={[s.mcCircle, { backgroundColor: "#FF7262", opacity: 0.9 }]} />
               <View style={[s.mcCircle, { backgroundColor: "#FF3B30", opacity: 0.7, marginLeft: -14 }]} />
@@ -74,25 +74,23 @@ export default function MyCardsScreen() {
 
         {/* ── Add card button ── */}
         <TouchableOpacity style={s.addBtn} activeOpacity={0.75}>
-          <Feather name="plus" size={20} color={GRAY} />
+          <Feather name="plus" size={20} color={GRAY5} />
           <Text style={s.addBtnLabel}>Add New Card</Text>
         </TouchableOpacity>
 
         {/* ── Card details ── */}
-        <View style={s.detailsSection}>
-          <Text style={s.detailsTitle}>Card Details</Text>
-          {CARD_DETAILS.map((item, i) => (
-            <View
-              key={item.label}
-              style={[s.detailRow, i < CARD_DETAILS.length - 1 && s.detailBorder]}
-            >
-              <Text style={s.detailLabel}>{item.label}</Text>
-              <Text style={[s.detailValue, item.highlight && s.detailHighlight]}>
-                {item.value}
-              </Text>
-            </View>
-          ))}
-        </View>
+        <Text style={s.detailsTitle}>Card Details</Text>
+        {CARD_DETAILS.map((item, i) => (
+          <View
+            key={item.label}
+            style={[s.detailRow, i < CARD_DETAILS.length - 1 && s.detailBorder]}
+          >
+            <Text style={s.detailLabel}>{item.label}</Text>
+            <Text style={[s.detailValue, item.highlight && s.detailHighlight]}>
+              {item.value}
+            </Text>
+          </View>
+        ))}
       </ScrollView>
     </View>
   );
@@ -101,16 +99,13 @@ export default function MyCardsScreen() {
 const s = StyleSheet.create({
   scroll: { paddingHorizontal: 20 },
 
-  title: {
-    fontSize: 22, fontFamily: "Inter_700Bold", color: BLACK,
-    letterSpacing: -0.4, marginBottom: 16,
-  },
+  title: { fontSize: 24, fontFamily: "Inter_700Bold", color: BLACK, marginBottom: 20 },
 
   card: {
-    borderRadius: 24, padding: 28,
-    overflow: "hidden", marginBottom: 16,
-    shadowColor: "#5B3EFF", shadowOpacity: 0.3, shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 }, elevation: 8,
+    borderRadius: 28, padding: 28, overflow: "hidden",
+    marginBottom: 16,
+    shadowColor: "#6366f1", shadowOpacity: 0.3,
+    shadowRadius: 20, shadowOffset: { width: 0, height: 8 }, elevation: 8,
   },
   cardCircle1: {
     position: "absolute", right: -30, top: -30,
@@ -124,41 +119,40 @@ const s = StyleSheet.create({
   },
   cardTopRow: {
     flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between", marginBottom: 36,
+    justifyContent: "space-between", marginBottom: 40,
   },
-  cardType: { color: "#FFFFFF", fontSize: 16, fontFamily: "Inter_700Bold", opacity: 0.9 },
-  mcWrap: { flexDirection: "row", alignItems: "center" },
+  cardType: { color: "#FFFFFF", fontSize: 16, fontFamily: "Inter_600SemiBold" },
+  mcWrap:   { flexDirection: "row", alignItems: "center" },
   mcCircle: { width: 28, height: 28, borderRadius: 14 },
   cardNumber: {
     color: "#FFFFFF", fontSize: 20, fontFamily: "Inter_700Bold",
-    letterSpacing: 4, marginBottom: 24, fontVariant: ["tabular-nums"],
+    letterSpacing: 4, marginBottom: 28,
   },
   cardBottomRow: { flexDirection: "row", justifyContent: "space-between" },
   cardFieldLabel: {
     color: "rgba(255,255,255,0.6)", fontSize: 10,
-    fontFamily: "Inter_500Medium", letterSpacing: 1, textTransform: "uppercase",
+    fontFamily: "Inter_500Medium", letterSpacing: 1.2, textTransform: "uppercase",
   },
   cardFieldValue: {
-    color: "#FFFFFF", fontSize: 14, fontFamily: "Inter_600SemiBold", marginTop: 4,
+    color: "#FFFFFF", fontSize: 15, fontFamily: "Inter_600SemiBold", marginTop: 4,
   },
 
   addBtn: {
     flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: 8, borderWidth: 2, borderColor: "#E5E7EB", borderStyle: "dashed",
-    borderRadius: 16, padding: 16, marginBottom: 24,
+    gap: 8, borderWidth: 2, borderColor: GRAY2, borderStyle: "dashed",
+    borderRadius: 16, padding: 18, marginBottom: 28,
   },
-  addBtnLabel: { fontSize: 15, fontFamily: "Inter_600SemiBold", color: GRAY },
+  addBtnLabel: { fontSize: 15, fontFamily: "Inter_600SemiBold", color: GRAY5 },
 
-  detailsSection: {},
   detailsTitle: {
-    fontSize: 18, fontFamily: "Inter_700Bold", color: BLACK, marginBottom: 4,
+    fontSize: 20, fontFamily: "Inter_700Bold", color: BLACK, marginBottom: 4,
   },
   detailRow: {
     flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between", paddingVertical: 14,
+    justifyContent: "space-between", paddingVertical: 16,
   },
-  detailBorder: { borderBottomWidth: 1, borderBottomColor: "rgba(0,0,0,0.06)" },
-  detailLabel: { fontSize: 14, fontFamily: "Inter_400Regular", color: GRAY },
-  detailValue: { fontSize: 14, fontFamily: "Inter_700Bold", color: BLACK },
+  detailBorder: { borderBottomWidth: 1, borderBottomColor: GRAY2 },
+  detailLabel: { fontSize: 14, fontFamily: "Inter_400Regular", color: GRAY5 },
+  detailValue: { fontSize: 14, fontFamily: "Inter_600SemiBold", color: BLACK },
   detailHighlight: { color: INDIGO },
 });
