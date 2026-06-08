@@ -64,27 +64,22 @@ const Slide1 = React.memo(function Slide1() {
     <View style={il.wrap}>
       <View style={il.circle} />
       <View style={il.card}>
-        {/* Total Balance label + eye icon with circle border */}
-        <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Text style={il.cardLabel}>Total Balance</Text>
-          <View style={il.eyeCircle}>
-            <Feather name="eye" size={13} color={BLACK} />
-          </View>
+          <Feather name="eye" size={15} color="#8A8A8A" style={{ marginLeft: 6 }} />
         </View>
-        {/* Balance amount */}
-        <Text style={il.cardAmount}>$12,765.00</Text>
-        {/* Action buttons */}
-        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 4 }}>
+        <Text style={il.cardAmount}>$0.00</Text>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
           <TouchableOpacity style={il.pill} accessibilityRole="button" accessibilityLabel="Transfer">
-            <View style={il.iconCircle}><Feather name="arrow-up" size={13} color={BLACK} /></View>
+            <View style={il.iconCircle}><Feather name="arrow-up" size={12} color={BLACK} /></View>
             <Text style={il.pillText}>Transfer</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[il.pill, { marginLeft: 8 }]} accessibilityRole="button" accessibilityLabel="Receive">
-            <View style={il.iconCircle}><Feather name="arrow-down" size={13} color={BLACK} /></View>
+            <View style={il.iconCircle}><Feather name="arrow-down" size={12} color={BLACK} /></View>
             <Text style={il.pillText}>Receive</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[il.menuBtn, { marginLeft: 8 }]} accessibilityRole="button" accessibilityLabel="Menu">
-            <Feather name="menu" size={17} color={BLACK} />
+            <Feather name="menu" size={16} color={BLACK} />
           </TouchableOpacity>
         </View>
       </View>
@@ -187,28 +182,21 @@ const il = StyleSheet.create({
     borderColor: "#D8D8D8", padding: 20,
     zIndex: 2,
   },
-  cardLabel: { fontSize: 14, color: "#4A4A4A", fontFamily: "Inter_500Medium" },
-  eyeCircle: {
-    width: 24, height: 24, borderRadius: 12,
-    borderWidth: 1.5, borderColor: "#4A4A4A",
-    alignItems: "center", justifyContent: "center",
-    marginLeft: 8,
-  },
-  cardAmount: { fontSize: 40, fontFamily: "Inter_700Bold", color: BLACK, marginBottom: 18, marginTop: 10, letterSpacing: -1 },
+  cardLabel: { fontSize: 13, color: "#8A8A8A", fontFamily: "Inter_400Regular" },
+  cardAmount: { fontSize: 34, fontFamily: "Inter_700Bold", color: BLACK, marginVertical: 12, letterSpacing: -0.5 },
   pill: {
     flexDirection: "row", alignItems: "center",
     backgroundColor: LIME, borderWidth: 1.5, borderColor: BLACK,
-    borderRadius: 30, paddingVertical: 9, paddingHorizontal: 14, gap: 6,
+    borderRadius: 24, paddingVertical: 7, paddingHorizontal: 12, gap: 5,
   },
   iconCircle: {
-    width: 24, height: 24, borderRadius: 12,
+    width: 20, height: 20, borderRadius: 10,
     borderWidth: 1.5, borderColor: BLACK,
-    backgroundColor: "#FFFFFF",
     alignItems: "center", justifyContent: "center",
   },
-  pillText: { fontSize: 14, fontFamily: "Inter_700Bold", color: BLACK },
+  pillText: { fontSize: 13, fontFamily: "Inter_600SemiBold", color: BLACK },
   menuBtn: {
-    width: 46, height: 46, borderRadius: 23,
+    width: 40, height: 40, borderRadius: 20,
     backgroundColor: LIME, borderWidth: 1.5, borderColor: BLACK,
     alignItems: "center", justifyContent: "center",
   },
