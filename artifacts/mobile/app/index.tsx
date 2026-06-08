@@ -169,8 +169,8 @@ const il = StyleSheet.create({
     zIndex: 2,
   },
   balanceCardImg: {
-    width: SW * 1.22,
-    height: SW * 1.06,
+    width: SW * 1.28,
+    height: SW * 1.12,
     zIndex: 2,
     marginTop: 20,
   },
