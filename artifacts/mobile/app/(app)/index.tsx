@@ -1,8 +1,6 @@
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
 import React from "react";
 import {
-  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,165 +9,147 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const LIME  = "#C8FF00";
-const BLACK = "#1A1A1A";
+const LIME   = "#C8FF00";
+const BLACK  = "#1A1A1A";
+const INDIGO = "#4F46E5";
+const GRAY   = "#888888";
 
-// ─── Quick Action ─────────────────────────────────────────────────────────────
-const QuickAction = React.memo(function QuickAction({
-  icon,
-  label,
-  onPress,
-}: {
-  icon: string;
-  label: string;
-  onPress?: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      style={qa.wrap}
-      activeOpacity={0.75}
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-    >
-      <View style={qa.iconWrap}>
-        <Feather name={icon as any} size={20} color={BLACK} />
-      </View>
-      <Text style={qa.label}>{label}</Text>
-    </TouchableOpacity>
-  );
-});
-
-const qa = StyleSheet.create({
-  wrap:     { alignItems: "center", gap: 8 },
-  iconWrap: {
-    width: 52, height: 52, borderRadius: 26,
-    backgroundColor: LIME, borderWidth: 1.5, borderColor: BLACK,
-    alignItems: "center", justifyContent: "center",
+// ─── Transaction data ──────────────────────────────────────────────────────────
+const TRANSACTIONS = [
+  {
+    id: "1",
+    type: "initial",    bg: "#EEF2FF",  color: INDIGO,
+    letter: "F",        icon: undefined,
+    title: "Figma",     subtitle: "Today, 12:30 PM",
+    amount: "-$250.00", category: "Subscriptions", positive: false,
   },
-  label: { fontSize: 12, fontFamily: "Inter_500Medium", color: BLACK },
-});
-
-// ─── Transaction row ──────────────────────────────────────────────────────────
-const TxRow = React.memo(function TxRow({
-  icon,
-  title,
-  subtitle,
-  amount,
-  positive,
-}: {
-  icon: string;
-  title: string;
-  subtitle: string;
-  amount: string;
-  positive: boolean;
-}) {
-  return (
-    <View style={tx.row} accessibilityRole="none">
-      <View style={tx.iconWrap}>
-        <Feather name={icon as any} size={18} color={BLACK} />
-      </View>
-      <View style={tx.info}>
-        <Text style={tx.title} numberOfLines={1}>{title}</Text>
-        <Text style={tx.subtitle}>{subtitle}</Text>
-      </View>
-      <Text style={[tx.amount, positive ? tx.pos : tx.neg]}>
-        {positive ? "+" : "-"}{amount}
-      </Text>
-    </View>
-  );
-});
-
-const tx = StyleSheet.create({
-  row: {
-    flexDirection: "row", alignItems: "center",
-    paddingVertical: 12, gap: 12,
+  {
+    id: "2",
+    type: "icon",       bg: LIME,       color: BLACK,
+    letter: undefined,  icon: "arrow-down" as const,
+    title: "Receive from Alex", subtitle: "Yesterday, 08:00 AM",
+    amount: "+$580.00", category: "Money In",       positive: true,
   },
-  iconWrap: {
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: "#F2F2F2",
-    alignItems: "center", justifyContent: "center",
+  {
+    id: "3",
+    type: "initial",    bg: "#1A1A1A",  color: "#FFFFFF",
+    letter: "M",        icon: undefined,
+    title: "Medium",    subtitle: "May 10, 06:00 PM",
+    amount: "-$99.00",  category: "Subscriptions",  positive: false,
   },
-  info:     { flex: 1 },
-  title:    { fontSize: 15, fontFamily: "Inter_500Medium", color: BLACK },
-  subtitle: { fontSize: 12, fontFamily: "Inter_400Regular", color: "#8A8A8A", marginTop: 2 },
-  amount:   { fontSize: 15, fontFamily: "Inter_600SemiBold" },
-  pos:      { color: "#16A34A" },
-  neg:      { color: BLACK },
-});
+] as const;
 
-// ─── Home / Dashboard ─────────────────────────────────────────────────────────
+// ─── Home Screen ──────────────────────────────────────────────────────────────
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  // insets.top accounts for Dynamic Island, notch, and status bar on all devices
-  const topPad = insets.top;
-  // Resets root navigation to onboarding (index); (auth) and (app) are cleared.
-  const handleSignOut = () => router.replace("/");
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#EBEBEB" }}>
+    <View style={{ flex: 1, backgroundColor: "#F7F7F7" }}>
       <ScrollView
-        contentContainerStyle={[s.scroll, { paddingTop: topPad + 16, paddingBottom: insets.bottom + 24 }]}
+        contentContainerStyle={[
+          s.scroll,
+          { paddingTop: insets.top + 20, paddingBottom: insets.bottom + 100 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
+        {/* ── Header ──────────────────────────────────────────────────────── */}
         <View style={s.header}>
-          <View style={s.greeting}>
-            <Text style={s.greetSub}>Good morning 👋</Text>
-            <Text style={s.greetName}>Jennifer Lopez</Text>
+          <View style={s.avatarRow}>
+            <View style={s.avatar}>
+              <Text style={s.avatarInitial}>J</Text>
+            </View>
+            <View>
+              <Text style={s.hiText}>Hi, Jennifer</Text>
+              <Text style={s.morningText}>Good Morning!</Text>
+            </View>
           </View>
-          <TouchableOpacity
-            style={s.signOutBtn}
-            onPress={handleSignOut}
-            activeOpacity={0.75}
-            accessibilityRole="button"
-            accessibilityLabel="Sign out"
-          >
-            <Feather name="log-out" size={18} color={BLACK} />
+          <TouchableOpacity style={s.bellWrap} activeOpacity={0.75}>
+            <Feather name="bell" size={20} color={BLACK} />
+            <View style={s.bellDot} />
           </TouchableOpacity>
         </View>
 
-        {/* Balance card */}
-        <Image
-          source={require("@/assets/images/balance-card.png")}
-          style={s.card}
-          resizeMode="contain"
-        />
+        {/* ── Balance card ────────────────────────────────────────────────── */}
+        <View style={s.balanceCard}>
+          <View style={s.balanceLabelRow}>
+            <Text style={s.balanceLabel}>Total Balance</Text>
+            <Feather name="eye" size={15} color={GRAY} style={{ marginLeft: 6 }} />
+          </View>
+          <Text style={s.balanceAmount}>$12,765.00</Text>
 
-        {/* Quick actions */}
-        <View style={s.section}>
-          <View style={s.qaRow}>
-            <QuickAction icon="arrow-up" label="Send" />
-            <QuickAction icon="arrow-down" label="Receive" />
-            <QuickAction icon="refresh-cw" label="Transfer" />
-            <QuickAction icon="more-horizontal" label="More" />
+          {/* Quick action pills */}
+          <View style={s.pillRow}>
+            <TouchableOpacity style={s.pill} activeOpacity={0.8}>
+              <View style={s.pillIconWrap}>
+                <Feather name="arrow-up" size={16} color={BLACK} />
+              </View>
+              <Text style={s.pillLabel}>Transfer</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={s.pill} activeOpacity={0.8}>
+              <View style={s.pillIconWrap}>
+                <Feather name="arrow-down" size={16} color={BLACK} />
+              </View>
+              <Text style={s.pillLabel}>Receive</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={s.pillMenu} activeOpacity={0.8}>
+              <Feather name="menu" size={18} color={BLACK} />
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Recent transactions */}
-        <View style={s.section}>
-          <View style={s.sectionHeader}>
-            <Text style={s.sectionTitle}>Recent Transactions</Text>
-            <TouchableOpacity
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              accessibilityRole="button"
-              accessibilityLabel="See all transactions"
-            >
-              <Text style={s.seeAll}>See all</Text>
+        {/* ── Invite banner ───────────────────────────────────────────────── */}
+        <TouchableOpacity style={s.banner} activeOpacity={0.88}>
+          {/* Decorative circles */}
+          <View style={s.bannerCircle1} />
+          <View style={s.bannerCircle2} />
+
+          <View style={s.bannerContent}>
+            <Text style={s.bannerTitle}>
+              Invite a friend and{"\n"}both earn cashback
+            </Text>
+            <Text style={s.bannerLink}>Invite friends →</Text>
+          </View>
+        </TouchableOpacity>
+
+        {/* ── Transactions ────────────────────────────────────────────────── */}
+        <View style={s.txCard}>
+          <View style={s.txHeader}>
+            <Text style={s.txTitle}>Transactions</Text>
+            <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <Text style={s.seeAll}>See All</Text>
             </TouchableOpacity>
           </View>
 
-          <View style={s.txCard}>
-            <TxRow icon="shopping-bag"   title="Amazon"        subtitle="Today, 09:24 AM"  amount="$34.99"  positive={false} />
-            <View style={s.divider} />
-            <TxRow icon="coffee"         title="Starbucks"     subtitle="Today, 07:15 AM"  amount="$6.50"   positive={false} />
-            <View style={s.divider} />
-            <TxRow icon="briefcase"      title="Salary"        subtitle="Jun 1, 12:00 PM"  amount="$3,200"  positive />
-            <View style={s.divider} />
-            <TxRow icon="zap"            title="Netflix"       subtitle="May 31, 09:00 AM" amount="$15.99"  positive={false} />
-            <View style={s.divider} />
-            <TxRow icon="user"           title="John sent you" subtitle="May 30, 04:45 PM" amount="$120.00" positive />
-          </View>
+          {TRANSACTIONS.map((tx, i) => (
+            <View key={tx.id}>
+              <View style={s.txRow}>
+                <View style={[s.txIconWrap, { backgroundColor: tx.bg }]}>
+                  {tx.type === "icon" && tx.icon ? (
+                    <Feather name={tx.icon} size={18} color={tx.color} />
+                  ) : (
+                    <Text style={[s.txInitial, { color: tx.color }]}>
+                      {tx.letter}
+                    </Text>
+                  )}
+                </View>
+
+                <View style={s.txInfo}>
+                  <Text style={s.txName}>{tx.title}</Text>
+                  <Text style={s.txSub}>{tx.subtitle}</Text>
+                </View>
+
+                <View style={{ alignItems: "flex-end" }}>
+                  <Text style={[s.txAmount, tx.positive ? s.pos : s.neg]}>
+                    {tx.amount}
+                  </Text>
+                  <Text style={s.txCategory}>{tx.category}</Text>
+                </View>
+              </View>
+              {i < TRANSACTIONS.length - 1 && <View style={s.divider} />}
+            </View>
+          ))}
         </View>
       </ScrollView>
     </View>
@@ -179,41 +159,108 @@ export default function HomeScreen() {
 const s = StyleSheet.create({
   scroll: { paddingHorizontal: 20 },
 
+  // ── Header
   header: {
     flexDirection: "row", alignItems: "center",
     justifyContent: "space-between", marginBottom: 20,
   },
-  greeting: { gap: 2 },
-  greetSub: { fontSize: 13, fontFamily: "Inter_400Regular", color: "#666666" },
-  greetName: { fontSize: 20, fontFamily: "Inter_700Bold", color: BLACK },
-  signOutBtn: {
-    width: 42, height: 42, borderRadius: 21,
+  avatarRow: { flexDirection: "row", alignItems: "center", gap: 12 },
+  avatar: {
+    width: 46, height: 46, borderRadius: 23,
+    backgroundColor: INDIGO, alignItems: "center", justifyContent: "center",
+  },
+  avatarInitial: { fontSize: 18, fontFamily: "Inter_700Bold", color: "#FFFFFF" },
+  hiText:      { fontSize: 16, fontFamily: "Inter_600SemiBold", color: BLACK },
+  morningText: { fontSize: 12, fontFamily: "Inter_400Regular", color: GRAY, marginTop: 2 },
+  bellWrap: {
+    width: 44, height: 44, borderRadius: 22,
     backgroundColor: "#FFFFFF",
     alignItems: "center", justifyContent: "center",
-    borderWidth: 1.5, borderColor: "#E0E0E0",
+    shadowColor: "#000", shadowOpacity: 0.07, shadowRadius: 8, shadowOffset: { width: 0, height: 2 },
+    elevation: 2, position: "relative",
+  },
+  bellDot: {
+    position: "absolute", top: 10, right: 11,
+    width: 8, height: 8, borderRadius: 4,
+    backgroundColor: "#EF4444", borderWidth: 1.5, borderColor: "#FFFFFF",
   },
 
-  card: {
-    width: "100%",
-    aspectRatio: 1.586,
-    marginBottom: 20,
-  },
-
-  section: {
+  // ── Balance
+  balanceCard: {
     backgroundColor: "#FFFFFF", borderRadius: 20,
-    padding: 18, marginBottom: 16,
+    paddingHorizontal: 20, paddingVertical: 22, marginBottom: 16,
   },
-  qaRow: {
-    flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 8,
+  balanceLabelRow: { flexDirection: "row", alignItems: "center", marginBottom: 6 },
+  balanceLabel:   { fontSize: 13, fontFamily: "Inter_400Regular", color: GRAY },
+  balanceAmount:  { fontSize: 38, fontFamily: "Inter_700Bold",    color: BLACK, marginBottom: 22 },
+
+  pillRow: { flexDirection: "row", gap: 10, alignItems: "center" },
+  pill: {
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: LIME, borderRadius: 50,
+    paddingVertical: 10, paddingHorizontal: 16, gap: 8,
+  },
+  pillIconWrap: { },
+  pillLabel:    { fontSize: 14, fontFamily: "Inter_600SemiBold", color: BLACK },
+  pillMenu: {
+    width: 46, height: 46, borderRadius: 23,
+    backgroundColor: LIME, alignItems: "center", justifyContent: "center",
   },
 
-  sectionHeader: {
+  // ── Invite banner
+  banner: {
+    backgroundColor: INDIGO, borderRadius: 20,
+    padding: 22, marginBottom: 20, overflow: "hidden",
+    minHeight: 112, justifyContent: "center",
+  },
+  bannerContent: { zIndex: 1 },
+  bannerTitle: {
+    fontSize: 18, fontFamily: "Inter_700Bold", color: "#FFFFFF",
+    lineHeight: 26, marginBottom: 10,
+  },
+  bannerLink: {
+    fontSize: 14, fontFamily: "Inter_500Medium", color: LIME,
+    textDecorationLine: "underline",
+  },
+  bannerCircle1: {
+    position: "absolute", right: -24, top: -24,
+    width: 130, height: 130, borderRadius: 65,
+    backgroundColor: "rgba(255,255,255,0.08)",
+  },
+  bannerCircle2: {
+    position: "absolute", right: 32, bottom: -36,
+    width: 90, height: 90, borderRadius: 45,
+    backgroundColor: "rgba(255,255,255,0.06)",
+  },
+
+  // ── Transactions
+  txCard: {
+    backgroundColor: "#FFFFFF", borderRadius: 20,
+    paddingHorizontal: 18, paddingVertical: 18,
+  },
+  txHeader: {
     flexDirection: "row", alignItems: "center",
     justifyContent: "space-between", marginBottom: 6,
   },
-  sectionTitle: { fontSize: 16, fontFamily: "Inter_600SemiBold", color: BLACK },
-  seeAll:       { fontSize: 13, fontFamily: "Inter_500Medium", color: "#4F46E5" },
+  txTitle: { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK },
+  seeAll:  { fontSize: 13, fontFamily: "Inter_500Medium", color: INDIGO },
 
-  txCard: {},
+  txRow: {
+    flexDirection: "row", alignItems: "center",
+    paddingVertical: 14, gap: 12,
+  },
+  txIconWrap: {
+    width: 46, height: 46, borderRadius: 23,
+    alignItems: "center", justifyContent: "center", flexShrink: 0,
+  },
+  txInitial:   { fontSize: 16, fontFamily: "Inter_700Bold" },
+  txInfo:      { flex: 1 },
+  txName:      { fontSize: 15, fontFamily: "Inter_600SemiBold", color: BLACK },
+  txSub:       { fontSize: 12, fontFamily: "Inter_400Regular", color: GRAY, marginTop: 2 },
+  txAmount:    { fontSize: 15, fontFamily: "Inter_600SemiBold" },
+  pos:         { color: "#16A34A" },
+  neg:         { color: BLACK },
+  txCategory:  { fontSize: 11, fontFamily: "Inter_400Regular", color: GRAY, marginTop: 2 },
+
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: "#F0F0F0" },
 });

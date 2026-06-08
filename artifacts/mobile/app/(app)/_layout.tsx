@@ -1,22 +1,53 @@
 import { Feather } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const INDIGO = "#4F46E5";
 const GRAY   = "#9CA3AF";
+const LIME   = "#C8FF00";
+const BLACK  = "#1A1A1A";
 const WHITE  = "#FFFFFF";
 
-// Standard visible height of tab bar content (icons + labels)
-const TAB_CONTENT_HEIGHT = 50;
+const TAB_CONTENT_HEIGHT = 58;
 
+// ─── Custom centre tab button ──────────────────────────────────────────────────
+function CentreTabButton({ onPress }: { onPress?: () => void }) {
+  return (
+    <TouchableOpacity
+      style={ctr.wrap}
+      activeOpacity={0.8}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel="Scan QR code"
+    >
+      <View style={ctr.circle}>
+        <Feather name="grid" size={24} color={BLACK} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+const ctr = StyleSheet.create({
+  wrap: {
+    flex: 1, alignItems: "center", justifyContent: "center",
+    marginTop: -22,
+  },
+  circle: {
+    width: 58, height: 58, borderRadius: 29,
+    backgroundColor: LIME,
+    alignItems: "center", justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.18, shadowRadius: 12, shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+});
+
+// ─── Layout ───────────────────────────────────────────────────────────────────
 export default function AppLayout() {
   const insets = useSafeAreaInsets();
-  // Total tab bar height = content area + device bottom inset (home indicator).
-  // On iPhone 14 Pro:  50 + 34 = 84pt — icons sit clearly above the home indicator.
-  // On older iPhone:   50 +  0 = 50pt — standard compact tab bar.
-  // On Android nav bar: dynamic based on reported inset.
+
   const tabBarHeight    = TAB_CONTENT_HEIGHT + insets.bottom;
   const tabBarPadBottom = insets.bottom;
 
@@ -24,23 +55,23 @@ export default function AppLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: INDIGO,
+        tabBarActiveTintColor:   INDIGO,
         tabBarInactiveTintColor: GRAY,
         tabBarStyle: {
           backgroundColor: WHITE,
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: "#E5E7EB",
-          height: tabBarHeight,
-          paddingBottom: tabBarPadBottom,
-          paddingTop: 10,
-          elevation: 0,
-          shadowOpacity: 0,
+          height:         tabBarHeight,
+          paddingBottom:  tabBarPadBottom,
+          paddingTop:     10,
+          elevation:      0,
+          shadowOpacity:  0,
         },
         tabBarLabelStyle: s.label,
-        tabBarItemStyle: s.item,
+        tabBarItemStyle:  s.item,
       }}
     >
-      {/* ── Home / Dashboard ───────────────────────────────────────────────── */}
+      {/* Home */}
       <Tabs.Screen
         name="index"
         options={{
@@ -51,38 +82,59 @@ export default function AppLayout() {
         }}
       />
 
-      {/* ── Cards ──────────────────────────────────────────────────────────── */}
+      {/* Insights */}
       <Tabs.Screen
-        name="cards"
+        name="insights"
         options={{
-          title: "Cards",
+          title: "Insights",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="bar-chart-2" size={size} color={color} />
+          ),
+        }}
+      />
+
+      {/* Scan — centre lime button */}
+      <Tabs.Screen
+        name="scan"
+        options={{
+          title: "",
+          tabBarIcon: () => null,
+          tabBarButton: (props) => (
+            <CentreTabButton onPress={props.onPress as (() => void) | undefined} />
+          ),
+        }}
+      />
+
+      {/* My Cards */}
+      <Tabs.Screen
+        name="my-cards"
+        options={{
+          title: "My Cards",
           tabBarIcon: ({ color, size }) => (
             <Feather name="credit-card" size={size} color={color} />
           ),
         }}
       />
 
-      {/* ── Settings ───────────────────────────────────────────────────────── */}
+      {/* Profile */}
       <Tabs.Screen
-        name="settings"
+        name="profile"
         options={{
-          title: "Settings",
+          title: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <Feather name="settings" size={size} color={color} />
+            <Feather name="user" size={size} color={color} />
           ),
         }}
       />
+
+      {/* Hide legacy screens from tab bar */}
+      <Tabs.Screen name="cards"    options={{ href: null }} />
+      <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>
   );
 }
 
 const s = StyleSheet.create({
-  label: {
-    fontSize: 11,
-    fontFamily: "Inter_500Medium",
-    marginTop: 2,
-  },
-  item: {
-    paddingTop: 2,
-  },
+  label: { fontSize: 11, fontFamily: "Inter_500Medium", marginTop: 2 },
+  item:  { paddingTop: 2 },
 });

@@ -29,7 +29,7 @@ export default function IdentityUploadScreen() {
 
   const handleContinue = useCallback(() => {
     if (!selected) return;
-    router.push("/(auth)/upload-selfie");
+    router.push("/(auth)/national-id-camera");
   }, [selected]);
 
   return (

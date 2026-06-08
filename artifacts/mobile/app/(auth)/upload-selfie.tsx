@@ -11,7 +11,7 @@ export default function UploadSelfieScreen() {
   const insets = useSafeAreaInsets();
 
   const handleContinue = useCallback(() => {
-    router.push("/(auth)/create-pin");
+    router.push("/(auth)/enable-face-id");
   }, []);
 
   return (
