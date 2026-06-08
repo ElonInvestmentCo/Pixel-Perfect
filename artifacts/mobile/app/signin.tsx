@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { CommonActions } from "@react-navigation/native";
+import { router, useNavigation } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -34,6 +35,7 @@ export default function SignInScreen() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 55 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
+  const navigation = useNavigation();
 
   const [email, setEmail]         = useState("");
   const [password, setPassword]   = useState("");
@@ -90,7 +92,14 @@ export default function SignInScreen() {
     setSubmitErr("");
     try {
       await signIn(email.trim(), password);
-      router.replace("/dashboard");
+      // Reset the entire navigation stack so Dashboard is a true full-screen
+      // root — not stacked inside the modal presentation context of sign-in.
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "dashboard" }],
+        }),
+      );
     } catch (e: any) {
       if (!mountedRef.current) return;
       setSubmitErr(e?.message ?? "Sign in failed. Please try again.");

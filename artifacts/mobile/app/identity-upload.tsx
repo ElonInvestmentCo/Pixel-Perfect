@@ -1,5 +1,6 @@
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { CommonActions } from "@react-navigation/native";
+import { router, useNavigation } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   Platform,
@@ -28,6 +29,7 @@ export default function IdentityUploadScreen() {
   const topPad = Platform.OS === "web" ? 55 : insets.top;
   const botPad = Platform.OS === "web" ? 34 : insets.bottom;
 
+  const navigation = useNavigation();
   const [selected, setSelected] = useState<string | null>(null);
 
   const handleSelect = useCallback((id: string) => {
@@ -36,8 +38,15 @@ export default function IdentityUploadScreen() {
 
   const handleContinue = useCallback(() => {
     if (!selected) return;
-    router.replace("/dashboard");
-  }, [selected]);
+    // Reset the entire navigation stack so Dashboard is a true full-screen
+    // root — not stacked inside the modal presentation context of sign-up/sign-in.
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "dashboard" }],
+      }),
+    );
+  }, [selected, navigation]);
 
   return (
     <View style={[s.root, { paddingBottom: botPad + 20 }]}>
