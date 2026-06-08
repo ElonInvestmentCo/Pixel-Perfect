@@ -1,3 +1,11 @@
+/**
+ * AppleSignInButton — pill-shaped social auth button matching PrimaryButton dimensions.
+ *
+ * Height:        58 px  (OS.ctaH — was 56, corrected to match)
+ * BorderRadius:  28 px  (OS.ctaR — true pill, was 14)
+ * Background:    #000000 (Apple brand requirement)
+ */
+
 import { FontAwesome } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -8,13 +16,17 @@ import {
   View,
 } from "react-native";
 
+// Mirror token values without importing them, keeping this component self-contained.
+const CTA_H = 58;  // matches OS.ctaH
+const CTA_R = 28;  // matches OS.ctaR (pill)
+
 export type AppleButtonVariant = "signup" | "signin" | "continue";
 
 interface AppleSignInButtonProps {
-  variant?: AppleButtonVariant;
-  onPress?: () => void;
+  variant?:  AppleButtonVariant;
+  onPress?:  () => void;
   disabled?: boolean;
-  loading?: boolean;
+  loading?:  boolean;
 }
 
 const LABEL: Record<AppleButtonVariant, string> = {
@@ -24,10 +36,10 @@ const LABEL: Record<AppleButtonVariant, string> = {
 };
 
 export function AppleSignInButton({
-  variant = "signin",
+  variant  = "signin",
   onPress,
   disabled = false,
-  loading = false,
+  loading  = false,
 }: AppleSignInButtonProps) {
   const isDisabled = disabled || loading;
 
@@ -39,42 +51,42 @@ export function AppleSignInButton({
       accessibilityRole="button"
       accessibilityLabel={LABEL[variant]}
       accessibilityState={{ disabled: isDisabled }}
-      style={[styles.btn, isDisabled && styles.btnDisabled]}
+      style={[s.btn, isDisabled && s.btnDisabled]}
     >
       {loading ? (
         <ActivityIndicator color="#FFFFFF" size="small" />
       ) : (
-        <View style={styles.inner}>
+        <View style={s.inner}>
           <FontAwesome name="apple" size={20} color="#FFFFFF" />
-          <Text style={styles.label}>{LABEL[variant]}</Text>
+          <Text style={s.label}>{LABEL[variant]}</Text>
         </View>
       )}
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   btn: {
-    width: "100%",
-    height: 56,
-    borderRadius: 14,
+    width:           "100%",
+    height:          CTA_H,
+    borderRadius:    CTA_R,
     backgroundColor: "#000000",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
+    alignItems:      "center",
+    justifyContent:  "center",
+    marginBottom:    14,
   },
   btnDisabled: {
     opacity: 0.45,
   },
   inner: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+    alignItems:    "center",
+    gap:           10,
   },
   label: {
-    fontSize: 16,
-    fontFamily: "Inter_600SemiBold",
-    color: "#FFFFFF",
+    fontSize:      16,
+    fontFamily:    "Inter_600SemiBold",
+    color:         "#FFFFFF",
     letterSpacing: 0.1,
   },
 });

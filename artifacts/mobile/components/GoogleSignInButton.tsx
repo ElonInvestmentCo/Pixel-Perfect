@@ -1,103 +1,105 @@
+/**
+ * GoogleSignInButton — pill-shaped social auth button matching PrimaryButton dimensions.
+ *
+ * Height:        58 px  (OS.ctaH)
+ * BorderRadius:  28 px  (OS.ctaR — true pill)
+ * Background:    #FFFFFF with 1.5px #E8E8E8 border (standard Google button spec)
+ *
+ * Uses the google-logo.png static asset (Google "G" mark) rather than the
+ * full-width SVG approach, which scaled proportionally and produced an
+ * oversized button (~85–95 px tall) inconsistent with all other CTAs.
+ */
+
 import React from "react";
-import { Dimensions, Platform, StyleSheet, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-// ─── Platform-specific SVG assets ─────────────────────────────────────────────
-// Each SVG is the complete official Google-branded button (logo + text + pill)
-// sourced directly from Google's sign-in brand assets.
+// Mirror token values without importing them, keeping this component self-contained.
+const CTA_H = 58;  // matches OS.ctaH
+const CTA_R = 28;  // matches OS.ctaR (pill)
 
-// Android variants (40 pt tall, rounded pill, #F2F2F2 bg)
-import AndroidCtn from "../assets/svg/google_android_ctn.svg";
-import AndroidSI  from "../assets/svg/google_android_si.svg";
-import AndroidSU  from "../assets/svg/google_android_su.svg";
-
-// iOS variants (44 pt tall, rounded pill, #F2F2F2 bg)
-import IosCtn from "../assets/svg/google_ios_ctn.svg";
-import IosSI  from "../assets/svg/google_ios_si.svg";
-import IosSU  from "../assets/svg/google_ios_su.svg";
-
-// ─── Natural SVG dimensions (from each file's viewBox) ───────────────────────
-const NATURAL = {
-  android: {
-    signup:   { w: 179, h: 40 },
-    signin:   { w: 175, h: 40 },
-    continue: { w: 189, h: 40 },
-  },
-  ios: {
-    signup:   { w: 189, h: 44 },
-    signin:   { w: 185, h: 44 },
-    continue: { w: 199, h: 44 },
-  },
-} as const;
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 export type GoogleButtonVariant = "signup" | "signin" | "continue";
 
 interface GoogleSignInButtonProps {
-  variant: GoogleButtonVariant;
+  variant:  GoogleButtonVariant;
   onPress?: () => void;
   disabled?: boolean;
-  /** Extra horizontal padding on each side used by the parent screen (default 24) */
+  /**
+   * @deprecated No longer used — kept for call-site compatibility only.
+   * The button is always full-width; horizontal padding is the parent's concern.
+   */
   horizontalPadding?: number;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+const LABEL: Record<GoogleButtonVariant, string> = {
+  signup:   "Sign up with Google",
+  signin:   "Sign in with Google",
+  continue: "Continue with Google",
+};
+
 export function GoogleSignInButton({
   variant,
   onPress,
   disabled = false,
-  horizontalPadding = 24,
 }: GoogleSignInButtonProps) {
-  const isIOS = Platform.OS === "ios";
-  const platform = isIOS ? "ios" : "android";
-
-  // Pick the correct SVG component
-  const SvgComponent = isIOS
-    ? variant === "signup"   ? IosSU
-      : variant === "signin" ? IosSI
-      : IosCtn
-    : variant === "signup"   ? AndroidSU
-      : variant === "signin" ? AndroidSI
-      : AndroidCtn;
-
-  // Scale the SVG to fill the available container width while preserving aspect ratio
-  const screenW  = Dimensions.get("window").width;
-  const available = screenW - horizontalPadding * 2;
-  const natural   = NATURAL[platform][variant];
-  const scale     = available / natural.w;
-  const svgW      = available;
-  const svgH      = Math.round(natural.h * scale);
-
-  const label = variant === "signup"   ? "Sign up with Google"
-    : variant === "signin" ? "Sign in with Google"
-    : "Continue with Google";
-
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
       activeOpacity={0.78}
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={LABEL[variant]}
       accessibilityState={{ disabled }}
-      style={[styles.wrapper, { height: svgH, opacity: disabled ? 0.45 : 1 }]}
+      style={[s.btn, disabled && s.btnDisabled]}
     >
-      <View style={styles.inner}>
-        <SvgComponent width={svgW} height={svgH} />
+      <View style={s.inner}>
+        <Image
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          source={require("../assets/images/google-logo.png")}
+          style={s.logo}
+          resizeMode="contain"
+          accessibilityElementsHidden
+          importantForAccessibility="no"
+        />
+        <Text style={s.label}>{LABEL[variant]}</Text>
       </View>
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
-  wrapper: {
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 14,
+const s = StyleSheet.create({
+  btn: {
+    width:           "100%",
+    height:          CTA_H,
+    borderRadius:    CTA_R,
+    backgroundColor: "#FFFFFF",
+    borderWidth:     1.5,
+    borderColor:     "#E8E8E8",
+    alignItems:      "center",
+    justifyContent:  "center",
+    marginBottom:    14,
+  },
+  btnDisabled: {
+    opacity: 0.45,
   },
   inner: {
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: "row",
+    alignItems:    "center",
+    gap:           10,
+  },
+  logo: {
+    width:  22,
+    height: 22,
+  },
+  label: {
+    fontSize:      16,
+    fontFamily:    "Inter_600SemiBold",
+    color:         "#1A1A1A",
+    letterSpacing: 0.1,
   },
 });
