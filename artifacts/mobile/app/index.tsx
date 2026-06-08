@@ -63,7 +63,6 @@ const Rings = React.memo(function Rings({ color }: { color: string }) {
 const Slide1 = React.memo(function Slide1() {
   return (
     <View style={il.wrap}>
-      <View style={il.circle} />
       <Image
         source={require("../assets/images/balance-card-slide.png")}
         style={il.balanceCardImg}
