@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { Platform, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const BLACK  = "#1A1A1A";
@@ -8,7 +8,7 @@ const INDIGO = "#4F46E5";
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
-  const topPad = Platform.OS === "web" ? 55 : insets.top;
+  const topPad = insets.top;
 
   return (
     <View style={[s.root, { paddingTop: topPad + 16 }]}>

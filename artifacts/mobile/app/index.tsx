@@ -4,7 +4,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -258,8 +257,10 @@ const dot = StyleSheet.create({
 // ─── Root ─────────────────────────────────────────────────────────────────────
 export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
-  const topPad = Platform.OS === "web" ? 55 : insets.top;
-  const botPad = Platform.OS === "web" ? 34 : insets.bottom;
+  // insets.top: Dynamic Island ~59pt, notch ~44pt, older iPhone ~20pt, Android varies
+  // insets.bottom: home indicator ~34pt, older iPhone 0pt
+  const topPad = insets.top;
+  const botPad = insets.bottom;
 
   const scrollX      = useRef(new Animated.Value(0)).current;
   const scrollRef    = useRef<any>(null);

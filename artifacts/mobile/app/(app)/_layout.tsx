@@ -1,22 +1,43 @@
 import { Feather } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const INDIGO = "#4F46E5";
 const GRAY   = "#9CA3AF";
 const WHITE  = "#FFFFFF";
 
+// Standard visible height of tab bar content (icons + labels)
+const TAB_CONTENT_HEIGHT = 50;
+
 export default function AppLayout() {
+  const insets = useSafeAreaInsets();
+  // Total tab bar height = content area + device bottom inset (home indicator).
+  // On iPhone 14 Pro:  50 + 34 = 84pt — icons sit clearly above the home indicator.
+  // On older iPhone:   50 +  0 = 50pt — standard compact tab bar.
+  // On Android nav bar: dynamic based on reported inset.
+  const tabBarHeight    = TAB_CONTENT_HEIGHT + insets.bottom;
+  const tabBarPadBottom = insets.bottom;
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: INDIGO,
         tabBarInactiveTintColor: GRAY,
-        tabBarStyle: styles.bar,
-        tabBarLabelStyle: styles.label,
-        tabBarItemStyle: styles.item,
+        tabBarStyle: {
+          backgroundColor: WHITE,
+          borderTopWidth: StyleSheet.hairlineWidth,
+          borderTopColor: "#E5E7EB",
+          height: tabBarHeight,
+          paddingBottom: tabBarPadBottom,
+          paddingTop: 10,
+          elevation: 0,
+          shadowOpacity: 0,
+        },
+        tabBarLabelStyle: s.label,
+        tabBarItemStyle: s.item,
       }}
     >
       {/* ── Home / Dashboard ───────────────────────────────────────────────── */}
@@ -55,17 +76,7 @@ export default function AppLayout() {
   );
 }
 
-const styles = StyleSheet.create({
-  bar: {
-    backgroundColor: WHITE,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#E5E7EB",
-    height: Platform.OS === "ios" ? 88 : 62,
-    paddingBottom: Platform.OS === "ios" ? 28 : 8,
-    paddingTop: 10,
-    elevation: 0,
-    shadowOpacity: 0,
-  },
+const s = StyleSheet.create({
   label: {
     fontSize: 11,
     fontFamily: "Inter_500Medium",

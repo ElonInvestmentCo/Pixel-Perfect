@@ -2,7 +2,6 @@ import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -101,7 +100,8 @@ const tx = StyleSheet.create({
 // ─── Home / Dashboard ─────────────────────────────────────────────────────────
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
-  const topPad = Platform.OS === "web" ? 55 : insets.top;
+  // insets.top accounts for Dynamic Island, notch, and status bar on all devices
+  const topPad = insets.top;
   const [balanceVisible, setBalanceVisible] = useState(true);
 
   // Resets root navigation to onboarding (index); (auth) and (app) are cleared.
@@ -110,7 +110,7 @@ export default function HomeScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: "#EBEBEB" }}>
       <ScrollView
-        contentContainerStyle={[s.scroll, { paddingTop: topPad + 16, paddingBottom: 32 }]}
+        contentContainerStyle={[s.scroll, { paddingTop: topPad + 16, paddingBottom: insets.bottom + 24 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
