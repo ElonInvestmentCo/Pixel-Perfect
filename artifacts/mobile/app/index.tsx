@@ -157,9 +157,10 @@ const il = StyleSheet.create({
   wrap: { width: SW, paddingHorizontal: 24, alignItems: "center", justifyContent: "center", flex: 1 },
   circle: {
     position: "absolute",
-    width: SW * 0.9, height: SW * 0.9,
-    borderRadius: SW * 0.45,
-    backgroundColor: "#E0E0E0",
+    width: SW * 0.78, height: SW * 0.78,
+    borderRadius: SW * 0.39,
+    backgroundColor: "#D8D8D8",
+    opacity: 0.35,
   },
   card: {
     width: "100%",
