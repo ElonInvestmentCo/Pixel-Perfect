@@ -14,8 +14,8 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AppleSignInButton } from "../components/AppleSignInButton";
-import { GoogleSignInButton } from "../components/GoogleSignInButton";
+import { AppleSignInButton } from "@/components/AppleSignInButton";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import {
   isStrongPassword,
   isValidEmail,
@@ -23,7 +23,7 @@ import {
   validateEmail,
   validateName,
   validateSignUpPassword,
-} from "../lib/validation";
+} from "@/lib/validation";
 
 const isIOS = Platform.OS === "ios";
 

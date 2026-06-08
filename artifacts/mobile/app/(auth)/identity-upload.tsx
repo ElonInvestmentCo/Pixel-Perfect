@@ -38,12 +38,13 @@ export default function IdentityUploadScreen() {
 
   const handleContinue = useCallback(() => {
     if (!selected) return;
-    // Reset the entire navigation stack so Dashboard is a true full-screen
-    // root — not stacked inside the modal presentation context of sign-up/sign-in.
-    navigation.dispatch(
+    // getParent() climbs from the (auth) Stack to the root Stack, then resets
+    // the root to only the (app) group — completely clearing the auth history.
+    const rootNav = navigation.getParent() ?? navigation;
+    rootNav.dispatch(
       CommonActions.reset({
         index: 0,
-        routes: [{ name: "dashboard" }],
+        routes: [{ name: "(app)" }],
       }),
     );
   }, [selected, navigation]);

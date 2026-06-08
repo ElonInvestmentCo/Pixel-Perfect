@@ -15,8 +15,8 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { COUNTRIES, DEFAULT_COUNTRY } from "../lib/countries";
-import type { Country } from "../lib/countries";
+import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/countries";
+import type { Country } from "@/lib/countries";
 
 const LIME    = "#C8FF00";
 const BLACK   = "#1A1A1A";

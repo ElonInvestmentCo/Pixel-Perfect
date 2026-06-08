@@ -22,15 +22,15 @@ const queryClient = new QueryClient();
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index"          options={{ headerShown: false }} />
-      <Stack.Screen name="signup"         options={{ headerShown: false, presentation: "modal" }} />
-      <Stack.Screen name="phone-verify"   options={{ headerShown: false }} />
-      <Stack.Screen name="signin"         options={{ headerShown: false, presentation: "modal" }} />
-      <Stack.Screen name="reset-password" options={{ headerShown: false }} />
-      <Stack.Screen name="verify-code"    options={{ headerShown: false }} />
-      <Stack.Screen name="account-reason"  options={{ headerShown: false }} />
-      <Stack.Screen name="identity-upload" options={{ headerShown: false }} />
-      <Stack.Screen name="dashboard"       options={{ headerShown: false, gestureEnabled: false }} />
+      {/* Onboarding entry point */}
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      {/* Auth group — signup, signin, KYC screens; manages its own Stack */}
+      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+      {/* App group — authenticated screens; no back gesture, fade in */}
+      <Stack.Screen
+        name="(app)"
+        options={{ headerShown: false, gestureEnabled: false, animation: "fade" }}
+      />
     </Stack>
   );
 }

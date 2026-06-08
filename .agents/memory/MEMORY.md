@@ -2,3 +2,4 @@
 - [Auth validation module](auth-validation.md) — shared validation lives in artifacts/mobile/lib/validation.ts; all auth screens import from there, no duplication.
 - [Unmount-safe async in Expo screens](expo-unmount-safety.md) — after router.replace/push, use mountedRef + navTimerRef pattern to avoid setting state or navigating on unmounted components.
 - [Metro cache + pnpm monorepo config](metro-pnpm-config.md) — stale cache after file deletions causes 502; fix requires full cache purge + --clear restart; metro.config.js must use unstable_enablePackageExports and spread config.resolver (not a snapshot) for SVG transformer.
+- [Auth→App navigation reset](auth-app-nav-reset.md) — proper Expo Router route group architecture to fully clear auth stack on login.

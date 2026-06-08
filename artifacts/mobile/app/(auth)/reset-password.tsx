@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { isValidEmail, validateEmail } from "../lib/validation";
+import { isValidEmail, validateEmail } from "@/lib/validation";
 
 const LIME    = "#C8FF00";
 const BLACK   = "#1A1A1A";

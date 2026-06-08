@@ -16,13 +16,13 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AppleSignInButton } from "../components/AppleSignInButton";
-import { GoogleSignInButton } from "../components/GoogleSignInButton";
+import { AppleSignInButton } from "@/components/AppleSignInButton";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import {
   isValidEmail,
   validateEmail,
   validateSignInPassword,
-} from "../lib/validation";
+} from "@/lib/validation";
 
 const isIOS = Platform.OS === "ios";
 
@@ -92,12 +92,13 @@ export default function SignInScreen() {
     setSubmitErr("");
     try {
       await signIn(email.trim(), password);
-      // Reset the entire navigation stack so Dashboard is a true full-screen
-      // root — not stacked inside the modal presentation context of sign-in.
-      navigation.dispatch(
+      // getParent() climbs from the (auth) Stack to the root Stack, then resets
+      // the root to only the (app) group — completely clearing the auth history.
+      const rootNav = navigation.getParent() ?? navigation;
+      rootNav.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{ name: "dashboard" }],
+          routes: [{ name: "(app)" }],
         }),
       );
     } catch (e: any) {
