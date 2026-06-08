@@ -10,7 +10,6 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -19,17 +18,30 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
+// ─── Safe KeyboardProvider ────────────────────────────────────────────────────
+// react-native-keyboard-controller requires a native module that is not bundled
+// in Expo Go. We load it lazily so the app still runs in Expo Go; the module
+// is only used in development builds and production.
+let KeyboardProviderSafe: React.ComponentType<{ children: React.ReactNode }>;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const mod = require("react-native-keyboard-controller");
+  if (mod && mod.KeyboardProvider) {
+    KeyboardProviderSafe = mod.KeyboardProvider;
+  } else {
+    KeyboardProviderSafe = ({ children }) => <>{children}</>;
+  }
+} catch {
+  KeyboardProviderSafe = ({ children }) => <>{children}</>;
+}
+
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
       {/* ── Onboarding ──────────────────────────────────────────────────────── */}
-      {/* Full-screen landing carousel; stays in history so sign-out returns here */}
       <Stack.Screen name="index" options={{ headerShown: false, animation: "none" }} />
 
       {/* ── Auth group ──────────────────────────────────────────────────────── */}
-      {/* Slides up from bottom like a modal but is a full-screen card —
-          no iOS PageSheet handle, no pull-to-dismiss, completely isolated
-          from the onboarding route so back navigation is explicit only.     */}
       <Stack.Screen
         name="(auth)"
         options={{
@@ -40,9 +52,6 @@ function RootLayoutNav() {
       />
 
       {/* ── App group ───────────────────────────────────────────────────────── */}
-      {/* Entered via CommonActions.reset — no auth history behind it.
-          Fade in for a clean "you're logged in" feel.
-          gestureEnabled:false prevents any swipe-back to auth.              */}
       <Stack.Screen
         name="(app)"
         options={{
@@ -76,9 +85,9 @@ export default function RootLayout() {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <KeyboardProvider>
+            <KeyboardProviderSafe>
               <RootLayoutNav />
-            </KeyboardProvider>
+            </KeyboardProviderSafe>
           </GestureHandlerRootView>
         </QueryClientProvider>
       </ErrorBoundary>

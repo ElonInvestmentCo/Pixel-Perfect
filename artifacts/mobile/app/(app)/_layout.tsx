@@ -12,13 +12,18 @@ const WHITE  = "#FFFFFF";
 
 const TAB_CONTENT_HEIGHT = 58;
 
-// ─── Custom centre tab button ──────────────────────────────────────────────────
-function CentreTabButton({ onPress }: { onPress?: () => void }) {
+// ─── Centre QR tab button ─────────────────────────────────────────────────────
+// tabBarButton renders a fully custom pressable; tabBarIcon is unused for this tab.
+function CentreTabButton(props: {
+  onPress?: (e: any) => void;
+  children?: React.ReactNode;
+  style?: any;
+}) {
   return (
     <TouchableOpacity
       style={ctr.wrap}
       activeOpacity={0.8}
-      onPress={onPress}
+      onPress={props.onPress}
       accessibilityRole="button"
       accessibilityLabel="Scan QR code"
     >
@@ -31,15 +36,22 @@ function CentreTabButton({ onPress }: { onPress?: () => void }) {
 
 const ctr = StyleSheet.create({
   wrap: {
-    flex: 1, alignItems: "center", justifyContent: "center",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: -22,
   },
   circle: {
-    width: 58, height: 58, borderRadius: 29,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
     backgroundColor: LIME,
-    alignItems: "center", justifyContent: "center",
+    alignItems: "center",
+    justifyContent: "center",
     shadowColor: "#000",
-    shadowOpacity: 0.18, shadowRadius: 12, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
     elevation: 6,
   },
 });
@@ -71,7 +83,7 @@ export default function AppLayout() {
         tabBarItemStyle:  s.item,
       }}
     >
-      {/* Home */}
+      {/* ── Home ─────────────────────────────────────────────────────────────── */}
       <Tabs.Screen
         name="index"
         options={{
@@ -82,7 +94,7 @@ export default function AppLayout() {
         }}
       />
 
-      {/* Insights */}
+      {/* ── Insights ─────────────────────────────────────────────────────────── */}
       <Tabs.Screen
         name="insights"
         options={{
@@ -93,19 +105,19 @@ export default function AppLayout() {
         }}
       />
 
-      {/* Scan — centre lime button */}
+      {/* ── Scan — lime raised centre button ─────────────────────────────────── */}
       <Tabs.Screen
         name="scan"
         options={{
           title: "",
-          tabBarIcon: () => null,
-          tabBarButton: (props) => (
-            <CentreTabButton onPress={props.onPress as (() => void) | undefined} />
+          tabBarIcon: ({ color, size }) => (
+            <View style={{ width: size, height: size }} />
           ),
+          tabBarButton: (props) => <CentreTabButton {...props} />,
         }}
       />
 
-      {/* My Cards */}
+      {/* ── My Cards ─────────────────────────────────────────────────────────── */}
       <Tabs.Screen
         name="my-cards"
         options={{
@@ -116,7 +128,7 @@ export default function AppLayout() {
         }}
       />
 
-      {/* Profile */}
+      {/* ── Profile ──────────────────────────────────────────────────────────── */}
       <Tabs.Screen
         name="profile"
         options={{
@@ -127,9 +139,21 @@ export default function AppLayout() {
         }}
       />
 
-      {/* Hide legacy screens from tab bar */}
-      <Tabs.Screen name="cards"    options={{ href: null }} />
-      <Tabs.Screen name="settings" options={{ href: null }} />
+      {/* ── Hide legacy tabs (file still exists, just not shown) ─────────────── */}
+      <Tabs.Screen
+        name="cards"
+        options={{
+          tabBarButton: () => null,
+          tabBarItemStyle: { display: "none" },
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          tabBarButton: () => null,
+          tabBarItemStyle: { display: "none" },
+        }}
+      />
     </Tabs>
   );
 }
