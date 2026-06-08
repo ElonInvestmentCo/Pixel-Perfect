@@ -2,7 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   Share,
@@ -223,6 +223,13 @@ export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const cardAnim = useRef(new Animated.Value(0)).current;
 
+  /* Auto-request on first mount */
+  useEffect(() => {
+    if (permission !== null && !permission.granted && permission.canAskAgain) {
+      requestPermission();
+    }
+  }, [permission]);
+
   const switchTo = useCallback((next: ViewMode) => {
     if (next === "mycode") {
       setMode("mycode");
@@ -271,13 +278,14 @@ export default function ScanScreen() {
   return (
     <View style={s.root}>
 
-      {/* ── Camera background (only in scan mode) ────────────────── */}
+      {/* ── Camera background ────────────────────────────────────── */}
       {permission?.granted && mode === "scan" ? (
         <CameraView
           style={StyleSheet.absoluteFill}
           facing="back"
           enableTorch={flashOn}
           barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+          onCameraReady={() => {/* camera is live */}}
         />
       ) : (
         <View style={[StyleSheet.absoluteFill, { backgroundColor: NAVY }]} />
@@ -296,11 +304,20 @@ export default function ScanScreen() {
 
       {/* ── Centre area ──────────────────────────────────────────── */}
       <View style={s.centre}>
-        {!permission?.granted ? (
+        {/* Permission is still loading — show nothing */}
+        {permission === null ? null
+
+        /* Permission denied and can't ask again — show manual grant screen */
+        : !permission.granted && !permission.canAskAgain ? (
           <PermissionScreen onRequest={requestPermission} />
-        ) : (
+        )
+
+        /* Permission denied but can ask — auto-request fired in useEffect, show nothing */
+        : !permission.granted ? null
+
+        /* Permission granted — show scanner / QR card */
+        : (
           <>
-            {/* Scanner frame */}
             <Animated.View
               style={[
                 StyleSheet.absoluteFill,
@@ -318,7 +335,6 @@ export default function ScanScreen() {
               <ScannerFrame />
             </Animated.View>
 
-            {/* My QR Code card */}
             {(mode === "mycode" || (cardAnim as any)._value > 0) && (
               <MyQRCard
                 anim={cardAnim}
