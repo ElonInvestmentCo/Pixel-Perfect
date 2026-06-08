@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
   Dimensions,
+  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -63,26 +64,11 @@ const Slide1 = React.memo(function Slide1() {
   return (
     <View style={il.wrap}>
       <View style={il.circle} />
-      <View style={il.card}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Text style={il.cardLabel}>Total Balance</Text>
-          <Feather name="eye" size={15} color="#8A8A8A" style={{ marginLeft: 6 }} />
-        </View>
-        <Text style={il.cardAmount}>$0.00</Text>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <TouchableOpacity style={il.pill} accessibilityRole="button" accessibilityLabel="Transfer">
-            <View style={il.iconCircle}><Feather name="arrow-up" size={12} color={BLACK} /></View>
-            <Text style={il.pillText}>Transfer</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[il.pill, { marginLeft: 8 }]} accessibilityRole="button" accessibilityLabel="Receive">
-            <View style={il.iconCircle}><Feather name="arrow-down" size={12} color={BLACK} /></View>
-            <Text style={il.pillText}>Receive</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[il.menuBtn, { marginLeft: 8 }]} accessibilityRole="button" accessibilityLabel="Menu">
-            <Feather name="menu" size={16} color={BLACK} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Image
+        source={require("../assets/images/balance-card-slide.png")}
+        style={il.balanceCardImg}
+        resizeMode="contain"
+      />
     </View>
   );
 });
@@ -180,6 +166,11 @@ const il = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 20, borderWidth: 1.5,
     borderColor: "#D8D8D8", padding: 20,
+    zIndex: 2,
+  },
+  balanceCardImg: {
+    width: SW - 48,
+    height: (SW - 48) * 0.6,
     zIndex: 2,
   },
   cardLabel: { fontSize: 13, color: "#8A8A8A", fontFamily: "Inter_400Regular" },
