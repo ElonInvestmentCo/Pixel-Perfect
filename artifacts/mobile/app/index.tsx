@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { ClipPath, Defs, Ellipse, Line, Rect, Svg } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width: SW } = Dimensions.get("window");
@@ -59,11 +60,44 @@ const Rings = React.memo(function Rings({ color }: { color: string }) {
   );
 });
 
+// ─── Grid-textured circle ─────────────────────────────────────────────────────
+const GRID_D = SW * 0.9;
+const GRID_R = GRID_D / 2;
+const GRID_SPACING = 28;
+
+const GridCircle = React.memo(function GridCircle() {
+  const lines: React.ReactElement[] = [];
+  for (let x = GRID_SPACING; x < GRID_D; x += GRID_SPACING) {
+    lines.push(
+      <Line key={`v${x}`} x1={x} y1={0} x2={x} y2={GRID_D}
+        stroke="#FFFFFF" strokeWidth={1} opacity={0.7} />
+    );
+  }
+  for (let y = GRID_SPACING; y < GRID_D; y += GRID_SPACING) {
+    lines.push(
+      <Line key={`h${y}`} x1={0} y1={y} x2={GRID_D} y2={y}
+        stroke="#FFFFFF" strokeWidth={1} opacity={0.7} />
+    );
+  }
+  return (
+    <Svg width={GRID_D} height={GRID_D} style={{ position: "absolute" }}>
+      <Defs>
+        <ClipPath id="circleClip">
+          <Ellipse cx={GRID_R} cy={GRID_R} rx={GRID_R} ry={GRID_R} />
+        </ClipPath>
+      </Defs>
+      <Rect x={0} y={0} width={GRID_D} height={GRID_D}
+        fill="#E2E2E2" clipPath="url(#circleClip)" />
+      {lines.map(l => React.cloneElement(l, { clipPath: "url(#circleClip)" }))}
+    </Svg>
+  );
+});
+
 // ─── Slide illustrations ──────────────────────────────────────────────────────
 const Slide1 = React.memo(function Slide1() {
   return (
     <View style={il.wrap}>
-      <View style={il.circle} />
+      <GridCircle />
       <Image
         source={require("../assets/images/balance-card-slide.png")}
         style={il.balanceCardImg}
