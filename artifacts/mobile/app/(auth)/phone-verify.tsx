@@ -2,11 +2,9 @@ import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ActivityIndicator,
   Animated,
   FlatList,
   Modal,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -15,10 +13,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { OnboardingHeader, PrimaryButton } from "@/components/onboarding";
 import { COUNTRIES, DEFAULT_COUNTRY } from "@/lib/countries";
 import type { Country } from "@/lib/countries";
 
-const LIME    = "#C8FF00";
 const BLACK   = "#1A1A1A";
 const ERROR_C = "#DC2626";
 const GRAY    = "#F2F2F2";
@@ -76,12 +74,8 @@ const CountryPickerModal = React.memo(function CountryPickerModal({
     [query],
   );
 
-  const handleClose = useCallback(() => {
-    setQuery("");
-    onClose();
-  }, [onClose]);
-
-  const clearQuery = useCallback(() => setQuery(""), []);
+  const handleClose = useCallback(() => { setQuery(""); onClose(); }, [onClose]);
+  const clearQuery  = useCallback(() => setQuery(""), []);
 
   return (
     <Modal
@@ -91,20 +85,14 @@ const CountryPickerModal = React.memo(function CountryPickerModal({
       statusBarTranslucent
       onRequestClose={handleClose}
     >
-      {/* Full-screen overlay: tap outside to close */}
       <View style={pk.overlay}>
         <TouchableOpacity
           style={StyleSheet.absoluteFillObject}
           activeOpacity={1}
           onPress={handleClose}
         />
-
-        {/* Bottom sheet */}
         <View style={[pk.sheet, { paddingBottom: insets.bottom + 16 }]}>
-          {/* Handle */}
           <View style={pk.handle} />
-
-          {/* Header row */}
           <View style={pk.header}>
             <Text style={pk.title}>Select Country</Text>
             <TouchableOpacity
@@ -117,7 +105,6 @@ const CountryPickerModal = React.memo(function CountryPickerModal({
             </TouchableOpacity>
           </View>
 
-          {/* Search bar */}
           <View style={pk.searchRow}>
             <Feather name="search" size={15} color="#AAAAAA" style={{ marginRight: 8 }} />
             <TextInput
@@ -143,7 +130,6 @@ const CountryPickerModal = React.memo(function CountryPickerModal({
             )}
           </View>
 
-          {/* Country list */}
           <FlatList
             data={filtered}
             keyExtractor={(c) => `${c.dialCode}-${c.name}`}
@@ -151,33 +137,21 @@ const CountryPickerModal = React.memo(function CountryPickerModal({
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <View style={pk.separator} />}
             renderItem={({ item }) => {
-              const selected =
-                item.dialCode === current.dialCode && item.name === current.name;
+              const sel = item.dialCode === current.dialCode && item.name === current.name;
               return (
                 <TouchableOpacity
                   style={pk.row}
                   activeOpacity={0.7}
-                  onPress={() => {
-                    onSelect(item);
-                    setQuery("");
-                    onClose();
-                  }}
+                  onPress={() => { onSelect(item); setQuery(""); onClose(); }}
                   accessibilityRole="button"
-                  accessibilityLabel={`${item.name} ${item.dialCode}${selected ? ", selected" : ""}`}
+                  accessibilityLabel={`${item.name} ${item.dialCode}${sel ? ", selected" : ""}`}
                 >
                   <Text style={pk.flag}>{item.flag}</Text>
-                  <Text
-                    style={[pk.countryName, selected && pk.countryNameBold]}
-                    numberOfLines={1}
-                  >
+                  <Text style={[pk.countryName, sel && pk.countryNameBold]} numberOfLines={1}>
                     {item.name}
                   </Text>
-                  <Text style={[pk.dialCode, selected && pk.dialCodeBold]}>
-                    {item.dialCode}
-                  </Text>
-                  {selected && (
-                    <Feather name="check" size={15} color={BLACK} style={{ marginLeft: 6 }} />
-                  )}
+                  <Text style={[pk.dialCode, sel && pk.dialCodeBold]}>{item.dialCode}</Text>
+                  {sel && <Feather name="check" size={15} color={BLACK} style={{ marginLeft: 6 }} />}
                 </TouchableOpacity>
               );
             }}
@@ -237,8 +211,8 @@ type SendStatus = "idle" | "loading" | "error";
 
 export default function PhoneVerifyScreen() {
   const insets = useSafeAreaInsets();
-  const topPad = Platform.OS === "web" ? 55 : insets.top;
-  const botPad = Platform.OS === "web" ? 34 : insets.bottom;
+  const topPad = insets.top;
+  const botPad = insets.bottom;
 
   const [country, setCountry]       = useState<Country>(DEFAULT_COUNTRY);
   const [phone, setPhone]           = useState("");
@@ -282,10 +256,7 @@ export default function PhoneVerifyScreen() {
   }, [sendStatus]);
 
   const handleCountrySelect = useCallback((c: Country) => {
-    setCountry(c);
-    setPhone("");
-    setSendStatus("idle");
-    setErrorMsg("");
+    setCountry(c); setPhone(""); setSendStatus("idle"); setErrorMsg("");
   }, []);
 
   const lengthHint = useMemo(() => {
@@ -297,30 +268,21 @@ export default function PhoneVerifyScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      {/* Header + inputs */}
+      {/* ── Header + inputs ─────────────────────────────────────────────────── */}
       <View style={[s.top, { paddingTop: topPad + 14 }]}>
-        {/* Close (X) */}
-        <TouchableOpacity
-          style={s.closeBtn}
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-        >
-          <Feather name="x" size={15} color="#999999" />
-        </TouchableOpacity>
-
-        <Text style={s.title} accessibilityRole="header">
-          {"Verify your phone\nnumber with a code"}
-        </Text>
-        <Text style={s.subtitle}>We will send you a confirmation code</Text>
+        {/* Shared header: close button + progress + title + subtitle */}
+        <OnboardingHeader
+          onClose={() => router.back()}
+          title={"Verify your phone\nnumber with a code"}
+          subtitle="We will send you a confirmation code"
+          progress={{ step: 1, total: 4 }}
+          gap={24}
+        />
 
         <Text style={s.label}>Phone number</Text>
 
-        {/* Phone row */}
+        {/* Phone input row */}
         <View style={s.phoneRow}>
-          {/* Country selector pill */}
           <TouchableOpacity
             style={s.countryPill}
             onPress={openPicker}
@@ -333,7 +295,6 @@ export default function PhoneVerifyScreen() {
             <Feather name="chevron-down" size={13} color="#888888" />
           </TouchableOpacity>
 
-          {/* Phone number display */}
           <View
             style={[s.phoneBox, sendStatus === "error" && s.phoneBoxError]}
             accessibilityLabel={`Phone number: ${phone || "empty"}`}
@@ -344,40 +305,30 @@ export default function PhoneVerifyScreen() {
           </View>
         </View>
 
-        {/* Length hint */}
         {lengthHint ? (
           <Text style={s.hintText} accessibilityLiveRegion="polite">{lengthHint}</Text>
         ) : null}
 
-        {/* Error message */}
         {sendStatus === "error" && errorMsg ? (
           <Text style={s.errorText} accessibilityLiveRegion="polite">{errorMsg}</Text>
         ) : null}
 
-        {/* Send Code button */}
-        <TouchableOpacity
-          style={[s.cta, !canSend && s.ctaDim]}
-          activeOpacity={0.85}
-          disabled={!canSend}
+        {/* Send Code CTA */}
+        <PrimaryButton
+          label="Send Code"
           onPress={handleSend}
-          accessibilityRole="button"
-          accessibilityLabel="Send Code"
-          accessibilityState={{ disabled: !canSend }}
-        >
-          {isLoading ? (
-            <ActivityIndicator color={BLACK} size="small" />
-          ) : (
-            <Text style={[s.ctaText, !canSend && s.ctaTextDim]}>Send Code</Text>
-          )}
-        </TouchableOpacity>
+          disabled={!canSend}
+          loading={isLoading}
+          style={{ marginTop: 16 }}
+        />
       </View>
 
-      {/* Custom numpad */}
+      {/* ── Custom numpad ─────────────────────────────────────────────────────── */}
       <View style={{ paddingBottom: botPad + 6 }}>
         <NumPad value={phone} onChange={handlePhoneChange} disabled={isLoading} />
       </View>
 
-      {/* Country picker */}
+      {/* Country picker modal */}
       <CountryPickerModal
         visible={pickerOpen}
         current={country}
@@ -391,16 +342,13 @@ export default function PhoneVerifyScreen() {
 // ─── Country picker styles ────────────────────────────────────────────────────
 const pk = StyleSheet.create({
   overlay: {
-    flex: 1,
-    justifyContent: "flex-end",
+    flex: 1, justifyContent: "flex-end",
     backgroundColor: "rgba(0,0,0,0.45)",
   },
   sheet: {
     backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: "74%",
-    paddingTop: 12,
+    borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    maxHeight: "74%", paddingTop: 12,
   },
   handle: {
     width: 40, height: 4, borderRadius: 2,
@@ -413,7 +361,6 @@ const pk = StyleSheet.create({
     paddingHorizontal: 22, marginBottom: 14,
   },
   title: { fontSize: 17, fontFamily: "Inter_600SemiBold", color: BLACK },
-
   searchRow: {
     flexDirection: "row", alignItems: "center",
     backgroundColor: GRAY, borderRadius: 12,
@@ -424,20 +371,10 @@ const pk = StyleSheet.create({
     flex: 1, fontSize: 14, fontFamily: "Inter_400Regular",
     color: BLACK, outlineStyle: "none",
   } as any,
-
-  separator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: "#F0F0F0",
-    marginLeft: 58,
-  },
-  row: {
-    flexDirection: "row", alignItems: "center",
-    paddingHorizontal: 18, height: 52,
-  },
+  separator: { height: StyleSheet.hairlineWidth, backgroundColor: "#F0F0F0", marginLeft: 58 },
+  row: { flexDirection: "row", alignItems: "center", paddingHorizontal: 18, height: 52 },
   flag: { fontSize: 22, marginRight: 12 },
-  countryName: {
-    flex: 1, fontSize: 15, fontFamily: "Inter_400Regular", color: BLACK,
-  },
+  countryName: { flex: 1, fontSize: 15, fontFamily: "Inter_400Regular", color: BLACK },
   countryNameBold: { fontFamily: "Inter_600SemiBold" },
   dialCode: { fontSize: 14, fontFamily: "Inter_400Regular", color: "#888888" },
   dialCodeBold: { color: BLACK, fontFamily: "Inter_600SemiBold" },
@@ -446,13 +383,13 @@ const pk = StyleSheet.create({
 // ─── Numpad styles ────────────────────────────────────────────────────────────
 const np = StyleSheet.create({
   wrap: { paddingHorizontal: 20 },
-  row: { flexDirection: "row", gap: 8, marginBottom: 8 },
+  row:  { flexDirection: "row", gap: 8, marginBottom: 8 },
   key: {
     flex: 1, height: 62,
     backgroundColor: GRAY, borderRadius: 12,
     alignItems: "center", justifyContent: "center",
   },
-  keyDim: { opacity: 0.32 },
+  keyDim:  { opacity: 0.32 },
   keyText: { fontSize: 26, fontFamily: "Inter_400Regular", color: BLACK },
 });
 
@@ -460,21 +397,6 @@ const np = StyleSheet.create({
 const s = StyleSheet.create({
   top: { flex: 1, paddingHorizontal: 22 },
 
-  closeBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: "#EBEBEB",
-    alignItems: "center", justifyContent: "center",
-    marginBottom: 28,
-  },
-
-  title: {
-    fontSize: 28, fontFamily: "Inter_700Bold",
-    color: BLACK, lineHeight: 36, letterSpacing: -0.3, marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 15, fontFamily: "Inter_400Regular",
-    color: "#888888", marginBottom: 28,
-  },
   label: {
     fontSize: 14, fontFamily: "Inter_400Regular",
     color: "#888888", marginBottom: 10,
@@ -494,7 +416,8 @@ const s = StyleSheet.create({
   phoneBox: {
     flex: 1, height: 50,
     borderWidth: 1.5, borderColor: BLACK, borderRadius: 10,
-    flexDirection: "row", alignItems: "center", paddingHorizontal: 14, gap: 2,
+    flexDirection: "row", alignItems: "center",
+    paddingHorizontal: 14, gap: 2,
   },
   phoneBoxError: { borderColor: ERROR_C },
   phoneText: { flex: 1, fontSize: 16, fontFamily: "Inter_400Regular", color: BLACK },
@@ -507,12 +430,4 @@ const s = StyleSheet.create({
     fontSize: 13, fontFamily: "Inter_400Regular",
     color: ERROR_C, marginBottom: 8, marginTop: 4,
   },
-
-  cta: {
-    backgroundColor: LIME, borderRadius: 28, height: 54,
-    alignItems: "center", justifyContent: "center", marginTop: 16,
-  },
-  ctaDim: { backgroundColor: "#E8E8E8" },
-  ctaText: { fontSize: 16, fontFamily: "Inter_700Bold", color: BLACK },
-  ctaTextDim: { color: "#AAAAAA" },
 });

@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import {
   ActivityIndicator,
   Animated,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -13,12 +12,14 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const LIME    = "#C8FF00";
+import { OC, OnboardingHeader } from "@/components/onboarding";
+
 const BLACK   = "#1A1A1A";
 const INDIGO  = "#4F46E5";
 const SUCCESS = "#16A34A";
 const ERROR_C = "#DC2626";
 const GRAY    = "#F2F2F2";
+const LIME    = OC.lime;
 
 const PAD_ROWS = [
   ["1", "2", "3"],
@@ -128,8 +129,8 @@ type Status = "idle" | "loading" | "success" | "error";
 
 export default function VerifyCodeScreen() {
   const insets = useSafeAreaInsets();
-  const topPad = Platform.OS === "web" ? 55 : insets.top;
-  const botPad = Platform.OS === "web" ? 34 : insets.bottom;
+  const topPad = insets.top;
+  const botPad = insets.bottom;
 
   const {
     phone    = "",
@@ -161,7 +162,6 @@ export default function VerifyCodeScreen() {
     };
   }, []);
 
-  // 60-second resend countdown
   useEffect(() => {
     if (countdown <= 0) return;
     const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
@@ -197,17 +197,13 @@ export default function VerifyCodeScreen() {
     }
   }, [shake, isResetMode]);
 
-  // Stable ref so handleKey doesn't need submit in its dep array
   const submitRef = useRef(submit);
   useEffect(() => { submitRef.current = submit; }, [submit]);
 
   const handleKey = useCallback((k: string) => {
     if (status === "loading" || status === "success") return;
     if (status === "error") {
-      setStatus("idle");
-      setErrorMsg("");
-      setCode("");
-      return;
+      setStatus("idle"); setErrorMsg(""); setCode(""); return;
     }
     setCode((prev) => {
       const next = k === "⌫"     ? prev.slice(0, -1)
@@ -229,9 +225,7 @@ export default function VerifyCodeScreen() {
   const handleResend = useCallback(async () => {
     if (countdown > 0 || resending) return;
     setResending(true);
-    setCode("");
-    setStatus("idle");
-    setErrorMsg("");
+    setCode(""); setStatus("idle"); setErrorMsg("");
     try {
       const to = isResetMode ? email : `${dialCode}${phone}`;
       await resendOtp(to);
@@ -282,21 +276,18 @@ export default function VerifyCodeScreen() {
         accessible={false}
       />
 
-      {/* Top content */}
+      {/* ── Top content ────────────────────────────────────────────────────────── */}
       <View style={[s.top, { paddingTop: topPad + 14 }]}>
-        <TouchableOpacity
-          style={s.closeBtn}
-          onPress={() => router.back()}
-          activeOpacity={0.7}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          accessibilityRole="button"
-          accessibilityLabel="Go back"
-        >
-          <Feather name="x" size={15} color="#999999" />
-        </TouchableOpacity>
+        {/* Shared header: close button + progress + title */}
+        <OnboardingHeader
+          onClose={() => router.back()}
+          title="Verify your Code"
+          progress={{ step: 2, total: 4 }}
+          gap={0}
+        />
 
-        <Text style={s.title} accessibilityRole="header">Verify your Code</Text>
-        <Text style={s.subtitle}>
+        {/* Dynamic subtitle (contains styled nested text — rendered separately) */}
+        <Text style={s.subtitle} accessibilityLiveRegion="polite">
           {isResetMode ? "Enter the code we sent to" : "Enter the security code we sent to"}{"\n"}
           <Text style={s.maskedAddr}>{maskedAddress}</Text>
         </Text>
@@ -318,19 +309,16 @@ export default function VerifyCodeScreen() {
           ))}
         </Animated.View>
 
-        {/* Dev hint — stripped in production builds */}
         {__DEV__ && !isSuccess && (
           <Text style={s.devHint}>
             Test code: <Text style={{ fontFamily: "Inter_600SemiBold" }}>{DEV_CODE}</Text>
           </Text>
         )}
 
-        {/* Error */}
         {hasError && (
           <Text style={s.errorMsg} accessibilityLiveRegion="assertive">{errorMsg}</Text>
         )}
 
-        {/* Success banner */}
         {isSuccess && (
           <View style={s.successRow} accessibilityLiveRegion="polite">
             <Feather name="check-circle" size={15} color={SUCCESS} />
@@ -338,7 +326,6 @@ export default function VerifyCodeScreen() {
           </View>
         )}
 
-        {/* Resend */}
         {!isSuccess && (
           <View style={s.resendRow}>
             {countdown > 0 ? (
@@ -366,12 +353,13 @@ export default function VerifyCodeScreen() {
 
         <View style={{ flex: 1 }} />
 
-        {/* Done / verify CTA */}
+        {/* Done / verify CTA — has tri-state (normal / success) so kept custom */}
         <TouchableOpacity
           style={[
             s.cta,
             !doneEnabled && !isSuccess && s.ctaDim,
             isSuccess && s.ctaSuccess,
+            doneEnabled && !isSuccess && s.ctaGlow,
           ]}
           activeOpacity={0.85}
           disabled={!doneEnabled}
@@ -391,7 +379,7 @@ export default function VerifyCodeScreen() {
         <View style={{ height: 16 }} />
       </View>
 
-      {/* Numpad */}
+      {/* ── Numpad ─────────────────────────────────────────────────────────────── */}
       <View style={{ paddingBottom: botPad + 6 }}>
         <NumPad onKey={handleKey} disabled={padDisabled} />
       </View>
@@ -427,22 +415,9 @@ const np = StyleSheet.create({
 
 // ─── Screen styles ────────────────────────────────────────────────────────────
 const s = StyleSheet.create({
-  hiddenInput: {
-    position: "absolute", left: -9999, height: 1, width: 1, opacity: 0,
-  },
+  hiddenInput: { position: "absolute", left: -9999, height: 1, width: 1, opacity: 0 },
   top: { flex: 1, paddingHorizontal: 22 },
 
-  closeBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: "#EBEBEB",
-    alignItems: "center", justifyContent: "center",
-    marginBottom: 28,
-  },
-
-  title: {
-    fontSize: 28, fontFamily: "Inter_700Bold",
-    color: BLACK, letterSpacing: -0.3, marginBottom: 10,
-  },
   subtitle: {
     fontSize: 15, fontFamily: "Inter_400Regular",
     color: BLACK, lineHeight: 23, marginBottom: 24,
@@ -467,15 +442,22 @@ const s = StyleSheet.create({
   successMsg: { fontSize: 13, color: SUCCESS, fontFamily: "Inter_500Medium" },
 
   resendRow: { alignItems: "center", paddingVertical: 10 },
-  resendCountdown: {
-    fontSize: 14, fontFamily: "Inter_400Regular", color: "#AAAAAA",
-  },
+  resendCountdown: { fontSize: 14, fontFamily: "Inter_400Regular", color: "#AAAAAA" },
   resendTimer: { fontFamily: "Inter_600SemiBold", color: BLACK },
   resendNow:   { fontSize: 15, fontFamily: "Inter_600SemiBold", color: INDIGO },
 
+  // Custom tri-state CTA (lime / green-success / gray-disabled)
   cta: {
-    backgroundColor: LIME, borderRadius: 28, height: 54,
+    backgroundColor: "#E8E8E8", borderRadius: 28, height: 54,
     alignItems: "center", justifyContent: "center",
+  },
+  ctaGlow: {
+    backgroundColor: LIME,
+    shadowColor: "#A8D400",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.45,
+    shadowRadius: 18,
+    elevation: 8,
   },
   ctaDim:     { backgroundColor: "#E8E8E8" },
   ctaSuccess: { backgroundColor: SUCCESS },
