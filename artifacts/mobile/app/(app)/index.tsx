@@ -98,19 +98,19 @@ const tx = StyleSheet.create({
   neg:      { color: BLACK },
 });
 
-// ─── Dashboard ────────────────────────────────────────────────────────────────
-export default function DashboardScreen() {
+// ─── Home / Dashboard ─────────────────────────────────────────────────────────
+export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 55 : insets.top;
-  const botPad = Platform.OS === "web" ? 34 : insets.bottom;
   const [balanceVisible, setBalanceVisible] = useState(true);
 
+  // Resets root navigation to onboarding (index); (auth) and (app) are cleared.
   const handleSignOut = () => router.replace("/");
 
   return (
     <View style={{ flex: 1, backgroundColor: "#EBEBEB" }}>
       <ScrollView
-        contentContainerStyle={[s.scroll, { paddingTop: topPad + 16, paddingBottom: botPad + 32 }]}
+        contentContainerStyle={[s.scroll, { paddingTop: topPad + 16, paddingBottom: 32 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}

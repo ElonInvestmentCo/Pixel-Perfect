@@ -22,14 +22,34 @@ const queryClient = new QueryClient();
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* Onboarding entry point */}
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      {/* Auth group — signup, signin, KYC screens; manages its own Stack */}
-      <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      {/* App group — authenticated screens; no back gesture, fade in */}
+      {/* ── Onboarding ──────────────────────────────────────────────────────── */}
+      {/* Full-screen landing carousel; stays in history so sign-out returns here */}
+      <Stack.Screen name="index" options={{ headerShown: false, animation: "none" }} />
+
+      {/* ── Auth group ──────────────────────────────────────────────────────── */}
+      {/* Slides up from bottom like a modal but is a full-screen card —
+          no iOS PageSheet handle, no pull-to-dismiss, completely isolated
+          from the onboarding route so back navigation is explicit only.     */}
+      <Stack.Screen
+        name="(auth)"
+        options={{
+          headerShown: false,
+          animation: "slide_from_bottom",
+          gestureEnabled: false,
+        }}
+      />
+
+      {/* ── App group ───────────────────────────────────────────────────────── */}
+      {/* Entered via CommonActions.reset — no auth history behind it.
+          Fade in for a clean "you're logged in" feel.
+          gestureEnabled:false prevents any swipe-back to auth.              */}
       <Stack.Screen
         name="(app)"
-        options={{ headerShown: false, gestureEnabled: false, animation: "fade" }}
+        options={{
+          headerShown: false,
+          gestureEnabled: false,
+          animation: "fade",
+        }}
       />
     </Stack>
   );

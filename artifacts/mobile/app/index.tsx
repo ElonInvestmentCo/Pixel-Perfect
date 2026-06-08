@@ -289,7 +289,7 @@ export default function OnboardingScreen() {
       <View style={[rs.topBar, { paddingTop: topPad + 10 }]}>
         <TouchableOpacity
           style={rs.skipBtn}
-          onPress={() => safeNavigate(() => router.replace("/signin"))}
+          onPress={() => safeNavigate(() => router.push("/signin"))}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           accessibilityRole="button"
           accessibilityLabel="Skip onboarding"
