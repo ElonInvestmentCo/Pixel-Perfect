@@ -3,3 +3,5 @@
 - [Unmount-safe async in Expo screens](expo-unmount-safety.md) — after router.replace/push, use mountedRef + navTimerRef pattern to avoid setting state or navigating on unmounted components.
 - [Metro cache + pnpm monorepo config](metro-pnpm-config.md) — stale cache after file deletions causes 502; fix requires full cache purge + --clear restart; metro.config.js must use unstable_enablePackageExports and spread config.resolver (not a snapshot) for SVG transformer.
 - [Auth→App navigation reset](auth-app-nav-reset.md) — proper Expo Router route group architecture to fully clear auth stack on login.
+- [API server security stack](api-security-stack.md) — middleware order, env validation, CVE overrides, and SSRF guard pattern for the Express backend.
+- [KeyboardProvider Expo Go compat](keyboard-provider-expo-go.md) — react-native-keyboard-controller crashes Expo Go; use try/catch lazy require with fragment fallback in root _layout.tsx.

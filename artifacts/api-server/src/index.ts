@@ -1,25 +1,22 @@
-import app from "./app";
-import { logger } from "./lib/logger";
+/**
+ * index.ts — Server entry point.
+ *
+ * env.ts MUST be the first import so the process exits immediately if
+ * environment configuration is invalid, before any other module runs.
+ */
+import "./lib/env"; // Validates all env vars — crashes fast on misconfiguration
 
-const rawPort = process.env["PORT"];
+import app            from "./app";
+import { env }        from "./lib/env";
+import { logger }     from "./lib/logger";
 
-if (!rawPort) {
-  throw new Error(
-    "PORT environment variable is required but was not provided.",
-  );
-}
-
-const port = Number(rawPort);
-
-if (Number.isNaN(port) || port <= 0) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-
-app.listen(port, (err) => {
+app.listen(env.PORT, (err?: Error) => {
   if (err) {
-    logger.error({ err }, "Error listening on port");
+    logger.error({ err }, "Failed to start server");
     process.exit(1);
   }
-
-  logger.info({ port }, "Server listening");
+  logger.info(
+    { port: env.PORT, nodeEnv: env.NODE_ENV },
+    "PayVora API server listening",
+  );
 });
