@@ -21,7 +21,8 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pnpm --filter @workspace/mobile run dev"
+args = "PORT=8080 pnpm --filter @workspace/mobile run dev"
+waitForPort = 8080
 
 [[workflows.workflow]]
 name = "Project"
@@ -51,10 +52,7 @@ externalPort = 5173
 
 [[ports]]
 localPort = 8080
-externalPort = 80
-
-[[ports]]
-localPort = 8081
+externalPort = 8080
 
 [[ports]]
 localPort = 8082
