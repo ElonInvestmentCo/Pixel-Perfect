@@ -63,6 +63,7 @@ const Rings = React.memo(function Rings({ color }: { color: string }) {
 const Slide1 = React.memo(function Slide1() {
   return (
     <View style={il.wrap}>
+      <View style={il.circle} />
       <Image
         source={require("../assets/images/balance-card-slide.png")}
         style={il.balanceCardImg}
@@ -156,8 +157,8 @@ const il = StyleSheet.create({
   wrap: { width: SW, paddingHorizontal: 24, alignItems: "center", justifyContent: "center", flex: 1 },
   circle: {
     position: "absolute",
-    width: SW * 0.72, height: SW * 0.72,
-    borderRadius: SW * 0.36,
+    width: SW * 0.9, height: SW * 0.9,
+    borderRadius: SW * 0.45,
     backgroundColor: "#E0E0E0",
   },
   card: {
