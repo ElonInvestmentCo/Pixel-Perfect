@@ -60,6 +60,22 @@ function RootLayoutNav() {
           animation: "fade",
         }}
       />
+
+      {/* ── Top Up flow ─────────────────────────────────────────────────────── */}
+      <Stack.Screen
+        name="top-up"
+        options={{
+          headerShown: false,
+          animation: "slide_from_bottom",
+        }}
+      />
+      <Stack.Screen
+        name="top-up-confirm"
+        options={{
+          headerShown: false,
+          animation: "slide_from_bottom",
+        }}
+      />
     </Stack>
   );
 }
