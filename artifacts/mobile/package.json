@@ -70,6 +70,6 @@
   },
   "dependencies": {
     "@react-navigation/native": "^7.2.5",
-    "expo-camera": "^56.0.7"
+    "expo-camera": "^17.0.10"
   }
 }

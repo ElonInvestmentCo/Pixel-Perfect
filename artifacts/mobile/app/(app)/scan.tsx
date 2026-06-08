@@ -1,4 +1,5 @@
 import { Feather } from "@expo/vector-icons";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
 import React, { useCallback, useRef, useState } from "react";
@@ -139,13 +140,9 @@ function MyQRCard({
       pointerEvents={undefined}
       style={[
         card.wrap,
-        {
-          opacity: anim,
-          transform: [{ scale }],
-        },
+        { opacity: anim, transform: [{ scale }] },
       ]}
     >
-      {/* Card header */}
       <View style={card.header}>
         <Text style={card.title}>My QR Code</Text>
         <TouchableOpacity
@@ -156,14 +153,10 @@ function MyQRCard({
           <Feather name="x" size={22} color="#9CA3AF" />
         </TouchableOpacity>
       </View>
-
-      {/* QR code */}
       <View style={card.qrArea}>
         <QRCodeView />
         <Text style={card.uid}>PayVora · R47865BM</Text>
       </View>
-
-      {/* Share button */}
       <TouchableOpacity style={card.shareBtn} activeOpacity={0.85} onPress={onShare}>
         <Feather name="share-2" size={18} color={BLACK} style={{ marginRight: 8 }} />
         <Text style={card.shareBtnText}>Share Code</Text>
@@ -176,12 +169,9 @@ const card = StyleSheet.create({
   wrap: {
     marginHorizontal: 24,
     backgroundColor: "#FFFFFF",
-    borderRadius: 28,
-    padding: 28,
-    shadowColor: "#000",
-    shadowOpacity: 0.35,
-    shadowRadius: 40,
-    shadowOffset: { width: 0, height: 16 },
+    borderRadius: 28, padding: 28,
+    shadowColor: "#000", shadowOpacity: 0.35,
+    shadowRadius: 40, shadowOffset: { width: 0, height: 16 },
     elevation: 20,
   },
   header: {
@@ -201,6 +191,28 @@ const card = StyleSheet.create({
   shareBtnText: { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK },
 });
 
+/* ─── Permission screen ────────────────────────────────────────── */
+function PermissionScreen({ onRequest }: { onRequest: () => void }) {
+  return (
+    <View style={p.wrap}>
+      <Feather name="camera-off" size={52} color="rgba(255,255,255,0.4)" />
+      <Text style={p.title}>Camera Access Required</Text>
+      <Text style={p.body}>Allow camera access to scan QR codes for payments.</Text>
+      <TouchableOpacity style={p.btn} onPress={onRequest} activeOpacity={0.85}>
+        <Text style={p.btnText}>Grant Permission</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const p = StyleSheet.create({
+  wrap: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 40 },
+  title: { fontSize: 20, fontFamily: "Inter_700Bold", color: "#FFFFFF", marginTop: 20, textAlign: "center" },
+  body:  { fontSize: 14, fontFamily: "Inter_400Regular", color: "rgba(255,255,255,0.55)", marginTop: 10, textAlign: "center", lineHeight: 22 },
+  btn:   { marginTop: 28, backgroundColor: LIME, borderRadius: 16, paddingHorizontal: 32, paddingVertical: 14 },
+  btnText: { fontSize: 16, fontFamily: "Inter_700Bold", color: BLACK },
+});
+
 /* ─── Main screen ──────────────────────────────────────────────── */
 type ViewMode = "scan" | "mycode";
 
@@ -208,29 +220,22 @@ export default function ScanScreen() {
   const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<ViewMode>("scan");
   const [flashOn, setFlashOn] = useState(false);
-
-  /* Animated value: 0 = scan, 1 = mycode */
+  const [permission, requestPermission] = useCameraPermissions();
   const cardAnim = useRef(new Animated.Value(0)).current;
 
   const switchTo = useCallback((next: ViewMode) => {
     if (next === "mycode") {
       setMode("mycode");
       Animated.spring(cardAnim, {
-        toValue: 1,
-        useNativeDriver: true,
-        tension: 80,
-        friction: 10,
+        toValue: 1, useNativeDriver: true, tension: 80, friction: 10,
       }).start();
     } else {
       Animated.timing(cardAnim, {
-        toValue: 0,
-        duration: 220,
-        useNativeDriver: true,
+        toValue: 0, duration: 220, useNativeDriver: true,
       }).start(() => setMode("scan"));
     }
   }, [cardAnim]);
 
-  /* Close / X: if in mycode → go to scan; if in scan → navigate back */
   const handleClose = useCallback(() => {
     if (mode === "mycode") {
       switchTo("scan");
@@ -239,7 +244,6 @@ export default function ScanScreen() {
     }
   }, [mode, switchTo]);
 
-  /* Share native sheet */
   const handleShare = useCallback(async () => {
     try {
       await Share.share({
@@ -249,27 +253,36 @@ export default function ScanScreen() {
     } catch {}
   }, []);
 
-  /* Gallery picker */
   const handleGallery = useCallback(async () => {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") return;
       await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: false,
-        quality: 1,
+        allowsEditing: false, quality: 1,
       });
-      /* In a real app you'd parse the selected image for QR data here */
     } catch {}
   }, []);
 
-  /* Flash toggle */
   const handleFlash = useCallback(() => {
     setFlashOn((prev) => !prev);
   }, []);
 
   return (
     <View style={s.root}>
+
+      {/* ── Camera background (only in scan mode) ────────────────── */}
+      {permission?.granted && mode === "scan" ? (
+        <CameraView
+          style={StyleSheet.absoluteFill}
+          facing="back"
+          enableTorch={flashOn}
+          barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+        />
+      ) : (
+        <View style={[StyleSheet.absoluteFill, { backgroundColor: NAVY }]} />
+      )}
+
       {/* ── Top bar ──────────────────────────────────────────────── */}
       <View style={[s.topBar, { paddingTop: insets.top + 6 }]}>
         <TouchableOpacity
@@ -283,61 +296,55 @@ export default function ScanScreen() {
 
       {/* ── Centre area ──────────────────────────────────────────── */}
       <View style={s.centre}>
-        {/* Scanner frame — always rendered; fades when mycode is shown */}
-        <Animated.View
-          style={[
-            StyleSheet.absoluteFill,
-            { alignItems: "center", justifyContent: "center" },
-            {
-              opacity: cardAnim.interpolate({
-                inputRange: [0, 0.5],
-                outputRange: [1, 0],
-                extrapolate: "clamp",
-              }),
-            },
-          ]}
-          pointerEvents={mode === "scan" ? "auto" : "none"}
-        >
-          <ScannerFrame />
-        </Animated.View>
+        {!permission?.granted ? (
+          <PermissionScreen onRequest={requestPermission} />
+        ) : (
+          <>
+            {/* Scanner frame */}
+            <Animated.View
+              style={[
+                StyleSheet.absoluteFill,
+                { alignItems: "center", justifyContent: "center" },
+                {
+                  opacity: cardAnim.interpolate({
+                    inputRange: [0, 0.5],
+                    outputRange: [1, 0],
+                    extrapolate: "clamp",
+                  }),
+                },
+              ]}
+              pointerEvents={mode === "scan" ? "auto" : "none"}
+            >
+              <ScannerFrame />
+            </Animated.View>
 
-        {/* My QR Code card — shown in mycode mode */}
-        {(mode === "mycode" || (cardAnim as any)._value > 0) && (
-          <MyQRCard
-            anim={cardAnim}
-            onClose={() => switchTo("scan")}
-            onShare={handleShare}
-          />
+            {/* My QR Code card */}
+            {(mode === "mycode" || (cardAnim as any)._value > 0) && (
+              <MyQRCard
+                anim={cardAnim}
+                onClose={() => switchTo("scan")}
+                onShare={handleShare}
+              />
+            )}
+          </>
         )}
       </View>
 
       {/* ── Bottom controls ──────────────────────────────────────── */}
       <View style={[s.controls, { paddingBottom: insets.bottom + 20 }]}>
 
-        {/* Gallery */}
-        <TouchableOpacity
-          style={s.sideBtn}
-          activeOpacity={0.7}
-          onPress={handleGallery}
-        >
+        <TouchableOpacity style={s.sideBtn} activeOpacity={0.7} onPress={handleGallery}>
           <Feather name="image" size={22} color="rgba(255,255,255,0.75)" />
         </TouchableOpacity>
 
-        {/* Scan / My Code toggle pill */}
         <View style={s.togglePill}>
           <TouchableOpacity
             style={[s.toggleTab, mode === "scan" && s.toggleTabActive]}
             activeOpacity={0.75}
             onPress={() => switchTo("scan")}
           >
-            <Feather
-              name="maximize"
-              size={15}
-              color={mode === "scan" ? BLACK : "rgba(255,255,255,0.6)"}
-            />
-            <Text style={[s.toggleTabText, mode === "scan" && s.toggleTabTextActive]}>
-              Scan
-            </Text>
+            <Feather name="maximize" size={15} color={mode === "scan" ? BLACK : "rgba(255,255,255,0.6)"} />
+            <Text style={[s.toggleTabText, mode === "scan" && s.toggleTabTextActive]}>Scan</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -345,28 +352,18 @@ export default function ScanScreen() {
             activeOpacity={0.75}
             onPress={() => switchTo("mycode")}
           >
-            <Feather
-              name="grid"
-              size={15}
-              color={mode === "mycode" ? BLACK : "rgba(255,255,255,0.6)"}
-            />
-            <Text style={[s.toggleTabText, mode === "mycode" && s.toggleTabTextActive]}>
-              My Code
-            </Text>
+            <Feather name="grid" size={15} color={mode === "mycode" ? BLACK : "rgba(255,255,255,0.6)"} />
+            <Text style={[s.toggleTabText, mode === "mycode" && s.toggleTabTextActive]}>My Code</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Flash */}
+        {/* Flash — only interactive when camera is granted */}
         <TouchableOpacity
           style={[s.sideBtn, flashOn && s.sideBtnActive]}
-          activeOpacity={0.7}
-          onPress={handleFlash}
+          activeOpacity={permission?.granted ? 0.7 : 1}
+          onPress={permission?.granted ? handleFlash : undefined}
         >
-          <Feather
-            name="zap"
-            size={22}
-            color={flashOn ? BLACK : "rgba(255,255,255,0.75)"}
-          />
+          <Feather name="zap" size={22} color={flashOn ? BLACK : "rgba(255,255,255,0.75)"} />
         </TouchableOpacity>
 
       </View>
@@ -376,11 +373,11 @@ export default function ScanScreen() {
 
 /* ─── Styles ────────────────────────────────────────────────────── */
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: NAVY },
+  root: { flex: 1 },
 
   topBar: {
-    paddingHorizontal: 20,
-    paddingBottom: 8,
+    paddingHorizontal: 20, paddingBottom: 8,
+    zIndex: 10,
   },
   closeBtn: {
     width: 40, height: 40, borderRadius: 20,
@@ -388,18 +385,13 @@ const s = StyleSheet.create({
     alignItems: "center", justifyContent: "center",
   },
 
-  centre: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+  centre: { flex: 1, alignItems: "center", justifyContent: "center", zIndex: 10 },
 
   controls: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: "row", alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 28,
-    paddingTop: 16,
+    paddingHorizontal: 28, paddingTop: 16,
+    zIndex: 10,
   },
 
   sideBtn: {
@@ -407,34 +399,21 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.10)",
     alignItems: "center", justifyContent: "center",
   },
-  sideBtnActive: {
-    backgroundColor: LIME,
-  },
+  sideBtnActive: { backgroundColor: LIME },
 
   togglePill: {
     flexDirection: "row",
     backgroundColor: "rgba(255,255,255,0.12)",
-    borderRadius: 50,
-    padding: 4,
-    gap: 4,
+    borderRadius: 50, padding: 4, gap: 4,
   },
   toggleTab: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 50,
+    flexDirection: "row", alignItems: "center",
+    gap: 6, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 50,
   },
-  toggleTabActive: {
-    backgroundColor: LIME,
-  },
+  toggleTabActive: { backgroundColor: LIME },
   toggleTabText: {
-    fontSize: 14,
-    fontFamily: "Inter_600SemiBold",
+    fontSize: 14, fontFamily: "Inter_600SemiBold",
     color: "rgba(255,255,255,0.6)",
   },
-  toggleTabTextActive: {
-    color: BLACK,
-  },
+  toggleTabTextActive: { color: BLACK },
 });

@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useState } from "react";
 import {
+  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -45,6 +46,7 @@ export default function TopUpScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: PURPLE }}>
+      <StatusBar barStyle="light-content" backgroundColor={PURPLE} />
       {/* ── Header ─────────────────────────────────────────────────── */}
       <View style={[s.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity

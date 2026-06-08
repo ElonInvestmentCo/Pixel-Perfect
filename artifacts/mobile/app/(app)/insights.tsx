@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StatusBar, StyleSheet, Text, View } from "react-native";
 import Svg, { Rect, Text as SvgText } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -64,6 +64,7 @@ export default function InsightsScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <ScrollView
         contentContainerStyle={[
           s.scroll,

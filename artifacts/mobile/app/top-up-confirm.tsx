@@ -38,44 +38,13 @@ export default function TopUpConfirmScreen() {
   };
 
   return (
-    <View style={{ flex: 1 }}>
-      {/* ── Purple gradient background ──────────────────────────────── */}
-      <View style={StyleSheet.absoluteFill}>
-        <View style={[s.gradTop, { height: "55%" }]} />
-        <View style={[s.gradMid, { flex: 1 }]} />
-      </View>
-
-      {/* ── Faded background content (decorative blur effect) ──────── */}
-      <View style={[s.bgContent, { paddingTop: insets.top + 60 }]}>
-        <Text style={s.bgLabel}>Add Money</Text>
-        <View style={s.bgCard}>
-          <Text style={s.bgAmount}>
-            <Text style={s.bgDollar}>$  </Text>1,567.00
-          </Text>
-          <View style={s.bgBadge}>
-            <View style={[s.bgBadgeColor, { backgroundColor: "#EF4444" }]} />
-            <Text style={s.bgBadgeText}>USD  $60</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* ── Header bar ─────────────────────────────────────────────── */}
-      <View style={[s.topBar, { paddingTop: insets.top + 6 }]}>
-        <TouchableOpacity
-          style={s.backBtn}
-          activeOpacity={0.75}
-          onPress={() => router.back()}
-        >
-          <Feather name="chevron-left" size={20} color="rgba(255,255,255,0.5)" />
-        </TouchableOpacity>
-        <Text style={s.topTitle}>Top Up Balance</Text>
-        <TouchableOpacity style={s.backBtn} activeOpacity={0.75}>
-          <Feather name="info" size={20} color="rgba(255,255,255,0.5)" />
-        </TouchableOpacity>
-      </View>
-
-      {/* ── Bottom sheet ───────────────────────────────────────────── */}
+    <View style={s.root}>
+      {/* ── White bottom sheet only — no purple header ─────────── */}
       <View style={[s.sheet, { paddingBottom: insets.bottom + 24 }]}>
+
+        {/* Drag handle */}
+        <View style={s.handle} />
+
         {/* Sheet header */}
         <View style={s.sheetHeader}>
           <Text style={s.sheetTitle}>Top Up Confirmation</Text>
@@ -127,66 +96,29 @@ export default function TopUpConfirmScreen() {
 }
 
 const s = StyleSheet.create({
-  gradTop: {
-    position: "absolute", top: 0, left: 0, right: 0,
-    backgroundColor: "#4a4a8d",
-  },
-  gradMid: {
-    position: "absolute", bottom: 0, left: 0, right: 0,
-    backgroundColor: "#5858a8",
-  },
-
-  bgContent: {
-    position: "absolute", top: 0, left: 0, right: 0,
-    paddingHorizontal: 24, opacity: 0.2,
-  },
-  bgLabel: {
-    fontSize: 20, fontFamily: "Inter_500Medium",
-    color: "rgba(255,255,255,0.7)", marginBottom: 16,
-  },
-  bgCard: {
-    backgroundColor: "rgba(255,255,255,0.15)",
-    borderRadius: 28, padding: 28,
-  },
-  bgAmount: {
-    fontSize: 52, fontFamily: "Inter_400Regular",
-    color: "rgba(255,255,255,0.8)", letterSpacing: -1,
-  },
-  bgDollar: {
-    fontSize: 36, fontFamily: "Inter_400Regular",
-  },
-  bgBadge: {
-    flexDirection: "row", alignItems: "center",
-    gap: 8, marginTop: 24,
-  },
-  bgBadgeColor: {
-    width: 40, height: 22, borderRadius: 4,
-  },
-  bgBadgeText: {
-    fontSize: 16, fontFamily: "Inter_400Regular",
-    color: "rgba(255,255,255,0.6)",
-  },
-
-  topBar: {
-    position: "absolute", top: 0, left: 0, right: 0,
-    flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16, paddingBottom: 20,
-  },
-  backBtn: {
-    width: 44, height: 44, alignItems: "center", justifyContent: "center",
-  },
-  topTitle: {
-    fontSize: 18, fontFamily: "Inter_500Medium",
-    color: "rgba(255,255,255,0.3)", letterSpacing: -0.3,
+  root: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "transparent",
   },
 
   sheet: {
-    position: "absolute", bottom: 0, left: 0, right: 0,
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 36, borderTopRightRadius: 36,
-    paddingTop: 36, paddingHorizontal: 28,
+    paddingTop: 16, paddingHorizontal: 28,
+    shadowColor: "#000",
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: -6 },
+    elevation: 20,
   },
+
+  handle: {
+    width: 40, height: 4, borderRadius: 2,
+    backgroundColor: "#E5E7EB",
+    alignSelf: "center", marginBottom: 24,
+  },
+
   sheetHeader: {
     flexDirection: "row", alignItems: "center",
     justifyContent: "space-between", marginBottom: 28,
@@ -207,9 +139,7 @@ const s = StyleSheet.create({
   detailLabel: {
     fontSize: 17, fontFamily: "Inter_400Regular", color: GRAY5,
   },
-  detailRight: {
-    flexDirection: "row", alignItems: "center",
-  },
+  detailRight: { flexDirection: "row", alignItems: "center" },
   detailValue: {
     fontSize: 17, fontFamily: "Inter_600SemiBold",
     color: BLACK, letterSpacing: -0.3,
@@ -225,6 +155,6 @@ const s = StyleSheet.create({
   },
   homeBar: {
     width: 144, height: 5, borderRadius: 3,
-    backgroundColor: BLACK, alignSelf: "center", marginTop: 24,
+    backgroundColor: "#E5E7EB", alignSelf: "center", marginTop: 24,
   },
 });

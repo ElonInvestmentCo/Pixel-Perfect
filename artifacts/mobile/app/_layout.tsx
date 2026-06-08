@@ -56,6 +56,7 @@ function RootLayoutNav() {
           headerShown: false,
           presentation: "transparentModal",
           animation: "slide_from_bottom",
+          animationDuration: 320,
           contentStyle: { backgroundColor: "transparent" },
         }}
       />
