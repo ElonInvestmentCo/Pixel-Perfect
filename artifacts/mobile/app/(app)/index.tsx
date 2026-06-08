@@ -1,7 +1,8 @@
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -102,8 +103,6 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   // insets.top accounts for Dynamic Island, notch, and status bar on all devices
   const topPad = insets.top;
-  const [balanceVisible, setBalanceVisible] = useState(true);
-
   // Resets root navigation to onboarding (index); (auth) and (app) are cleared.
   const handleSignOut = () => router.replace("/");
 
@@ -131,32 +130,11 @@ export default function HomeScreen() {
         </View>
 
         {/* Balance card */}
-        <View style={s.card}>
-          <View style={s.cardTop}>
-            <Text style={s.cardLabel}>Total Balance</Text>
-            <TouchableOpacity
-              onPress={() => setBalanceVisible((v) => !v)}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              accessibilityRole="button"
-              accessibilityLabel={balanceVisible ? "Hide balance" : "Show balance"}
-            >
-              <Feather name={balanceVisible ? "eye" : "eye-off"} size={18} color="#8A8A8A" />
-            </TouchableOpacity>
-          </View>
-          <Text style={s.balance}>
-            {balanceVisible ? "$12,485.50" : "••••••••"}
-          </Text>
-          <View style={s.badge}>
-            <Feather name="trending-up" size={13} color="#16A34A" />
-            <Text style={s.badgeText}>+2.4% this month</Text>
-          </View>
-
-          {/* Card number strip */}
-          <View style={s.cardBottom}>
-            <Text style={s.cardNum}>•••• •••• •••• 7865</Text>
-            <Text style={s.cardVisa}>VISA</Text>
-          </View>
-        </View>
+        <Image
+          source={require("@/assets/images/balance-card.png")}
+          style={s.card}
+          resizeMode="contain"
+        />
 
         {/* Quick actions */}
         <View style={s.section}>
@@ -216,31 +194,10 @@ const s = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: BLACK, borderRadius: 24,
-    padding: 22, marginBottom: 20,
-    minHeight: 170,
+    width: "100%",
+    aspectRatio: 1.586,
+    marginBottom: 20,
   },
-  cardTop: {
-    flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between", marginBottom: 6,
-  },
-  cardLabel: { fontSize: 13, fontFamily: "Inter_400Regular", color: "#AAAAAA" },
-  balance: {
-    fontSize: 36, fontFamily: "Inter_700Bold",
-    color: "#FFFFFF", letterSpacing: -0.5, marginBottom: 10,
-  },
-  badge: {
-    flexDirection: "row", alignItems: "center", gap: 4,
-    backgroundColor: "#1E2E1E", borderRadius: 20,
-    paddingHorizontal: 10, paddingVertical: 4,
-    alignSelf: "flex-start", marginBottom: 20,
-  },
-  badgeText: { fontSize: 12, fontFamily: "Inter_500Medium", color: "#16A34A" },
-  cardBottom: {
-    flexDirection: "row", justifyContent: "space-between", alignItems: "center",
-  },
-  cardNum: { fontSize: 14, fontFamily: "Inter_400Regular", color: "#888888", letterSpacing: 1.5 },
-  cardVisa: { fontSize: 18, fontFamily: "Inter_700Bold", color: LIME, fontStyle: "italic" },
 
   section: {
     backgroundColor: "#FFFFFF", borderRadius: 20,
