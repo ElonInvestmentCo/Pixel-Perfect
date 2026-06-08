@@ -115,7 +115,7 @@ export function applySecurityMiddleware(app: Express): void {
 
   // 2. CORS
   app.use(cors(corsOptions));
-  app.options("*", cors(corsOptions)); // Explicit OPTIONS pre-flight handler
+  app.options("/{*path}", cors(corsOptions)); // Explicit OPTIONS pre-flight handler
 
   // 3. Body parsers with size limits (prevents DoS via large payloads).
   //    express.json() and express.urlencoded() have no default size limit.
