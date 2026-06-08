@@ -18,13 +18,8 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
-// ─── Safe KeyboardProvider ────────────────────────────────────────────────────
-// react-native-keyboard-controller requires a native module that is not bundled
-// in Expo Go. We load it lazily so the app still runs in Expo Go; the module
-// is only used in development builds and production.
 let KeyboardProviderSafe: React.ComponentType<{ children: React.ReactNode }>;
 try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const mod = require("react-native-keyboard-controller");
   if (mod && mod.KeyboardProvider) {
     KeyboardProviderSafe = mod.KeyboardProvider;
@@ -38,42 +33,45 @@ try {
 function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerShown: false }}>
-      {/* ── Onboarding ──────────────────────────────────────────────────────── */}
       <Stack.Screen name="index" options={{ headerShown: false, animation: "none" }} />
 
-      {/* ── Auth group ──────────────────────────────────────────────────────── */}
       <Stack.Screen
         name="(auth)"
-        options={{
-          headerShown: false,
-          animation: "slide_from_bottom",
-          gestureEnabled: false,
-        }}
+        options={{ headerShown: false, animation: "slide_from_bottom", gestureEnabled: false }}
       />
 
-      {/* ── App group ───────────────────────────────────────────────────────── */}
       <Stack.Screen
         name="(app)"
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-          animation: "fade",
-        }}
+        options={{ headerShown: false, gestureEnabled: false, animation: "fade" }}
       />
 
-      {/* ── Top Up flow ─────────────────────────────────────────────────────── */}
+      {/* ── Top Up flow ─────────────────────────────────────────────── */}
       <Stack.Screen
         name="top-up"
-        options={{
-          headerShown: false,
-          animation: "slide_from_bottom",
-        }}
+        options={{ headerShown: false, animation: "slide_from_bottom" }}
       />
       <Stack.Screen
         name="top-up-confirm"
         options={{
           headerShown: false,
+          presentation: "transparentModal",
           animation: "slide_from_bottom",
+          contentStyle: { backgroundColor: "transparent" },
+        }}
+      />
+
+      {/* ── Transfer flow ───────────────────────────────────────────── */}
+      <Stack.Screen
+        name="transfer"
+        options={{ headerShown: false, animation: "slide_from_bottom" }}
+      />
+      <Stack.Screen
+        name="transfer-confirm"
+        options={{
+          headerShown: false,
+          presentation: "transparentModal",
+          animation: "slide_from_bottom",
+          contentStyle: { backgroundColor: "transparent" },
         }}
       />
     </Stack>
