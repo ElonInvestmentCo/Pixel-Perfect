@@ -169,8 +169,8 @@ const il = StyleSheet.create({
     zIndex: 2,
   },
   balanceCardImg: {
-    width: SW - 8,
-    height: (SW - 8) * 0.78,
+    width: SW,
+    height: SW * 0.82,
     zIndex: 2,
   },
   cardLabel: { fontSize: 13, color: "#8A8A8A", fontFamily: "Inter_400Regular" },
