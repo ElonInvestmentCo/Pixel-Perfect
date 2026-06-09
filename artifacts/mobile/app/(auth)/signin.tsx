@@ -179,8 +179,8 @@ export default function SignInScreen() {
 
       <AuthDivider label="Or sign in with" />
 
-      <AppleSignInButton variant="signin" disabled={loading} />
-      <GoogleSignInButton variant="signin" horizontalPadding={24} disabled={loading} />
+      <AppleSignInButton disabled={loading} />
+      <GoogleSignInButton variant="signin" disabled={loading} />
 
       <TouchableOpacity
         style={s.switchRow}

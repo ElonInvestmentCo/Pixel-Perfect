@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  ActivityIndicator,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 export type AppleButtonVariant = "signup" | "signin" | "continue";
@@ -14,69 +8,54 @@ interface AppleSignInButtonProps {
   variant?:  AppleButtonVariant;
   onPress?:  () => void;
   disabled?: boolean;
-  loading?:  boolean;
 }
-
-const LABEL: Record<AppleButtonVariant, string> = {
-  signup:   "Sign up with Apple",
-  signin:   "Sign in with Apple",
-  continue: "Continue with Apple",
-};
 
 function AppleLogo() {
   return (
-    <Svg
-      viewBox="0 0 814 1000"
-      width={17}
-      height={20}
-      fill="#000000"
-    >
-      <Path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-42.3-150.3-109.7c-58.1-81.8-108.6-209.2-108.6-330.4 0-171.2 111.5-261.6 221-261.6 75.6 0 138.2 49.7 185.7 49.7 45.2 0 116.2-52.5 200.8-52.5zm-160-193.7c37.7-45.3 64.4-108.2 64.4-171.1 0-8.9-.6-17.9-2.1-26.2-61.1 2.3-134.1 41.5-178.5 93.2-34.1 38.2-66.5 101.7-66.5 165.3 0 9.5 1.6 19.1 2.3 22.1 3.8.6 10.2 1.3 16.5 1.3 55.3 0 122.4-37.2 164-84.6z" />
+    <Svg width={14} height={14} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.54 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.029 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.402-2.376-2-.156-3.675 1.09-4.6 1.09zm3.378-3.066c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.56-1.702z"
+        fill="#000000"
+      />
     </Svg>
   );
 }
 
 export function AppleSignInButton({
-  variant  = "signin",
   onPress,
   disabled = false,
-  loading  = false,
 }: AppleSignInButtonProps) {
-  const isDisabled = disabled || loading;
-
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={isDisabled}
-      activeOpacity={0.82}
+      disabled={disabled}
+      activeOpacity={0.78}
       accessibilityRole="button"
-      accessibilityLabel={LABEL[variant]}
-      accessibilityState={{ disabled: isDisabled }}
-      style={[s.btn, isDisabled && s.btnDisabled]}
+      accessibilityLabel="Sign in with Apple"
+      accessibilityState={{ disabled }}
+      style={[s.btn, disabled && s.btnDisabled]}
     >
-      {loading ? (
-        <ActivityIndicator color="#000000" size="small" />
-      ) : (
-        <View style={s.inner}>
-          <AppleLogo />
-          <Text style={s.label}>{LABEL[variant]}</Text>
-        </View>
-      )}
-      <View style={s.borderOverlay} pointerEvents="none" />
+      <View style={s.inner}>
+        <AppleLogo />
+        <Text style={s.label}>Sign in with Apple</Text>
+      </View>
     </TouchableOpacity>
   );
 }
 
 const s = StyleSheet.create({
   btn: {
-    width:           "100%",
-    height:          50,
-    borderRadius:    100,
-    backgroundColor: "#FFFFFF",
+    alignSelf:       "center",
+    height:          32,
+    borderRadius:    16,
+    backgroundColor: "#ffffff",
+    borderWidth:     1,
+    borderColor:     "#000000",
     alignItems:      "center",
     justifyContent:  "center",
     marginBottom:    14,
-    overflow:        "hidden",
+    paddingLeft:     14,
+    paddingRight:    16,
   },
   btnDisabled: {
     opacity: 0.45,
@@ -84,23 +63,12 @@ const s = StyleSheet.create({
   inner: {
     flexDirection: "row",
     alignItems:    "center",
-    gap:           10,
+    gap:           6,
   },
   label: {
-    fontSize:      17,
-    fontWeight:    "600",
+    fontSize:      13,
+    fontFamily:    "Inter_600SemiBold",
     color:         "#000000",
-    letterSpacing: -0.408,
-    lineHeight:    22,
-  },
-  borderOverlay: {
-    position:     "absolute",
-    top:           0,
-    left:          0,
-    right:         0,
-    bottom:        0,
-    borderRadius:  100,
-    borderWidth:   1,
-    borderColor:   "#000000",
+    letterSpacing: -0.32,
   },
 });
