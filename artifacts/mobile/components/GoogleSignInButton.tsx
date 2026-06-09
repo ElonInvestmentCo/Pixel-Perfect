@@ -1,27 +1,6 @@
-/**
- * GoogleSignInButton — pill-shaped social auth button matching PrimaryButton dimensions.
- *
- * Height:        58 px  (OS.ctaH)
- * BorderRadius:  28 px  (OS.ctaR — true pill)
- * Background:    #FFFFFF with 1.5px #E8E8E8 border (standard Google button spec)
- *
- * Uses the google-logo.png static asset (Google "G" mark) rather than the
- * full-width SVG approach, which scaled proportionally and produced an
- * oversized button (~85–95 px tall) inconsistent with all other CTAs.
- */
-
 import React from "react";
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-
-// Mirror token values without importing them, keeping this component self-contained.
-const CTA_H = 58;  // matches OS.ctaH
-const CTA_R = 28;  // matches OS.ctaR (pill)
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Svg, { G, Path } from "react-native-svg";
 
 export type GoogleButtonVariant = "signup" | "signin" | "continue";
 
@@ -29,10 +8,6 @@ interface GoogleSignInButtonProps {
   variant:  GoogleButtonVariant;
   onPress?: () => void;
   disabled?: boolean;
-  /**
-   * @deprecated No longer used — kept for call-site compatibility only.
-   * The button is always full-width; horizontal padding is the parent's concern.
-   */
   horizontalPadding?: number;
 }
 
@@ -41,6 +16,31 @@ const LABEL: Record<GoogleButtonVariant, string> = {
   signin:   "Sign in with Google",
   continue: "Continue with Google",
 };
+
+function GoogleGLogo() {
+  return (
+    <Svg width={16} height={16} viewBox="0 0 19.6 20" fill="none">
+      <G>
+        <Path
+          d="M19.6 10.2273C19.6 9.5182 19.5364 8.8364 19.4182 8.1818H10V12.05H15.3818C15.15 13.3 14.4455 14.3591 13.3864 15.0682V17.5773H16.6182C18.5091 15.8364 19.6 13.2727 19.6 10.2273Z"
+          fill="#4285F4"
+        />
+        <Path
+          d="M10 20C12.7 20 14.9636 19.1045 16.6181 17.5773L13.3863 15.0682C12.4909 15.6682 11.3454 16.0227 10 16.0227C7.3954 16.0227 5.1909 14.2636 4.4045 11.9H1.0636V14.4909C2.7091 17.7591 6.0909 20 10 20Z"
+          fill="#34A853"
+        />
+        <Path
+          d="M4.4045 11.9C4.2045 11.3 4.0909 10.6591 4.0909 10C4.0909 9.3409 4.2045 8.7 4.4045 8.1V5.5091H1.0636C0.3864 6.8591 0 8.3864 0 10C0 11.6136 0.3864 13.1409 1.0636 14.4909L4.4045 11.9Z"
+          fill="#FBBC04"
+        />
+        <Path
+          d="M10 3.9773C11.4681 3.9773 12.7863 4.4818 13.8227 5.4727L16.6909 2.6045C14.9591 0.9909 12.6954 0 10 0C6.0909 0 2.7091 2.2409 1.0636 5.5091L4.4045 8.1C5.1909 5.7364 7.3954 3.9773 10 3.9773Z"
+          fill="#E94235"
+        />
+      </G>
+    </Svg>
+  );
+}
 
 export function GoogleSignInButton({
   variant,
@@ -58,14 +58,7 @@ export function GoogleSignInButton({
       style={[s.btn, disabled && s.btnDisabled]}
     >
       <View style={s.inner}>
-        <Image
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          source={require("../assets/images/google-logo.png")}
-          style={s.logo}
-          resizeMode="contain"
-          accessibilityElementsHidden
-          importantForAccessibility="no"
-        />
+        <GoogleGLogo />
         <Text style={s.label}>{LABEL[variant]}</Text>
       </View>
     </TouchableOpacity>
@@ -74,12 +67,13 @@ export function GoogleSignInButton({
 
 const s = StyleSheet.create({
   btn: {
-    width:           "100%",
-    height:          CTA_H,
-    borderRadius:    CTA_R,
-    backgroundColor: "#FFFFFF",
-    borderWidth:     1.5,
-    borderColor:     "#E8E8E8",
+    alignSelf:       "center",
+    width:           148,
+    height:          32,
+    borderRadius:    16,
+    backgroundColor: "#ffffff",
+    borderWidth:     1,
+    borderColor:     "#747775",
     alignItems:      "center",
     justifyContent:  "center",
     marginBottom:    14,
@@ -88,18 +82,16 @@ const s = StyleSheet.create({
     opacity: 0.45,
   },
   inner: {
-    flexDirection: "row",
-    alignItems:    "center",
-    gap:           10,
-  },
-  logo: {
-    width:  22,
-    height: 22,
+    flexDirection:  "row",
+    alignItems:     "center",
+    gap:            8,
+    paddingLeft:    10,
+    paddingRight:   12,
   },
   label: {
-    fontSize:      16,
-    fontFamily:    "Inter_600SemiBold",
-    color:         "#1A1A1A",
+    fontSize:      11,
+    fontFamily:    "Inter_500Medium",
+    color:         "#1F1F1F",
     letterSpacing: 0.1,
   },
 });
