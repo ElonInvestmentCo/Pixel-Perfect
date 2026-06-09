@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width: SW } = Dimensions.get("window");
 
-const LIME  = "#e8f21d";
+const LIME  = "#e6f51b";
 const BLACK = "#1A1A1A";
 
 // ─── Shared card chip decoration ─────────────────────────────────────────────
