@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { Router } from "express";
 import bcrypt from "bcryptjs";
 import { createRemoteJWKSet, jwtVerify } from "jose";
+import { JOSEError } from "jose/errors";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 
@@ -173,26 +174,17 @@ router.post("/auth/apple", authLimiter, async (req, res) => {
       res.status(400).json({ error: "Invalid request body" });
       return;
     }
-    // jose JWT/JWKS errors + nonce mismatch — all map to 401
-    const joseAuthCodes = new Set([
-      "ERR_JWKS_NO_MATCHING_KEY",
-      "ERR_JWS_SIGNATURE_VERIFICATION_FAILED",
-      "ERR_JWS_INVALID",
-      "ERR_JWT_EXPIRED",
-      "ERR_JWT_CLAIM_VALIDATION_FAILED",
-      "ERR_JWT_INVALID",
-      "ERR_JWT_MALFORMED",
-      "ERR_JOSE_GENERIC",
-      "ERR_NONCE_MISMATCH",
-    ]);
     const code = (e as { code?: string }).code;
-    if (code && joseAuthCodes.has(code)) {
-      res.status(401).json({ error: "Invalid Apple identity token" });
-      return;
-    }
-    // Apple's JWKS endpoint unreachable
+    // Apple JWKS endpoint unreachable — surface as 503 so clients can retry
     if (code === "ERR_JWKS_TIMEOUT" || code === "ERR_JWKS_REQUEST_FAILED") {
       res.status(503).json({ error: "Apple authentication service unavailable. Please try again." });
+      return;
+    }
+    // Any jose crypto/validation error OR our custom nonce mismatch → 401.
+    // Using instanceof JOSEError covers all current and future jose error
+    // subclasses without maintaining a brittle allowlist of code strings.
+    if (e instanceof JOSEError || code === "ERR_NONCE_MISMATCH") {
+      res.status(401).json({ error: "Invalid Apple identity token" });
       return;
     }
     console.error("/auth/apple error:", e);
