@@ -1,4 +1,3 @@
-import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -11,61 +10,11 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Svg, {
-  Defs,
-  Ellipse,
-  Path,
-  RadialGradient,
-  Stop,
-  Text as SvgText,
-} from "react-native-svg";
 
 const { width: SW } = Dimensions.get("window");
 
 const LIME  = "#e6f51b";
 const BLACK = "#1A1A1A";
-
-// ─── Shared card chip decoration ─────────────────────────────────────────────
-const Chip = React.memo(function Chip() {
-  return (
-    <View style={chip.wrap}>
-      <View style={chip.bandH} />
-      <View style={chip.bandV} />
-      <View style={chip.center} />
-    </View>
-  );
-});
-
-const chip = StyleSheet.create({
-  wrap: {
-    width: 34, height: 26, borderRadius: 5,
-    backgroundColor: "#D4A843", justifyContent: "center",
-    alignItems: "center", overflow: "hidden",
-  },
-  bandH: { position: "absolute", width: "100%", height: 2, backgroundColor: "#B8882A", opacity: 0.6 },
-  bandV: { position: "absolute", height: "100%", width: 2, backgroundColor: "#B8882A", opacity: 0.6 },
-  center: {
-    width: 12, height: 10, borderRadius: 2,
-    borderWidth: 1.5, borderColor: "#B8882A",
-    position: "absolute",
-  },
-});
-
-// ─── Concentric ring decoration ───────────────────────────────────────────────
-const Rings = React.memo(function Rings({ color }: { color: string }) {
-  return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      {[80, 110, 140, 170].map((s, i) => (
-        <View key={i} style={{
-          position: "absolute", width: s, height: s,
-          borderRadius: s / 2, borderWidth: 1.5,
-          borderColor: color,
-          right: -s * 0.36, bottom: -s * 0.36,
-        }} />
-      ))}
-    </View>
-  );
-});
 
 // ─── Slide illustrations ──────────────────────────────────────────────────────
 const Slide1 = React.memo(function Slide1() {
@@ -81,69 +30,15 @@ const Slide1 = React.memo(function Slide1() {
   );
 });
 
-// ─── Coin illustration (from zip — unmodified design) ─────────────────────────
-const CoinIllustration = React.memo(function CoinIllustration() {
-  return (
-    <View style={{ width: 260, height: 240, alignSelf: "center" }}>
-      <Svg width="260" height="240" viewBox="0 0 260 240">
-        <Defs>
-          <RadialGradient id="goldGrad" cx="38%" cy="35%" r="65%">
-            <Stop offset="0%" stopColor="#ffe07a" />
-            <Stop offset="40%" stopColor="#f4a800" />
-            <Stop offset="100%" stopColor="#b87000" />
-          </RadialGradient>
-          <RadialGradient id="goldGrad2" cx="38%" cy="35%" r="65%">
-            <Stop offset="0%" stopColor="#ffd966" />
-            <Stop offset="40%" stopColor="#eda800" />
-            <Stop offset="100%" stopColor="#a06000" />
-          </RadialGradient>
-          <RadialGradient id="silverGrad" cx="38%" cy="35%" r="65%">
-            <Stop offset="0%" stopColor="#e8eef5" />
-            <Stop offset="40%" stopColor="#b0bec5" />
-            <Stop offset="100%" stopColor="#78909c" />
-          </RadialGradient>
-        </Defs>
-
-        {/* Platform shadow/glow */}
-        <Ellipse cx="130" cy="210" rx="85" ry="18" fill="rgba(180,195,220,0.35)" />
-        {/* Platform top face */}
-        <Ellipse cx="130" cy="168" rx="80" ry="32" fill="#dce8f5" />
-        {/* Platform front-right face */}
-        <Path d="M210 168 L210 198 Q130 218 50 198 L50 168 Q130 188 210 168Z" fill="#b8cfe8" />
-        {/* Platform front-left face */}
-        <Path d="M50 168 L50 198 Q130 218 130 218 L130 188 Q90 178 50 168Z" fill="#c8daf0" />
-        {/* Platform highlight */}
-        <Ellipse cx="130" cy="168" rx="80" ry="32" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" />
-
-        {/* Back coin (silver) — shadow + body */}
-        <Ellipse cx="162" cy="128" rx="38" ry="14" fill="rgba(120,140,170,0.25)" />
-        <Ellipse cx="162" cy="112" rx="38" ry="38" fill="url(#silverGrad)" />
-        <Ellipse cx="162" cy="112" rx="38" ry="38" fill="none" stroke="#b0bec5" strokeWidth="1" />
-        <Ellipse cx="162" cy="112" rx="29" ry="29" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" />
-        <SvgText x="162" y="118" textAnchor="middle" fill="rgba(255,255,255,0.8)" fontSize="22" fontWeight="bold">₿</SvgText>
-
-        {/* Middle coin (gold) — shadow + body */}
-        <Ellipse cx="130" cy="140" rx="42" ry="15" fill="rgba(180,130,0,0.2)" />
-        <Ellipse cx="130" cy="122" rx="42" ry="42" fill="url(#goldGrad)" />
-        <Ellipse cx="130" cy="122" rx="42" ry="42" fill="none" stroke="#c8860a" strokeWidth="1.5" />
-        <Ellipse cx="130" cy="122" rx="33" ry="33" fill="none" stroke="rgba(255,220,100,0.6)" strokeWidth="2" />
-        <SvgText x="130" y="129" textAnchor="middle" fill="rgba(255,255,255,0.95)" fontSize="26" fontWeight="bold">₿</SvgText>
-
-        {/* Front coin (gold) — shadow + body */}
-        <Ellipse cx="100" cy="146" rx="36" ry="13" fill="rgba(180,130,0,0.2)" />
-        <Ellipse cx="100" cy="130" rx="36" ry="36" fill="url(#goldGrad2)" />
-        <Ellipse cx="100" cy="130" rx="36" ry="36" fill="none" stroke="#c8860a" strokeWidth="1.5" />
-        <Ellipse cx="100" cy="130" rx="28" ry="28" fill="none" stroke="rgba(255,220,100,0.6)" strokeWidth="1.5" />
-        <SvgText x="100" y="137" textAnchor="middle" fill="rgba(255,255,255,0.9)" fontSize="22" fontWeight="bold">₿</SvgText>
-      </Svg>
-    </View>
-  );
-});
-
-const SlideCoin = React.memo(function SlideCoin() {
+// ─── BTC coins illustration (from zip asset) ─────────────────────────────────
+const SlideBtc = React.memo(function SlideBtc() {
   return (
     <View style={il.wrap}>
-      <CoinIllustration />
+      <Image
+        source={require("../assets/images/btc-coins.png")}
+        style={il.btcImg}
+        resizeMode="contain"
+      />
     </View>
   );
 });
@@ -157,36 +52,15 @@ const il = StyleSheet.create({
     backgroundColor: "#D8D8D8",
     opacity: 0.28,
   },
-  card: {
-    width: "100%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20, borderWidth: 1.5,
-    borderColor: "#D8D8D8", padding: 20,
-    zIndex: 2,
+  btcImg: {
+    width: 280,
+    height: 280,
   },
   balanceCardImg: {
     width: SW * 1.2,
     height: SW * 1.05,
     zIndex: 2,
     marginTop: 10,
-  },
-  cardLabel: { fontSize: 13, color: "#8A8A8A", fontFamily: "Inter_400Regular" },
-  cardAmount: { fontSize: 34, fontFamily: "Inter_700Bold", color: BLACK, marginVertical: 12, letterSpacing: -0.5 },
-  pill: {
-    flexDirection: "row", alignItems: "center",
-    backgroundColor: LIME, borderWidth: 1.5, borderColor: BLACK,
-    borderRadius: 24, paddingVertical: 7, paddingHorizontal: 12, gap: 5,
-  },
-  iconCircle: {
-    width: 20, height: 20, borderRadius: 10,
-    borderWidth: 1.5, borderColor: BLACK,
-    alignItems: "center", justifyContent: "center",
-  },
-  pillText: { fontSize: 13, fontFamily: "Inter_600SemiBold", color: BLACK },
-  menuBtn: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: LIME, borderWidth: 1.5, borderColor: BLACK,
-    alignItems: "center", justifyContent: "center",
   },
 });
 
@@ -200,25 +74,25 @@ const SLIDES = [
   },
   {
     id: "buying",
-    Component: SlideCoin,
+    Component: SlideBtc,
     headline: "Buying & Selling",
     sub: "Buy and sell cryptocurrencies with popular payment solutions",
   },
   {
     id: "wallet",
-    Component: SlideCoin,
+    Component: SlideBtc,
     headline: "Secure Wallet",
     sub: "Keep your assets safe with military-grade encryption technology",
   },
   {
     id: "transfers",
-    Component: SlideCoin,
+    Component: SlideBtc,
     headline: "Fast Transfers",
     sub: "Send and receive crypto instantly anywhere in the world",
   },
   {
     id: "portfolio",
-    Component: SlideCoin,
+    Component: SlideBtc,
     headline: "Track Portfolio",
     sub: "Monitor your investments with real-time price updates and charts",
   },
