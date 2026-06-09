@@ -36,14 +36,14 @@ pnpm --filter @workspace/mobile exec expo start --tunnel --port 8082     # start
 ```javascript
 await configureWorkflow({
   name: "Start Expo Native App",
-  command: "pnpm --filter @workspace/mobile exec expo start --tunnel --port 8080",
-  waitForPort: 8080,       // needed so Replit's canvas preview can connect
-  outputType: "console",   // console — not webview
+  command: "pnpm --filter @workspace/mobile exec expo start --localhost --port 5000",
+  waitForPort: 5000,
+  outputType: "webview",
   autoStart: true
 });
 ```
 
-The workflow console will display an `exp://` QR code. Scan it with **Expo Go** on iPhone or Android to open the app natively. There is no browser preview — this is intentional.
+The canvas preview iframe shows the app via Expo Web on port 5000. To test natively, scan the `exp://` QR code shown in the workflow console with **Expo Go** on iPhone or Android.
 
 ---
 

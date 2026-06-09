@@ -17,11 +17,12 @@ mode = "sequential"
 author = "agent"
 
 [workflows.workflow.metadata]
-outputType = "console"
+outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pnpm --filter @workspace/mobile exec expo start --tunnel --port 8082"
+args = "pnpm --filter @workspace/mobile exec expo start --localhost --port 5000"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Project"
