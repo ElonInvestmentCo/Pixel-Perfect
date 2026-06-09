@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { Router } from "express";
 import bcrypt from "bcryptjs";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 
@@ -10,15 +11,39 @@ import { authLimiter } from "../middlewares/rate-limit";
 
 const router = Router();
 
-function signToken(userId: string, email: string, name: string): string {
-  return jwt.sign({ userId, email, name }, env.JWT_SECRET, { expiresIn: "7d" });
+/**
+ * Apple's public JWKS — cached at module load, auto-refreshed by jose on key
+ * rotation.  Source: https://appleid.apple.com/auth/keys
+ */
+const appleJWKS = createRemoteJWKSet(
+  new URL("https://appleid.apple.com/auth/keys"),
+);
+
+/**
+ * Verify an Apple identity token per Apple's official authentication guide:
+ * https://developer.apple.com/documentation/signinwithapple/authenticating-users-with-sign-in-with-apple
+ *
+ * Checks:
+ *  1. RS256 algorithm
+ *  2. iss === "https://appleid.apple.com"
+ *  3. aud === bundle ID (APPLE_BUNDLE_ID env, defaults to "com.payvora.mobile")
+ *  4. exp has not passed
+ *  5. Signature valid against Apple's live public keys
+ */
+async function verifyAppleIdToken(
+  identityToken: string,
+): Promise<{ sub: string; email?: string }> {
+  const { payload } = await jwtVerify(identityToken, appleJWKS, {
+    issuer: "https://appleid.apple.com",
+    audience: env.APPLE_BUNDLE_ID,
+    algorithms: ["RS256"],
+  });
+  if (!payload.sub) throw new Error("Apple identity token missing sub claim");
+  return { sub: payload.sub, email: payload.email as string | undefined };
 }
 
-function decodeAppleIdToken(idToken: string): { sub: string; email?: string } {
-  const parts = idToken.split(".");
-  if (parts.length !== 3) throw new Error("Invalid Apple identity token format");
-  const payload = Buffer.from(parts[1], "base64url").toString("utf-8");
-  return JSON.parse(payload) as { sub: string; email?: string };
+function signToken(userId: string, email: string, name: string): string {
+  return jwt.sign({ userId, email, name }, env.JWT_SECRET, { expiresIn: "7d" });
 }
 
 router.post("/auth/google", authLimiter, async (req, res) => {
@@ -95,9 +120,9 @@ router.post("/auth/apple", authLimiter, async (req, res) => {
       })
       .parse(req.body);
 
-    const claims     = decodeAppleIdToken(identityToken);
+    const claims     = await verifyAppleIdToken(identityToken);
     const providerId = claims.sub;
-    const email      = claims.email ?? `apple_${providerId}@private.apple`;
+    const email      = claims.email ?? `apple_${providerId}@privaterelay.appleid.com`;
     const givenName  = fullName?.givenName  ?? "";
     const familyName = fullName?.familyName ?? "";
     const name       = [givenName, familyName].filter(Boolean).join(" ") || "Apple User";
@@ -130,6 +155,27 @@ router.post("/auth/apple", authLimiter, async (req, res) => {
   } catch (e: unknown) {
     if (e instanceof z.ZodError) {
       res.status(400).json({ error: "Invalid request body" });
+      return;
+    }
+    // jose JWT/JWKS errors — all map to 401 (invalid or tampered token)
+    const joseAuthCodes = new Set([
+      "ERR_JWKS_NO_MATCHING_KEY",
+      "ERR_JWS_SIGNATURE_VERIFICATION_FAILED",
+      "ERR_JWS_INVALID",
+      "ERR_JWT_EXPIRED",
+      "ERR_JWT_CLAIM_VALIDATION_FAILED",
+      "ERR_JWT_INVALID",
+      "ERR_JWT_MALFORMED",
+      "ERR_JOSE_GENERIC",
+    ]);
+    const code = (e as { code?: string }).code;
+    if (code && joseAuthCodes.has(code)) {
+      res.status(401).json({ error: "Invalid Apple identity token" });
+      return;
+    }
+    // Apple's JWKS endpoint unreachable
+    if (code === "ERR_JWKS_TIMEOUT" || code === "ERR_JWKS_REQUEST_FAILED") {
+      res.status(503).json({ error: "Apple authentication service unavailable. Please try again." });
       return;
     }
     console.error("/auth/apple error:", e);

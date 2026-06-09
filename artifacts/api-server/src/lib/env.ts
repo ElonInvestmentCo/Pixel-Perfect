@@ -81,6 +81,13 @@ const schema = z.object({
    * Optional — if not set, Google Sign-In returns 503.
    */
   GOOGLE_CLIENT_ID: z.string().optional(),
+
+  /**
+   * Apple iOS bundle ID used to verify the `aud` claim in Apple identity tokens.
+   * Must match ios.bundleIdentifier in app.json.
+   * Defaults to "com.payvora.mobile".
+   */
+  APPLE_BUNDLE_ID: z.string().default("com.payvora.mobile"),
 });
 
 const result = schema.safeParse(process.env);
