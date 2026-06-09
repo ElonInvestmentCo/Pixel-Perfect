@@ -1,11 +1,3 @@
-/**
- * AppleSignInButton — pill-shaped social auth button matching PrimaryButton dimensions.
- *
- * Height:        58 px  (OS.ctaH — was 56, corrected to match)
- * BorderRadius:  28 px  (OS.ctaR — true pill, was 14)
- * Background:    #000000 (Apple brand requirement)
- */
-
 import { FontAwesome } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -16,9 +8,8 @@ import {
   View,
 } from "react-native";
 
-// Mirror token values without importing them, keeping this component self-contained.
-const CTA_H = 58;  // matches OS.ctaH
-const CTA_R = 28;  // matches OS.ctaR (pill)
+const CTA_H = 58;
+const CTA_R = 100;
 
 export type AppleButtonVariant = "signup" | "signin" | "continue";
 
@@ -54,10 +45,10 @@ export function AppleSignInButton({
       style={[s.btn, isDisabled && s.btnDisabled]}
     >
       {loading ? (
-        <ActivityIndicator color="#FFFFFF" size="small" />
+        <ActivityIndicator color="#000000" size="small" />
       ) : (
         <View style={s.inner}>
-          <FontAwesome name="apple" size={20} color="#FFFFFF" />
+          <FontAwesome name="apple" size={20} color="#000000" />
           <Text style={s.label}>{LABEL[variant]}</Text>
         </View>
       )}
@@ -70,7 +61,9 @@ const s = StyleSheet.create({
     width:           "100%",
     height:          CTA_H,
     borderRadius:    CTA_R,
-    backgroundColor: "#000000",
+    backgroundColor: "#FFFFFF",
+    borderWidth:     1,
+    borderColor:     "#000000",
     alignItems:      "center",
     justifyContent:  "center",
     marginBottom:    14,
@@ -84,9 +77,9 @@ const s = StyleSheet.create({
     gap:           10,
   },
   label: {
-    fontSize:      16,
+    fontSize:      17,
     fontFamily:    "Inter_600SemiBold",
-    color:         "#FFFFFF",
-    letterSpacing: 0.1,
+    color:         "#000000",
+    letterSpacing: -0.408,
   },
 });
