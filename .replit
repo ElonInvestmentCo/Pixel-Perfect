@@ -21,8 +21,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pnpm --filter @workspace/mobile exec expo start --tunnel --port 8080"
-waitForPort = 8080
+args = "pnpm --filter @workspace/mobile exec expo start --tunnel --port 8082"
 
 [[workflows.workflow]]
 name = "Project"
@@ -61,14 +60,6 @@ timeoutMs = 20000
 [[ports]]
 localPort = 3000
 externalPort = 3000
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
-
-[[ports]]
-localPort = 8081
-externalPort = 80
 
 [[ports]]
 localPort = 8082
