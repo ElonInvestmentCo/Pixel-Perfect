@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { and, eq } from "drizzle-orm";
 import { Router } from "express";
 import bcrypt from "bcryptjs";
@@ -12,8 +13,8 @@ import { authLimiter } from "../middlewares/rate-limit";
 const router = Router();
 
 /**
- * Apple's public JWKS — cached at module load, auto-refreshed by jose on key
- * rotation.  Source: https://appleid.apple.com/auth/keys
+ * Apple's public JWKS — cached at module load, auto-refreshed by jose on
+ * key rotation.  Source: https://appleid.apple.com/auth/keys
  */
 const appleJWKS = createRemoteJWKSet(
   new URL("https://appleid.apple.com/auth/keys"),
@@ -21,24 +22,38 @@ const appleJWKS = createRemoteJWKSet(
 
 /**
  * Verify an Apple identity token per Apple's official authentication guide:
- * https://developer.apple.com/documentation/signinwithapple/authenticating-users-with-sign-in-with-apple
+ * https://developer.apple.com/documentation/signinwithapple/
+ *   authenticating-users-with-sign-in-with-apple
  *
- * Checks:
- *  1. RS256 algorithm
+ * Checks enforced:
+ *  1. Algorithm is RS256
  *  2. iss === "https://appleid.apple.com"
- *  3. aud === bundle ID (APPLE_BUNDLE_ID env, defaults to "com.payvora.mobile")
- *  4. exp has not passed
- *  5. Signature valid against Apple's live public keys
+ *  3. aud === bundle ID (env.APPLE_BUNDLE_ID, default "com.payvora.mobile")
+ *  4. exp has not passed (automatic in jwtVerify)
+ *  5. Signature is valid against Apple's live public JWKS
+ *  6. nonce claim === SHA-256(rawNonce) — prevents identity token replay attacks
  */
 async function verifyAppleIdToken(
   identityToken: string,
+  rawNonce: string,
 ): Promise<{ sub: string; email?: string }> {
   const { payload } = await jwtVerify(identityToken, appleJWKS, {
     issuer: "https://appleid.apple.com",
     audience: env.APPLE_BUNDLE_ID,
     algorithms: ["RS256"],
   });
+
   if (!payload.sub) throw new Error("Apple identity token missing sub claim");
+
+  // Nonce verification — the token's `nonce` claim must equal SHA-256(rawNonce)
+  const expectedNonceHash = createHash("sha256").update(rawNonce).digest("hex");
+  if (payload.nonce !== expectedNonceHash) {
+    throw Object.assign(
+      new Error("Apple identity token nonce mismatch"),
+      { code: "ERR_NONCE_MISMATCH" },
+    );
+  }
+
   return { sub: payload.sub, email: payload.email as string | undefined };
 }
 
@@ -108,9 +123,10 @@ router.post("/auth/google", authLimiter, async (req, res) => {
 
 router.post("/auth/apple", authLimiter, async (req, res) => {
   try {
-    const { identityToken, fullName } = z
+    const { identityToken, nonce, fullName } = z
       .object({
         identityToken: z.string().min(1),
+        nonce:         z.string().min(1, "nonce is required"),
         fullName: z
           .object({
             givenName:  z.string().optional().nullable(),
@@ -120,7 +136,7 @@ router.post("/auth/apple", authLimiter, async (req, res) => {
       })
       .parse(req.body);
 
-    const claims     = await verifyAppleIdToken(identityToken);
+    const claims     = await verifyAppleIdToken(identityToken, nonce);
     const providerId = claims.sub;
     const email      = claims.email ?? `apple_${providerId}@privaterelay.appleid.com`;
     const givenName  = fullName?.givenName  ?? "";
@@ -157,7 +173,7 @@ router.post("/auth/apple", authLimiter, async (req, res) => {
       res.status(400).json({ error: "Invalid request body" });
       return;
     }
-    // jose JWT/JWKS errors — all map to 401 (invalid or tampered token)
+    // jose JWT/JWKS errors + nonce mismatch — all map to 401
     const joseAuthCodes = new Set([
       "ERR_JWKS_NO_MATCHING_KEY",
       "ERR_JWS_SIGNATURE_VERIFICATION_FAILED",
@@ -167,6 +183,7 @@ router.post("/auth/apple", authLimiter, async (req, res) => {
       "ERR_JWT_INVALID",
       "ERR_JWT_MALFORMED",
       "ERR_JOSE_GENERIC",
+      "ERR_NONCE_MISMATCH",
     ]);
     const code = (e as { code?: string }).code;
     if (code && joseAuthCodes.has(code)) {
