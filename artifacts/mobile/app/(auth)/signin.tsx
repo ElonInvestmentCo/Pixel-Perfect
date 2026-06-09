@@ -4,7 +4,6 @@ import { router, useNavigation } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Keyboard,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -25,7 +24,6 @@ import {
 } from "@/components/onboarding";
 import { isValidEmail, validateEmail, validateSignInPassword } from "@/lib/validation";
 
-const isIOS    = Platform.OS === "ios";
 const ERROR_C  = "#DC2626";
 
 export default function SignInScreen() {
@@ -181,7 +179,7 @@ export default function SignInScreen() {
 
       <AuthDivider label="Or sign in with" />
 
-      {isIOS && <AppleSignInButton variant="signin" disabled={loading} />}
+      <AppleSignInButton variant="signin" disabled={loading} />
       <GoogleSignInButton variant="signin" horizontalPadding={24} disabled={loading} />
 
       <TouchableOpacity
