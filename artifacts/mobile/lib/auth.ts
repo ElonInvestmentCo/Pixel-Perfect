@@ -68,3 +68,18 @@ export async function signInWithEmailPassword(
   if (!res.ok) throw new Error(data.error ?? "Sign in failed. Please try again.");
   return { token: data.token!, user: data.user! };
 }
+
+export async function signUpWithEmailPassword(
+  email: string,
+  password: string,
+  name: string,
+): Promise<{ token: string; user: SessionUser }> {
+  const res = await fetch(`${API_URL}/api/auth/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, name }),
+  });
+  const data = await res.json() as { token?: string; user?: SessionUser; error?: string };
+  if (!res.ok) throw new Error(data.error ?? "Sign up failed. Please try again.");
+  return { token: data.token!, user: data.user! };
+}

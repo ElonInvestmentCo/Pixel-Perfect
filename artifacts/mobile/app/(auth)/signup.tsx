@@ -1,7 +1,9 @@
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import { CommonActions } from "@react-navigation/native";
+import { router, useNavigation } from "expo-router";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Alert,
   Keyboard,
   StyleSheet,
   Text,
@@ -21,6 +23,9 @@ import {
   OnboardingLayout,
   PrimaryButton,
 } from "@/components/onboarding";
+import { useAuth } from "@/contexts/AuthContext";
+import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
+import { signInWithApple, signUpWithEmailPassword } from "@/lib/auth";
 import {
   isStrongPassword,
   isValidEmail,
@@ -30,18 +35,46 @@ import {
   validateSignUpPassword,
 } from "@/lib/validation";
 
+const ERROR_C = "#DC2626";
+
 export default function SignUpScreen() {
+  const navigation = useNavigation();
+  const { saveSession } = useAuth();
+
   const [name,     setName]     = useState("");
   const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
   const [showPw,   setShowPw]   = useState(false);
+  const [loading,  setLoading]  = useState(false);
 
   const [nameErr,     setNameErr]     = useState("");
   const [emailErr,    setEmailErr]    = useState("");
   const [passwordErr, setPasswordErr] = useState("");
+  const [submitErr,   setSubmitErr]   = useState("");
 
+  const mountedRef  = useRef(true);
   const emailRef    = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
+  const navigateToApp = useCallback(() => {
+    const rootNav = navigation.getParent() ?? navigation;
+    rootNav.dispatch(CommonActions.reset({ index: 0, routes: [{ name: "(app)" }] }));
+  }, [navigation]);
+
+  const onSocialSuccess = useCallback(
+    async (token: string, user: Parameters<typeof saveSession>[1]) => {
+      await saveSession(token, user);
+      navigateToApp();
+    },
+    [saveSession, navigateToApp],
+  );
+
+  const { promptAsync: googlePrompt, isLoading: googleLoading } = useGoogleSignIn(onSocialSuccess);
 
   const isFormValid = useMemo(
     () => isValidName(name) && isValidEmail(email) && isStrongPassword(password),
@@ -53,27 +86,59 @@ export default function SignUpScreen() {
     [password],
   );
 
-  const handleNameChange     = useCallback((v: string) => { setName(v);     if (nameErr)     setNameErr("");     }, [nameErr]);
-  const handleEmailChange    = useCallback((v: string) => { setEmail(v);    if (emailErr)    setEmailErr("");    }, [emailErr]);
-  const handlePasswordChange = useCallback((v: string) => { setPassword(v); if (passwordErr) setPasswordErr(""); }, [passwordErr]);
+  const handleNameChange     = useCallback((v: string) => { setName(v);     setNameErr("");     setSubmitErr(""); }, []);
+  const handleEmailChange    = useCallback((v: string) => { setEmail(v);    setEmailErr("");    setSubmitErr(""); }, []);
+  const handlePasswordChange = useCallback((v: string) => { setPassword(v); setPasswordErr(""); setSubmitErr(""); }, []);
 
-  const handleNameBlur     = useCallback(() => setNameErr(validateName(name)),                 [name]);
-  const handleEmailBlur    = useCallback(() => setEmailErr(validateEmail(email)),              [email]);
+  const handleNameBlur     = useCallback(() => setNameErr(validateName(name)),                   [name]);
+  const handleEmailBlur    = useCallback(() => setEmailErr(validateEmail(email)),                [email]);
   const handlePasswordBlur = useCallback(() => setPasswordErr(validateSignUpPassword(password)), [password]);
 
   const toggleShowPw = useCallback(() => setShowPw((v) => !v), []);
 
-  const handleSignUp = useCallback(() => {
+  const isAnyLoading = loading || googleLoading;
+
+  const handleSignUp = useCallback(async () => {
     const nErr = validateName(name);
     const eErr = validateEmail(email);
     const pErr = validateSignUpPassword(password);
     setNameErr(nErr);
     setEmailErr(eErr);
     setPasswordErr(pErr);
-    if (nErr || eErr || pErr) return;
+    if (nErr || eErr || pErr || isAnyLoading) return;
+
     Keyboard.dismiss();
-    router.push("/phone-verify");
-  }, [name, email, password]);
+    setLoading(true);
+    setSubmitErr("");
+    try {
+      const { token, user } = await signUpWithEmailPassword(email.trim(), password, name.trim());
+      await saveSession(token, user);
+      navigateToApp();
+    } catch (e: unknown) {
+      if (!mountedRef.current) return;
+      const msg = e instanceof Error ? e.message : "Sign up failed. Please try again.";
+      setSubmitErr(msg);
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }, [name, email, password, isAnyLoading, saveSession, navigateToApp]);
+
+  const handleAppleSignUp = useCallback(async () => {
+    if (isAnyLoading) return;
+    setLoading(true);
+    try {
+      const result = await signInWithApple();
+      if (!result) return;
+      await saveSession(result.token, result.user);
+      navigateToApp();
+    } catch (e: unknown) {
+      if (!mountedRef.current) return;
+      const msg = e instanceof Error ? e.message : "Apple sign-in failed. Please try again.";
+      Alert.alert("Sign Up Failed", msg);
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }, [isAnyLoading, saveSession, navigateToApp]);
 
   return (
     <OnboardingLayout keyboard>
@@ -82,6 +147,14 @@ export default function SignUpScreen() {
         title="Welcome to PayVora"
         subtitle={`Create a commitment-free profile to\nexplore financial products`}
       />
+
+      {/* Submit-level error */}
+      {submitErr ? (
+        <View style={s.submitErrBox} accessibilityLiveRegion="polite">
+          <Feather name="alert-circle" size={14} color={ERROR_C} />
+          <Text style={s.submitErrText}>{submitErr}</Text>
+        </View>
+      ) : null}
 
       {/* Full name */}
       <FormField
@@ -96,6 +169,7 @@ export default function SignUpScreen() {
         returnKeyType="next"
         onSubmitEditing={() => emailRef.current?.focus()}
         blurOnSubmit={false}
+        editable={!isAnyLoading}
         accessibilityLabel="Full name"
         accessibilityHint="Enter your full name"
       />
@@ -116,6 +190,7 @@ export default function SignUpScreen() {
         onSubmitEditing={() => passwordRef.current?.focus()}
         blurOnSubmit={false}
         topSpacing={20}
+        editable={!isAnyLoading}
         accessibilityLabel="Email address"
         accessibilityHint="Enter your email address"
       />
@@ -135,6 +210,7 @@ export default function SignUpScreen() {
         returnKeyType="done"
         onSubmitEditing={handleSignUp}
         topSpacing={20}
+        editable={!isAnyLoading}
         accessibilityLabel="Password"
         accessibilityHint="Enter a password with at least 8 characters"
         rightElement={
@@ -154,17 +230,28 @@ export default function SignUpScreen() {
         label="Sign Up"
         onPress={handleSignUp}
         disabled={!isFormValid}
+        loading={isAnyLoading}
         style={s.cta}
       />
 
       <AuthDivider label="Or sign up with" />
 
-      <AppleSignInButton variant="signup" />
-      <GoogleSignInButton variant="signup" horizontalPadding={24} />
+      <AppleSignInButton
+        variant="signup"
+        onPress={handleAppleSignUp}
+        disabled={isAnyLoading}
+      />
+      <GoogleSignInButton
+        variant="signup"
+        onPress={googlePrompt}
+        disabled={isAnyLoading}
+        horizontalPadding={24}
+      />
 
       <TouchableOpacity
         style={s.switchRow}
         onPress={() => router.replace("/signin")}
+        disabled={isAnyLoading}
         accessibilityRole="button"
         accessibilityLabel="Already have an account? Sign In"
       >
@@ -181,6 +268,16 @@ const s = StyleSheet.create({
   eyeBtn: { paddingLeft: 8 },
 
   cta: { marginTop: 28, marginBottom: 18 },
+
+  submitErrBox: {
+    flexDirection: "row", alignItems: "center", gap: 6,
+    backgroundColor: "#FEF2F2", borderRadius: 10,
+    paddingHorizontal: 14, paddingVertical: 10,
+    marginBottom: 16, borderWidth: 1, borderColor: "#FECACA",
+  },
+  submitErrText: {
+    fontSize: 13, fontFamily: OF.regular, color: ERROR_C, flex: 1,
+  },
 
   switchRow: { alignItems: "center", paddingVertical: 8, marginTop: 4 },
   switchText: { fontSize: 14, fontFamily: OF.regular, color: OC.muted },
