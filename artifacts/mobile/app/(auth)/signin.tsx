@@ -3,6 +3,7 @@ import { CommonActions } from "@react-navigation/native";
 import { router, useNavigation } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Alert,
   Keyboard,
   StyleSheet,
   Text,
@@ -22,20 +23,24 @@ import {
   OnboardingLayout,
   PrimaryButton,
 } from "@/components/onboarding";
+import { useAuth } from "@/contexts/AuthContext";
+import { useGoogleSignIn } from "@/hooks/useGoogleSignIn";
+import { signInWithApple, signInWithEmailPassword } from "@/lib/auth";
 import { isValidEmail, validateEmail, validateSignInPassword } from "@/lib/validation";
 
 const ERROR_C  = "#DC2626";
 
 export default function SignInScreen() {
   const navigation = useNavigation();
+  const { saveSession } = useAuth();
 
-  const [email,     setEmail]     = useState("");
-  const [password,  setPassword]  = useState("");
-  const [showPw,    setShowPw]    = useState(false);
-  const [loading,   setLoading]   = useState(false);
-  const [emailErr,  setEmailErr]  = useState("");
+  const [email,       setEmail]       = useState("");
+  const [password,    setPassword]    = useState("");
+  const [showPw,      setShowPw]      = useState(false);
+  const [loading,     setLoading]     = useState(false);
+  const [emailErr,    setEmailErr]    = useState("");
   const [passwordErr, setPasswordErr] = useState("");
-  const [submitErr, setSubmitErr] = useState("");
+  const [submitErr,   setSubmitErr]   = useState("");
 
   const mountedRef  = useRef(true);
   const passwordRef = useRef<TextInput>(null);
@@ -45,46 +50,73 @@ export default function SignInScreen() {
     return () => { mountedRef.current = false; };
   }, []);
 
+  const navigateToApp = useCallback(() => {
+    const rootNav = navigation.getParent() ?? navigation;
+    rootNav.dispatch(CommonActions.reset({ index: 0, routes: [{ name: "(app)" }] }));
+  }, [navigation]);
+
+  const onSocialSuccess = useCallback(
+    async (token: string, user: Parameters<typeof saveSession>[1]) => {
+      await saveSession(token, user);
+      navigateToApp();
+    },
+    [saveSession, navigateToApp],
+  );
+
+  const { promptAsync: googlePrompt, isLoading: googleLoading } = useGoogleSignIn(onSocialSuccess);
+
   const isFormValid = useMemo(
     () => isValidEmail(email) && password.length > 0,
     [email, password],
   );
 
-  const handleEmailChange = useCallback((v: string) => {
-    setEmail(v); setEmailErr(""); setSubmitErr("");
-  }, []);
+  const handleEmailChange    = useCallback((v: string) => { setEmail(v); setEmailErr(""); setSubmitErr(""); }, []);
+  const handlePasswordChange = useCallback((v: string) => { setPassword(v); setPasswordErr(""); setSubmitErr(""); }, []);
+  const handleEmailBlur      = useCallback(() => setEmailErr(validateEmail(email)), [email]);
+  const handlePasswordBlur   = useCallback(() => setPasswordErr(validateSignInPassword(password)), [password]);
+  const toggleShowPw         = useCallback(() => setShowPw((v) => !v), []);
 
-  const handlePasswordChange = useCallback((v: string) => {
-    setPassword(v); setPasswordErr(""); setSubmitErr("");
-  }, []);
-
-  const handleEmailBlur    = useCallback(() => setEmailErr(validateEmail(email)),           [email]);
-  const handlePasswordBlur = useCallback(() => setPasswordErr(validateSignInPassword(password)), [password]);
-  const toggleShowPw       = useCallback(() => setShowPw((v) => !v), []);
+  const isAnyLoading = loading || googleLoading;
 
   const handleSignIn = useCallback(async () => {
     const eErr = validateEmail(email);
     const pErr = validateSignInPassword(password);
     setEmailErr(eErr);
     setPasswordErr(pErr);
-    if (eErr || pErr || loading) return;
+    if (eErr || pErr || isAnyLoading) return;
 
     Keyboard.dismiss();
     setLoading(true);
     setSubmitErr("");
     try {
-      await signIn(email.trim(), password);
-      const rootNav = navigation.getParent() ?? navigation;
-      rootNav.dispatch(
-        CommonActions.reset({ index: 0, routes: [{ name: "(app)" }] }),
-      );
-    } catch (e: any) {
+      const { token, user } = await signInWithEmailPassword(email.trim(), password);
+      await saveSession(token, user);
+      navigateToApp();
+    } catch (e: unknown) {
       if (!mountedRef.current) return;
-      setSubmitErr(e?.message ?? "Sign in failed. Please try again.");
+      const msg = e instanceof Error ? e.message : "Sign in failed. Please try again.";
+      setSubmitErr(msg);
     } finally {
       if (mountedRef.current) setLoading(false);
     }
-  }, [email, password, loading, navigation]);
+  }, [email, password, isAnyLoading, saveSession, navigateToApp]);
+
+  const handleAppleSignIn = useCallback(async () => {
+    if (isAnyLoading) return;
+    setLoading(true);
+    try {
+      const result = await signInWithApple();
+      if (!result) return;
+      await saveSession(result.token, result.user);
+      navigateToApp();
+    } catch (e: unknown) {
+      if (!mountedRef.current) return;
+      const msg = e instanceof Error ? e.message : "Apple sign-in failed. Please try again.";
+      Alert.alert("Sign In Failed", msg);
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }, [isAnyLoading, saveSession, navigateToApp]);
 
   return (
     <OnboardingLayout keyboard>
@@ -122,7 +154,7 @@ export default function SignInScreen() {
         returnKeyType="next"
         onSubmitEditing={() => passwordRef.current?.focus()}
         blurOnSubmit={false}
-        editable={!loading}
+        editable={!isAnyLoading}
         accessibilityLabel="Email address"
         accessibilityHint="Enter your email address"
       />
@@ -140,7 +172,7 @@ export default function SignInScreen() {
         autoCapitalize="none"
         returnKeyType="done"
         onSubmitEditing={handleSignIn}
-        editable={!loading}
+        editable={!isAnyLoading}
         topSpacing={20}
         accessibilityLabel="Password"
         accessibilityHint="Enter your account password"
@@ -161,7 +193,7 @@ export default function SignInScreen() {
         label="Sign In"
         onPress={handleSignIn}
         disabled={!isFormValid}
-        loading={loading}
+        loading={isAnyLoading}
         style={s.cta}
       />
 
@@ -169,7 +201,7 @@ export default function SignInScreen() {
       <TouchableOpacity
         style={s.forgotRow}
         onPress={() => router.push("/reset-password")}
-        disabled={loading}
+        disabled={isAnyLoading}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         accessibilityRole="button"
         accessibilityLabel="Forgot Password"
@@ -181,12 +213,14 @@ export default function SignInScreen() {
 
       <View style={s.socialRow}>
         <AppleSignInButton
-          disabled={loading}
+          onPress={handleAppleSignIn}
+          disabled={isAnyLoading}
           style={s.socialBtn}
         />
         <GoogleSignInButton
           variant="signin"
-          disabled={loading}
+          onPress={googlePrompt}
+          disabled={isAnyLoading}
           style={s.socialBtn}
         />
       </View>
@@ -194,7 +228,7 @@ export default function SignInScreen() {
       <TouchableOpacity
         style={s.switchRow}
         onPress={() => router.push("/signup")}
-        disabled={loading}
+        disabled={isAnyLoading}
         accessibilityRole="button"
         accessibilityLabel="Don't have an account? Sign Up"
       >
@@ -205,11 +239,6 @@ export default function SignInScreen() {
       </TouchableOpacity>
     </OnboardingLayout>
   );
-}
-
-// ─── Auth service stub ─────────────────────────────────────────────────────────
-async function signIn(_email: string, _password: string): Promise<void> {
-  // Replace with real API call: POST /api/auth/signin
 }
 
 const s = StyleSheet.create({

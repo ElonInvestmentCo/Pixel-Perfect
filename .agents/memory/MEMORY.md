@@ -5,3 +5,5 @@
 - [Auth→App navigation reset](auth-app-nav-reset.md) — proper Expo Router route group architecture to fully clear auth stack on login.
 - [API server security stack](api-security-stack.md) — middleware order, env validation, CVE overrides, and SSRF guard pattern for the Express backend.
 - [KeyboardProvider Expo Go compat](keyboard-provider-expo-go.md) — react-native-keyboard-controller crashes Expo Go; use try/catch lazy require with fragment fallback in root _layout.tsx.
+- [Expo package version compat](expo-package-versions.md) — NEVER use pnpm add for Expo packages; always use expo install which pins SDK-compatible versions. pnpm add picks latest (e.g. expo-crypto@56) which crashes SDK 54.
+- [Auth system architecture](auth-system-architecture.md) — JWT auth stack: DB users table, API routes, AuthContext, useGoogleSignIn hook, lib/auth.ts for Apple/email flows.

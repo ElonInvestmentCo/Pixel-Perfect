@@ -68,6 +68,19 @@ const schema = z.object({
    * Prevents DoS via extremely large JSON payloads.
    */
   BODY_SIZE_LIMIT: z.string().default("50kb"),
+
+  /**
+   * Secret used to sign and verify JWTs issued by this server.
+   * Must be a long random string. Generate with:
+   *   node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+   */
+  JWT_SECRET: z.string().min(32, { message: "JWT_SECRET must be at least 32 characters" }),
+
+  /**
+   * Google OAuth Web Client ID for verifying Google access tokens.
+   * Optional — if not set, Google Sign-In returns 503.
+   */
+  GOOGLE_CLIENT_ID: z.string().optional(),
 });
 
 const result = schema.safeParse(process.env);
