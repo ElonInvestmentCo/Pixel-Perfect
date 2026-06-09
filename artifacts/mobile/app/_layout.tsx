@@ -10,12 +10,18 @@ import { setAuthTokenGetter, setBaseUrl } from "@workspace/api-client-react";
 import * as SecureStore from "expo-secure-store";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import * as WebBrowser from "expo-web-browser";
 import React, { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
+
+// Required for Google OAuth on Expo web / Expo Go web preview.
+// Must be called at module level (before any navigation) so the app can
+// intercept and complete the OAuth redirect when the browser returns to it.
+WebBrowser.maybeCompleteAuthSession();
 
 SplashScreen.preventAutoHideAsync();
 
