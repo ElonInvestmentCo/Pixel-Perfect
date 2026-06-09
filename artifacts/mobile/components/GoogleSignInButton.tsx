@@ -1,13 +1,15 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from "react-native";
 import Svg, { G, Path } from "react-native-svg";
 
 export type GoogleButtonVariant = "signup" | "signin" | "continue";
 
 interface GoogleSignInButtonProps {
-  variant:  GoogleButtonVariant;
-  onPress?: () => void;
+  variant:   GoogleButtonVariant;
+  onPress?:  () => void;
   disabled?: boolean;
+  style?:    StyleProp<ViewStyle>;
+  /** @deprecated kept for call-site compatibility */
   horizontalPadding?: number;
 }
 
@@ -46,6 +48,7 @@ export function GoogleSignInButton({
   variant,
   onPress,
   disabled = false,
+  style,
 }: GoogleSignInButtonProps) {
   return (
     <TouchableOpacity
@@ -55,7 +58,7 @@ export function GoogleSignInButton({
       accessibilityRole="button"
       accessibilityLabel={LABEL[variant]}
       accessibilityState={{ disabled }}
-      style={[s.btn, disabled && s.btnDisabled]}
+      style={[s.btn, disabled && s.btnDisabled, style]}
     >
       <View style={s.inner}>
         <GoogleGLogo />
@@ -68,7 +71,6 @@ export function GoogleSignInButton({
 const s = StyleSheet.create({
   btn: {
     alignSelf:       "center",
-    width:           148,
     height:          32,
     borderRadius:    16,
     backgroundColor: "#ffffff",

@@ -179,8 +179,17 @@ export default function SignInScreen() {
 
       <AuthDivider label="Or sign in with" />
 
-      <AppleSignInButton disabled={loading} />
-      <GoogleSignInButton variant="signin" disabled={loading} />
+      <View style={s.socialRow}>
+        <AppleSignInButton
+          disabled={loading}
+          style={s.socialBtn}
+        />
+        <GoogleSignInButton
+          variant="signin"
+          disabled={loading}
+          style={s.socialBtn}
+        />
+      </View>
 
       <TouchableOpacity
         style={s.switchRow}
@@ -227,6 +236,18 @@ const s = StyleSheet.create({
 
   forgotRow: { alignItems: "center", paddingVertical: 4, marginBottom: 28 },
   forgotText: { fontSize: 15, fontFamily: OF.semibold, color: OC.indigo },
+
+  socialRow: {
+    flexDirection: "row",
+    gap:           12,
+    marginBottom:  14,
+  },
+  socialBtn: {
+    flex:        1,
+    alignSelf:   "auto" as any,
+    width:       undefined,
+    marginBottom: 0,
+  },
 
   switchRow: { alignItems: "center", paddingVertical: 8, marginTop: 4 },
   switchText: { fontSize: 14, fontFamily: OF.regular, color: OC.muted },

@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 export type AppleButtonVariant = "signup" | "signin" | "continue";
@@ -8,6 +8,7 @@ interface AppleSignInButtonProps {
   variant?:  AppleButtonVariant;
   onPress?:  () => void;
   disabled?: boolean;
+  style?:    StyleProp<ViewStyle>;
 }
 
 function AppleLogo() {
@@ -24,6 +25,7 @@ function AppleLogo() {
 export function AppleSignInButton({
   onPress,
   disabled = false,
+  style,
 }: AppleSignInButtonProps) {
   return (
     <TouchableOpacity
@@ -33,7 +35,7 @@ export function AppleSignInButton({
       accessibilityRole="button"
       accessibilityLabel="Sign in with Apple"
       accessibilityState={{ disabled }}
-      style={[s.btn, disabled && s.btnDisabled]}
+      style={[s.btn, disabled && s.btnDisabled, style]}
     >
       <View style={s.inner}>
         <AppleLogo />
