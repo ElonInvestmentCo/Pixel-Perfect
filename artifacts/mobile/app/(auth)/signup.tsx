@@ -3,7 +3,6 @@ import { router } from "expo-router";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   Keyboard,
-  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -30,8 +29,6 @@ import {
   validateName,
   validateSignUpPassword,
 } from "@/lib/validation";
-
-const isIOS = Platform.OS === "ios";
 
 export default function SignUpScreen() {
   const [name,     setName]     = useState("");
@@ -162,7 +159,7 @@ export default function SignUpScreen() {
 
       <AuthDivider label="Or sign up with" />
 
-      {isIOS && <AppleSignInButton variant="signup" />}
+      <AppleSignInButton variant="signup" />
       <GoogleSignInButton variant="signup" horizontalPadding={24} />
 
       <TouchableOpacity
