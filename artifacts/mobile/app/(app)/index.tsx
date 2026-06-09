@@ -126,7 +126,7 @@ export default function HomeScreen() {
 
         {/* ── Action pills ── */}
         <View style={s.pillRow}>
-          <TouchableOpacity style={[s.pill, { flex: 1 }]} activeOpacity={0.82} onPress={() => router.push("/top-up")}>
+          <TouchableOpacity style={[s.pill, { flex: 1 }]} activeOpacity={0.82} onPress={() => router.push("/transfer")}>
             <View style={s.pillIconWrap}>
               <Feather name="arrow-up" size={20} color={BLACK} />
             </View>
