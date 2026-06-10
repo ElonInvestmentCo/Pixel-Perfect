@@ -73,7 +73,7 @@ export const FormField = React.forwardRef<TextInput, Props>(function FormField(
         <TextInput
           ref={ref}
           style={[s.input, rightElement != null && s.inputFlex]}
-          placeholderTextColor={OC.placeholder}
+          placeholderTextColor="#A0A0A0"
           {...inputProps}
         />
         {rightElement}
@@ -94,8 +94,8 @@ export const FormField = React.forwardRef<TextInput, Props>(function FormField(
 const s = StyleSheet.create({
   label: {
     fontSize: 14,
-    fontFamily: OF.regular,
-    color: OC.muted,
+    fontFamily: OF.semibold,
+    color: "#444444",
     marginBottom: 10,
   },
 

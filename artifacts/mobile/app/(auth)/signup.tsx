@@ -236,17 +236,20 @@ export default function SignUpScreen() {
 
       <AuthDivider label="Or sign up with" />
 
-      <AppleSignInButton
-        variant="signup"
-        onPress={handleAppleSignUp}
-        disabled={isAnyLoading}
-      />
-      <GoogleSignInButton
-        variant="signup"
-        onPress={googlePrompt}
-        disabled={isAnyLoading}
-        horizontalPadding={24}
-      />
+      <View style={s.socialRow}>
+        <AppleSignInButton
+          variant="signup"
+          onPress={handleAppleSignUp}
+          disabled={isAnyLoading}
+          style={s.socialBtn}
+        />
+        <GoogleSignInButton
+          variant="signup"
+          onPress={googlePrompt}
+          disabled={isAnyLoading}
+          style={s.socialBtn}
+        />
+      </View>
 
       <TouchableOpacity
         style={s.switchRow}
@@ -267,7 +270,18 @@ export default function SignUpScreen() {
 const s = StyleSheet.create({
   eyeBtn: { paddingLeft: 8 },
 
-  cta: { marginTop: 28, marginBottom: 18 },
+  cta: { marginTop: 28, marginBottom: 20 },
+
+  socialRow: {
+    flexDirection: "row",
+    gap:           12,
+    marginBottom:  20,
+  },
+  socialBtn: {
+    flex:        1,
+    alignSelf:   "auto" as any,
+    width:       undefined,
+  },
 
   submitErrBox: {
     flexDirection: "row", alignItems: "center", gap: 6,

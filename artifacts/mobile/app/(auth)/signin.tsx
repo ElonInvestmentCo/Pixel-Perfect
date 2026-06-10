@@ -213,6 +213,7 @@ export default function SignInScreen() {
 
       <View style={s.socialRow}>
         <AppleSignInButton
+          variant="signin"
           onPress={handleAppleSignIn}
           disabled={isAnyLoading}
           style={s.socialBtn}
@@ -269,13 +270,12 @@ const s = StyleSheet.create({
   socialRow: {
     flexDirection: "row",
     gap:           12,
-    marginBottom:  14,
+    marginBottom:  20,
   },
   socialBtn: {
     flex:        1,
     alignSelf:   "auto" as any,
     width:       undefined,
-    marginBottom: 0,
   },
 
   switchRow: { alignItems: "center", paddingVertical: 8, marginTop: 4 },

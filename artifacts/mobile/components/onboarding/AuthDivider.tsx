@@ -32,8 +32,8 @@ const s = StyleSheet.create({
   },
   text: {
     fontSize: 13,
-    fontFamily: OF.regular,
-    color: OC.faint,
+    fontFamily: OF.medium,
+    color: "#888888",
     marginHorizontal: 12,
   },
 });

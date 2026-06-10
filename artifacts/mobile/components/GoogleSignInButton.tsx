@@ -4,6 +4,12 @@ import Svg, { G, Path } from "react-native-svg";
 
 export type GoogleButtonVariant = "signup" | "signin" | "continue";
 
+const LABEL: Record<GoogleButtonVariant, string> = {
+  signup:   "Sign up with Google",
+  signin:   "Sign in with Google",
+  continue: "Continue with Google",
+};
+
 interface GoogleSignInButtonProps {
   variant:   GoogleButtonVariant;
   onPress?:  () => void;
@@ -13,15 +19,9 @@ interface GoogleSignInButtonProps {
   horizontalPadding?: number;
 }
 
-const LABEL: Record<GoogleButtonVariant, string> = {
-  signup:   "Sign up with Google",
-  signin:   "Sign in with Google",
-  continue: "Continue with Google",
-};
-
 function GoogleGLogo() {
   return (
-    <Svg width={16} height={16} viewBox="0 0 19.6 20" fill="none">
+    <Svg width={18} height={18} viewBox="0 0 19.6 20" fill="none">
       <G>
         <Path
           d="M19.6 10.2273C19.6 9.5182 19.5364 8.8364 19.4182 8.1818H10V12.05H15.3818C15.15 13.3 14.4455 14.3591 13.3864 15.0682V17.5773H16.6182C18.5091 15.8364 19.6 13.2727 19.6 10.2273Z"
@@ -54,7 +54,7 @@ export function GoogleSignInButton({
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.78}
+      activeOpacity={0.75}
       accessibilityRole="button"
       accessibilityLabel={LABEL[variant]}
       accessibilityState={{ disabled }}
@@ -62,7 +62,7 @@ export function GoogleSignInButton({
     >
       <View style={s.inner}>
         <GoogleGLogo />
-        <Text style={s.label}>{LABEL[variant]}</Text>
+        <Text style={s.label} numberOfLines={1}>{LABEL[variant]}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -70,30 +70,29 @@ export function GoogleSignInButton({
 
 const s = StyleSheet.create({
   btn: {
-    alignSelf:       "center",
-    height:          32,
-    borderRadius:    16,
-    backgroundColor: "#ffffff",
+    height:          52,
+    borderRadius:    14,
+    backgroundColor: "#FFFFFF",
     borderWidth:     1,
-    borderColor:     "#747775",
+    borderColor:     "#DADCE0",
     alignItems:      "center",
     justifyContent:  "center",
-    marginBottom:    14,
+    alignSelf:       "stretch",
   },
   btnDisabled: {
-    opacity: 0.45,
+    opacity: 0.42,
   },
   inner: {
     flexDirection:  "row",
     alignItems:     "center",
-    gap:            8,
-    paddingLeft:    10,
-    paddingRight:   12,
+    justifyContent: "center",
+    gap:            9,
+    paddingHorizontal: 16,
   },
   label: {
-    fontSize:      11,
-    fontFamily:    "Inter_500Medium",
+    fontSize:      15,
+    fontFamily:    "Inter_600SemiBold",
     color:         "#1F1F1F",
-    letterSpacing: 0.1,
+    letterSpacing: -0.1,
   },
 });
