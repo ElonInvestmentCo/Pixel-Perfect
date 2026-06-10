@@ -44,7 +44,7 @@ const SlideBtc = React.memo(function SlideBtc() {
 });
 
 const il = StyleSheet.create({
-  wrap: { width: SW, paddingHorizontal: 24, alignItems: "center", justifyContent: "center", flex: 1 },
+  wrap: { width: SW, paddingHorizontal: 20, alignItems: "center", justifyContent: "center", flex: 1, overflow: "visible" },
   circle: {
     position: "absolute",
     width: SW * 0.68, height: SW * 0.68,
@@ -57,10 +57,9 @@ const il = StyleSheet.create({
     height: 280,
   },
   balanceCardImg: {
-    width: SW * 1.2,
-    height: SW * 1.05,
+    width: SW * 0.9,
+    height: SW * 0.52,
     zIndex: 2,
-    marginTop: 10,
   },
 });
 
@@ -240,8 +239,8 @@ const rs = StyleSheet.create({
     borderRadius: 20, paddingHorizontal: 18, paddingVertical: 6,
   },
   skipText: { fontSize: 14, fontFamily: "Inter_500Medium", color: BLACK },
-  slider: { flexGrow: 0 },
-  slide: { width: SW },
+  slider: { flexGrow: 0, overflow: "visible" },
+  slide: { width: SW, overflow: "visible" },
   bottom: {
     flex: 1, backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 32, borderTopRightRadius: 32,

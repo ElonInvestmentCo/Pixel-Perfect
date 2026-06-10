@@ -11,9 +11,9 @@
     "newArchEnabled": true,
     "projectType": "MOBILE_APP_EXPO_NATIVE",
     "splash": {
-      "image": "./assets/images/icon.png",
+      "image": "./assets/images/balance-card-slide.png",
       "resizeMode": "contain",
-      "backgroundColor": "#C8FF00"
+      "backgroundColor": "#EBEBEB"
     },
     "ios": {
       "supportsTablet": false,
