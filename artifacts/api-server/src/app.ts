@@ -18,6 +18,8 @@
 import pinoHttp from "pino-http";
 import express, { type Express } from "express";
 import { randomUUID } from "crypto";
+import path from "path";
+import fs from "fs";
 
 import { logger }                 from "./lib/logger";
 import { applySecurityMiddleware } from "./middlewares/security";
@@ -27,6 +29,7 @@ import { requestId }              from "./middlewares/request-id";
 import { notFound }               from "./middlewares/not-found";
 import { errorHandler }           from "./middlewares/error-handler";
 import router                     from "./routes";
+import { isProd }                 from "./lib/env";
 
 const app: Express = express();
 
@@ -80,7 +83,24 @@ app.use(sanitizeRequest);
 // ── 7. API routes ────────────────────────────────────────────────────────────
 app.use("/api", router);
 
-// ── 8. 404 handler ───────────────────────────────────────────────────────────
+// ── 8. Serve Expo web build in production ─────────────────────────────────────
+// In dev the Expo Metro dev server + dev-proxy handle web serving.
+// In production we export the Expo app to static files and serve them here.
+if (isProd) {
+  const webDist = path.resolve(process.cwd(), "artifacts/mobile/dist");
+  if (fs.existsSync(webDist)) {
+    logger.info({ webDist }, "Serving Expo web build as static files");
+    app.use(express.static(webDist));
+    // SPA fallback — any non-API path returns index.html so client-side routing works
+    app.get("/{*path}", (_req, res) => {
+      res.sendFile(path.join(webDist, "index.html"));
+    });
+  } else {
+    logger.warn({ webDist }, "Expo web dist not found — run 'expo export --platform web' before deploying");
+  }
+}
+
+// ── 9. 404 handler (dev only — prod serves SPA fallback above) ───────────────
 app.use(notFound);
 
 // ── 9. Global error handler ──────────────────────────────────────────────────
