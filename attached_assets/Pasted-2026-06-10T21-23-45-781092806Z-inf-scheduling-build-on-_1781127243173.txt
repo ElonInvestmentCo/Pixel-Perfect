@@ -1,0 +1,30 @@
+2026-06-10T21:23:45.781092806Z [inf]  scheduling build on Metal builder "production-builderv3-us-east4-6qh0"
+2026-06-10T21:23:49.755749026Z [inf]  unpacking archive
+2026-06-10T21:23:50.001915427Z [inf]  using build driver railpack-v0.27.0
+2026-06-10T21:23:50.308188038Z [inf]                     
+2026-06-10T21:23:50.308190847Z [inf]  [38;2;125;86;243m╭─────────────────╮[0m
+2026-06-10T21:23:50.308196060Z [inf]  [38;2;125;86;243m│[0m Railpack 0.27.0 [38;2;125;86;243m│[0m
+2026-06-10T21:23:50.308196845Z [inf]  [38;2;125;86;243m╰─────────────────╯[0m
+2026-06-10T21:23:50.308197335Z [inf]  
+2026-06-10T21:23:50.308198282Z [inf]    [97m↳ Detected Node[0m
+2026-06-10T21:23:50.308199010Z [inf]    [97m↳ Using pnpm package manager[0m
+2026-06-10T21:23:50.308199608Z [inf]    [97m↳ Found workspace with 8 packages[0m
+2026-06-10T21:23:50.308200934Z [inf]    [1;31m✖ No start command detected. Specify a start command: https://railpack.com/config/file[0m
+2026-06-10T21:23:50.308201758Z [inf]    
+2026-06-10T21:23:50.308202600Z [inf]    To configure your start command, Railpack will check:
+2026-06-10T21:23:50.308203078Z [inf]    
+2026-06-10T21:23:50.308203788Z [inf]    1. A "start" script in your package.json:
+2026-06-10T21:23:50.308204239Z [inf]       "scripts": {
+2026-06-10T21:23:50.308206323Z [inf]         "start": "node index.js"
+2026-06-10T21:23:50.308207062Z [inf]       }
+2026-06-10T21:23:50.308207587Z [inf]    
+2026-06-10T21:23:50.308208385Z [inf]    2. A "main" field in your package.json pointing to your entry file:
+2026-06-10T21:23:50.308208982Z [inf]       "main": "src/server.js"
+2026-06-10T21:23:50.308209620Z [inf]    
+2026-06-10T21:23:50.308210404Z [inf]    3. An index.js or index.ts file in your project root
+2026-06-10T21:23:50.308211075Z [inf]    
+2026-06-10T21:23:50.308212044Z [inf]    If you have a static site, you can set the RAILPACK_SPA_OUTPUT_DIR environment variable
+2026-06-10T21:23:50.308212645Z [inf]    containing the directory of your built static files.
+2026-06-10T21:23:50.308213137Z [inf]  
+2026-06-10T21:23:50.308213604Z [inf]  
+2026-06-10T21:23:50.308366850Z [err]  railpack process exited with an error

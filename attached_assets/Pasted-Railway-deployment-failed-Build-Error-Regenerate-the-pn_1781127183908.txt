@@ -1,0 +1,48 @@
+Railway deployment failed — Build Error
+
+Regenerate the pnpm lockfile by running "pnpm install --no-frozen-lockfile" locally and committing the updated pnpm-lock.yaml. The build failed because the overrides in pnpm-workspace.yaml do not match what is recorded in pnpm-lock.yaml, causing pnpm's frozen install to abort. The triggering commit only changed auth routes and had nothing to do with dependencies, so this mismatch was pre-existing.
+
+Repository: https://github.com/ElonInvestmentCo/Pixel-Perfect
+Branch: main · Commit: 041d89d — Fix Google Sign-In to use correct callback URLs
+
+Update authentication routes and environment variables to correctly configure Google OAuth callback URLs, bypassing a host header overwrite issue in the development proxy.
+
+Replit-Commit-Author: Agent
+Replit-Commit-Session-Id: be0fac1c-5156-418a-85f3-9c6bbf099ca7
+Replit-Commit-Checkpoint-Type: full_checkpoint
+Replit-Commit-Event-Id: a49bee13-4a59-4ffb-89a7-7b077cdbebf6
+Replit-Commit-Screenshot-Url: https://storage.googleapis.com/screenshot-production-us-central1/ebbc153d-be87-4465-be89-9166f3df9b6e/be0fac1c-5156-418a-85f3-9c6bbf099ca7/5cbVtZ1
+Replit-Helium-Checkpoint-Created: true
+Deployment ID: b2026364-2114-4ffd-9b21-e8f4e8a44798
+Service ID: a03d1ae6-a20a-469a-bb78-8136d51fdfa0
+Environment ID: 75e0c18c-38d1-443b-b759-b2400a3abb28
+
+---
+
+## Problem
+The @workspace/mockup-sandbox service fails during the BUILD stage with ERR_PNPM_LOCKFILE_CONFIG_MISMATCH. Railpack runs `pnpm install --frozen-lockfile --prefer-offline`, which fails because the `overrides` configuration in pnpm-workspace.yaml does not match what is recorded in pnpm-lock.yaml.
+
+Build log error:
+```
+ERR_PNPM_LOCKFILE_CONFIG_MISMATCH  Cannot proceed with the frozen installation. The current "overrides" configuration doesn't match the value found in the lockfile
+Update your lockfile using "pnpm install --no-frozen-lockfile"
+```
+
+## Diagnosis
+pnpm-workspace.yaml contains an extensive `overrides` section: CVE fixes for qs (>=6.15.2), postcss (>=8.5.10), and uuid (>=11.1.1); platform-specific binary exclusions for esbuild, rollup, lightningcss, @tailwindcss/oxide, and @expo/ngrok-bin; and an esbuild pin to 0.27.3. These overrides were added or modified after the last time pnpm-lock.yaml was generated, so the lockfile is stale. The --frozen-lockfile flag used by Railpack correctly prevents automatic lockfile updates, causing the build to fail. The triggering commit (041d89dc) only changed auth routes and .replit config, confirming the mismatch pre-existed.
+
+## Fix
+This fix cannot be performed by a code agent because it requires running pnpm install to regenerate the lockfile binary.
+
+1. In the repo root, run:
+   ```
+   pnpm install --no-frozen-lockfile
+   ```
+2. This regenerates pnpm-lock.yaml to match the current overrides in pnpm-workspace.yaml.
+3. Commit and push the updated lockfile:
+   ```
+   git add pnpm-lock.yaml
+   git commit -m "chore: regenerate lockfile to match workspace overrides"
+   git push origin main
+   ```
+4. The new deployment will pass the `pnpm install --frozen-lockfile` step.
