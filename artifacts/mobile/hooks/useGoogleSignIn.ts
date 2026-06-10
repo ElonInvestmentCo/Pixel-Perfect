@@ -9,7 +9,16 @@ import type { SessionUser } from "@/contexts/AuthContext";
 WebBrowser.maybeCompleteAuthSession();
 
 const CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+
+// On web: use the same origin so requests go through the dev proxy on port 5000,
+// which routes /api/* to Express on port 3000 — same-origin, no CORS/mixed-content.
+// On native: use the configured env var (or localhost for local development).
+const API_URL =
+  Platform.OS === "web"
+    ? typeof window !== "undefined"
+      ? window.location.origin
+      : ""
+    : (process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000");
 
 type OnSuccess = (token: string, user: SessionUser) => Promise<void>;
 

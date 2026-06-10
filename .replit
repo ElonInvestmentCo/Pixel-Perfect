@@ -21,7 +21,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pnpm --filter @workspace/mobile exec expo start --localhost --port 5000 --clear"
+args = "fuser -k 5000/tcp 5001/tcp 2>/dev/null; node artifacts/mobile/dev-proxy.cjs & pnpm --filter @workspace/mobile exec expo start --localhost --port 5001 --clear"
 waitForPort = 5000
 
 [[workflows.workflow]]
@@ -64,6 +64,14 @@ externalPort = 3000
 
 [[ports]]
 localPort = 5000
+externalPort = 5000
+
+[[ports]]
+localPort = 5001
+externalPort = 3002
+
+[[ports]]
+localPort = 8080
 externalPort = 80
 
 [[ports]]

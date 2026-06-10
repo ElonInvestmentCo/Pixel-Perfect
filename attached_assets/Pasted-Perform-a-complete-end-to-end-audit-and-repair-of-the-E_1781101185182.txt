@@ -1,0 +1,76 @@
+Perform a complete end-to-end audit and repair of the Expo, Google OAuth, and backend authentication setup.
+
+Tasks:
+
+1. Verify the actual Expo project location and ensure all commands are executed from the correct directory (likely `/home/runner/workspace/artifacts/mobile` rather than `/home/runner/workspace`).
+
+2. Confirm that Expo is installed in the mobile project by checking `package.json` and installed dependencies. If dependencies are missing, install them using the project's package manager.
+
+3. Verify the Expo SDK version and ensure `expo`, `expo-auth-session`, `expo-web-browser`, and all authentication-related packages are installed and compatible.
+
+4. Start Expo from the correct directory using tunnel mode and clear cache:
+
+   * `npx expo start --tunnel --clear`
+
+5. Verify that Metro Bundler starts successfully without errors and that the generated Expo URL is reachable.
+
+6. Determine and log the exact runtime values for:
+
+   * `window.location.origin`
+   * Google OAuth redirect URI
+   * Google OAuth client IDs
+   * API base URL
+   * Expo development domain
+
+7. Inspect the Google Sign-In implementation and confirm:
+
+   * Redirect URI generation
+   * OAuth request configuration
+   * Access token retrieval
+   * Backend token exchange
+   * Session persistence
+   * Post-login navigation
+
+8. Add detailed logging for every stage of Google authentication:
+
+   * Auth request creation
+   * Redirect URI
+   * OAuth popup launch
+   * Access token received
+   * Backend request sent
+   * Backend response received
+   * JWT stored
+   * Navigation completed
+
+9. Audit all environment variables and identify any invalid configuration.
+
+10. Specifically investigate whether:
+
+    * `EXPO_PUBLIC_API_URL=http://localhost:3000`
+      is causing browser, HTTPS, CORS, mixed-content, or routing issues.
+
+11. Determine the correct API endpoint accessible from the Expo web application and update the configuration if necessary.
+
+12. Review backend CORS configuration and ensure all required Replit and Expo origins are allowed.
+
+13. Verify `/api/auth/google` end-to-end:
+
+    * Route exists
+    * Route is reachable
+    * Google token validation works
+    * JWT generation works
+    * User creation/upsert works
+
+14. Test Google OAuth from the current Replit environment and identify the exact failure point if authentication does not complete.
+
+15. Fix any issues discovered and provide a final report containing:
+
+    * Root cause(s)
+    * Files modified
+    * Configuration changes made
+    * Exact redirect URI being used
+    * Exact API URL being used
+    * Remaining blockers (if any)
+    * Whether Google Sign-In is fully operational
+
+Do not stop at diagnostics. Apply fixes where possible, restart affected services, verify the fixes, and provide a complete implementation summary with evidence from logs and runtime checks.

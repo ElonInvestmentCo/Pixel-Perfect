@@ -31,6 +31,8 @@ const devOrigins: (string | RegExp)[] = [
   /^http:\/\/127\.0\.0\.1(:\d+)?$/,
   /\.exp\.direct$/,          // Expo Go tunnel
   /\.exp\.host$/,            // Expo legacy tunnel
+  /\.replit\.dev$/,          // Replit web preview (all clusters)
+  /\.janeway\.replit\.dev$/, // Replit janeway cluster (explicit)
 ];
 
 const prodOrigins: (string | RegExp)[] = env.ALLOWED_ORIGINS

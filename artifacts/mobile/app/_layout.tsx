@@ -12,6 +12,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
 import React, { useEffect } from "react";
+import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
@@ -27,7 +28,15 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+// On web: use the same origin so requests go through the dev proxy on port 5000,
+// which routes /api/* to Express on port 3000 — same-origin, no CORS/mixed-content.
+// On native: use the configured env var (or localhost for local development).
+const API_URL =
+  Platform.OS === "web"
+    ? typeof window !== "undefined"
+      ? window.location.origin
+      : ""
+    : (process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000");
 
 let KeyboardProviderSafe: React.ComponentType<{ children: React.ReactNode }>;
 try {
