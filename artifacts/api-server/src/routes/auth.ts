@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import { and, eq } from "drizzle-orm";
 import { Router } from "express";
 import bcrypt from "bcryptjs";
@@ -22,17 +22,7 @@ const appleJWKS = createRemoteJWKSet(
 );
 
 /**
- * Verify an Apple identity token per Apple's official authentication guide:
- * https://developer.apple.com/documentation/signinwithapple/
- *   authenticating-users-with-sign-in-with-apple
- *
- * Checks enforced:
- *  1. Algorithm is RS256
- *  2. iss === "https://appleid.apple.com"
- *  3. aud === bundle ID (env.APPLE_BUNDLE_ID, default "com.payvora.mobile")
- *  4. exp has not passed (automatic in jwtVerify)
- *  5. Signature is valid against Apple's live public JWKS
- *  6. nonce claim === SHA-256(rawNonce) — prevents identity token replay attacks
+ * Verify an Apple identity token per Apple's official authentication guide.
  */
 async function verifyAppleIdToken(
   identityToken: string,
@@ -46,7 +36,6 @@ async function verifyAppleIdToken(
 
   if (!payload.sub) throw new Error("Apple identity token missing sub claim");
 
-  // Nonce verification — the token's `nonce` claim must equal SHA-256(rawNonce)
   const expectedNonceHash = createHash("sha256").update(rawNonce).digest("hex");
   if (payload.nonce !== expectedNonceHash) {
     throw Object.assign(
@@ -62,14 +51,224 @@ function signToken(userId: string, email: string, name: string): string {
   return jwt.sign({ userId, email, name }, env.JWT_SECRET, { expiresIn: "7d" });
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// Server-side Google OAuth flow (for Expo Go native — proxy approach removed
+// in expo-auth-session v7 / SDK 54).
+//
+// Flow:
+//  1. Native app: WebBrowser.openAuthSessionAsync(initUrl, returnUrl)
+//  2. GET /api/auth/google/init  → redirects to Google with server callback URI
+//  3. Google → GET /api/auth/google/callback (code exchange, user lookup)
+//  4. Callback redirects to returnUrl (exp://...) with JWT + user params
+//  5. expo-web-browser intercepts the exp:// redirect and resolves the promise
+// ──────────────────────────────────────────────────────────────────────────────
+
+interface OAuthState {
+  returnUrl: string;
+  expiresAt: number;
+}
+
+/** Short-lived store keyed by state token (hex). TTL: 10 minutes. */
+const oauthStates = new Map<string, OAuthState>();
+
+// Purge expired entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of oauthStates) {
+    if (val.expiresAt < now) oauthStates.delete(key);
+  }
+}, 5 * 60 * 1000).unref();
+
+/** Construct the backend's own callback URL from the incoming request. */
+function buildCallbackUrl(req: Parameters<Parameters<typeof router.get>[1]>[0]): string {
+  // Works correctly behind Replit's reverse proxy because app.ts sets trust proxy.
+  return `${req.protocol}://${req.get("host")}/api/auth/google/callback`;
+}
+
+/**
+ * GET /api/auth/google/init?returnUrl=exp://...
+ *
+ * Saves a short-lived state token, then redirects to Google's authorization
+ * endpoint.  The redirect_uri points to our own callback route.
+ *
+ * Required Google Cloud Console configuration:
+ *   Authorized Redirect URI: https://<your-domain>/api/auth/google/callback
+ */
+router.get("/auth/google/init", (req, res) => {
+  if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET) {
+    res.status(503).send("Google OAuth is not configured on this server.");
+    return;
+  }
+
+  const returnUrl = (req.query.returnUrl as string | undefined) ?? "";
+  if (!returnUrl) {
+    res.status(400).send("Missing required query param: returnUrl");
+    return;
+  }
+
+  const state = randomBytes(24).toString("hex");
+  oauthStates.set(state, { returnUrl, expiresAt: Date.now() + 10 * 60 * 1000 });
+
+  const callbackUrl = buildCallbackUrl(req);
+  const params = new URLSearchParams({
+    client_id:     env.GOOGLE_CLIENT_ID,
+    redirect_uri:  callbackUrl,
+    response_type: "code",
+    scope:         "openid profile email",
+    state,
+    access_type:   "online",
+    prompt:        "select_account",
+  });
+
+  console.log(`[auth/google/init] Initiating OAuth — callback: ${callbackUrl}`);
+  res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params}`);
+});
+
+/**
+ * GET /api/auth/google/callback
+ *
+ * Handles the authorization-code redirect from Google.
+ * Exchanges the code for an access token, looks up / creates the user,
+ * then redirects to the app's returnUrl with token + user params appended.
+ */
+router.get("/auth/google/callback", async (req, res) => {
+  const { code, state, error } = req.query as Record<string, string>;
+
+  const stored = oauthStates.get(state ?? "");
+  if (!stored || Date.now() > stored.expiresAt) {
+    res.status(400).send(
+      "<!DOCTYPE html><html><body>" +
+      "<p>Session expired. Please close this window and try signing in again.</p>" +
+      "</body></html>",
+    );
+    return;
+  }
+
+  oauthStates.delete(state); // single-use
+
+  const { returnUrl } = stored;
+
+  // User denied or Google returned an error
+  if (error) {
+    console.warn(`[auth/google/callback] Google returned error: ${error}`);
+    res.redirect(`${returnUrl}?error=${encodeURIComponent(error)}`);
+    return;
+  }
+
+  if (!code) {
+    res.redirect(`${returnUrl}?error=${encodeURIComponent("no_code")}`);
+    return;
+  }
+
+  try {
+    const callbackUrl = buildCallbackUrl(req);
+
+    // ── Step 1: exchange authorization code for access token ─────────────────
+    console.log("[auth/google/callback] Exchanging authorization code…");
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method:  "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body:    new URLSearchParams({
+        code,
+        client_id:     env.GOOGLE_CLIENT_ID!,
+        client_secret: env.GOOGLE_CLIENT_SECRET!,
+        redirect_uri:  callbackUrl,
+        grant_type:    "authorization_code",
+      }),
+    });
+
+    const tokens = (await tokenRes.json()) as {
+      access_token?: string;
+      error?:        string;
+      error_description?: string;
+    };
+
+    if (!tokenRes.ok || !tokens.access_token) {
+      const msg = tokens.error_description ?? tokens.error ?? "token_exchange_failed";
+      console.error(`[auth/google/callback] Token exchange failed: ${msg}`);
+      res.redirect(`${returnUrl}?error=${encodeURIComponent(msg)}`);
+      return;
+    }
+
+    // ── Step 2: fetch the user profile ───────────────────────────────────────
+    console.log("[auth/google/callback] Fetching user profile…");
+    const userRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      headers: { Authorization: `Bearer ${tokens.access_token}` },
+    });
+
+    if (!userRes.ok) {
+      const msg = "failed_to_fetch_user";
+      console.error(`[auth/google/callback] Userinfo fetch failed: ${userRes.status}`);
+      res.redirect(`${returnUrl}?error=${encodeURIComponent(msg)}`);
+      return;
+    }
+
+    const googleUser = (await userRes.json()) as {
+      sub:      string;
+      email:    string;
+      name?:    string;
+      picture?: string;
+    };
+    const { sub: providerId, email, name, picture } = googleUser;
+
+    if (!email) {
+      res.redirect(`${returnUrl}?error=${encodeURIComponent("no_email")}`);
+      return;
+    }
+
+    console.log(`[auth/google/callback] Google user verified — ${email}`);
+
+    // ── Step 3: find or create user ──────────────────────────────────────────
+    const existing = await db
+      .select()
+      .from(usersTable)
+      .where(and(eq(usersTable.provider, "google"), eq(usersTable.providerId, providerId)))
+      .limit(1);
+
+    let user = existing[0];
+    if (!user) {
+      console.log(`[auth/google/callback] Creating new user for ${email}…`);
+      const [inserted] = await db
+        .insert(usersTable)
+        .values({ email, name: name ?? "", provider: "google", providerId, avatarUrl: picture })
+        .onConflictDoNothing()
+        .returning();
+      user =
+        inserted ??
+        (await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1))[0];
+    } else {
+      console.log(`[auth/google/callback] Existing user — id: ${user.id}`);
+    }
+
+    if (!user) {
+      res.redirect(`${returnUrl}?error=${encodeURIComponent("user_creation_failed")}`);
+      return;
+    }
+
+    // ── Step 4: issue JWT and redirect back to the app ───────────────────────
+    const token = signToken(user.id, user.email, user.name);
+
+    const resultParams = new URLSearchParams({ token, id: user.id, email: user.email, name: user.name });
+    if (user.avatarUrl) resultParams.set("avatarUrl", user.avatarUrl);
+
+    console.log(`[auth/google/callback] ✓ JWT issued — redirecting to app`);
+    res.redirect(`${returnUrl}?${resultParams}`);
+  } catch (e) {
+    console.error("[auth/google/callback] Unexpected error:", e);
+    res.redirect(`${returnUrl}?error=${encodeURIComponent("server_error")}`);
+  }
+});
+
+// ──────────────────────────────────────────────────────────────────────────────
+// Legacy client-side Google flow (web preview uses expo-auth-session directly).
+// Accepts an access_token, verifies it with Google, returns a JWT.
+// ──────────────────────────────────────────────────────────────────────────────
 router.post("/auth/google", authLimiter, async (req, res) => {
   try {
     const { accessToken } = z
       .object({ accessToken: z.string().min(1) })
       .parse(req.body);
 
-    // ── Step 1: verify token audience via tokeninfo (if GOOGLE_CLIENT_ID is set) ──
-    // This prevents tokens issued for other OAuth clients being accepted here.
     if (env.GOOGLE_CLIENT_ID) {
       console.log("[auth/google] Verifying token audience via tokeninfo endpoint…");
       const tokenInfoRes = await fetch(
@@ -81,25 +280,22 @@ router.post("/auth/google", authLimiter, async (req, res) => {
         res.status(401).json({ error: "Invalid Google access token" });
         return;
       }
-      const tokenInfo = (await tokenInfoRes.json()) as { audience?: string; issued_to?: string; error?: string };
-      console.log(`[auth/google] tokeninfo audience: ${tokenInfo.audience ?? tokenInfo.issued_to}`);
+      const tokenInfo = (await tokenInfoRes.json()) as {
+        audience?: string;
+        issued_to?: string;
+        error?: string;
+      };
       const audience = tokenInfo.audience ?? tokenInfo.issued_to ?? "";
       if (audience !== env.GOOGLE_CLIENT_ID) {
-        console.error(`[auth/google] Audience mismatch — got "${audience}", expected "${env.GOOGLE_CLIENT_ID}"`);
+        console.error(`[auth/google] Audience mismatch — got "${audience}"`);
         res.status(401).json({ error: "Google token audience mismatch" });
         return;
       }
-      console.log("[auth/google] ✓ Token audience verified");
     }
-
-    // ── Step 2: fetch the user profile ──────────────────────────────────────────
-    console.log("[auth/google] Fetching user profile from Google userinfo API…");
 
     const gRes = await fetch("https://www.googleapis.com/userinfo/v2/me", {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-
-    console.log(`[auth/google] Google userinfo status: ${gRes.status}`);
 
     if (!gRes.ok) {
       const body = await gRes.text();
@@ -116,8 +312,6 @@ router.post("/auth/google", authLimiter, async (req, res) => {
     };
     const { id, email, name, picture } = googleUser;
 
-    console.log(`[auth/google] Google user verified — id: ${id}, email: ${email}`);
-
     if (!email) {
       res.status(400).json({ error: "Google account has no email" });
       return;
@@ -131,7 +325,6 @@ router.post("/auth/google", authLimiter, async (req, res) => {
 
     let user = existing[0];
     if (!user) {
-      console.log(`[auth/google] Creating new user for ${email}…`);
       const [inserted] = await db
         .insert(usersTable)
         .values({ email, name: name ?? "", provider: "google", providerId: id, avatarUrl: picture })
@@ -140,8 +333,6 @@ router.post("/auth/google", authLimiter, async (req, res) => {
       user =
         inserted ??
         (await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1))[0];
-    } else {
-      console.log(`[auth/google] Existing user found — id: ${user.id}`);
     }
 
     if (!user) {
@@ -150,7 +341,6 @@ router.post("/auth/google", authLimiter, async (req, res) => {
     }
 
     const token = signToken(user.id, user.email, user.name);
-    console.log(`[auth/google] ✓ JWT issued for user ${user.id} — returning to client`);
     res.json({ token, user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatarUrl } });
   } catch (e: unknown) {
     if (e instanceof z.ZodError) {
@@ -215,14 +405,10 @@ router.post("/auth/apple", authLimiter, async (req, res) => {
       return;
     }
     const code = (e as { code?: string }).code;
-    // Apple JWKS endpoint unreachable — surface as 503 so clients can retry
     if (code === "ERR_JWKS_TIMEOUT" || code === "ERR_JWKS_REQUEST_FAILED") {
       res.status(503).json({ error: "Apple authentication service unavailable. Please try again." });
       return;
     }
-    // Any jose crypto/validation error OR our custom nonce mismatch → 401.
-    // Using instanceof JOSEError covers all current and future jose error
-    // subclasses without maintaining a brittle allowlist of code strings.
     if (e instanceof JOSEError || code === "ERR_NONCE_MISMATCH") {
       res.status(401).json({ error: "Invalid Apple identity token" });
       return;

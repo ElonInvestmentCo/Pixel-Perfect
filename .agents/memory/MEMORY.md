@@ -8,3 +8,4 @@
 - [Expo package version compat](expo-package-versions.md) — NEVER use pnpm add for Expo packages; always use expo install which pins SDK-compatible versions. pnpm add picks latest (e.g. expo-crypto@56) which crashes SDK 54.
 - [Auth system architecture](auth-system-architecture.md) — JWT auth stack: DB users table, API routes, AuthContext, useGoogleSignIn hook, lib/auth.ts for Apple/email flows.
 - [Apple Sign In nonce requirement](apple-signin-nonce.md) — Apple mandates nonce for replay-attack prevention; client generates UUID, SHA-256 hashes it, passes hash to signInAsync; backend re-hashes rawNonce and compares to payload.nonce claim after JWKS verification.
+- [Google OAuth Expo SDK 54](google-oauth-sdk54.md) — expo-auth-session v7 removed auth.expo.io proxy entirely; use server-side OAuth (backend code exchange + exp:// redirect) for Expo Go native.

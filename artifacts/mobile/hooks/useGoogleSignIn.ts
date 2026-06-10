@@ -1,7 +1,38 @@
-import { exchangeCodeAsync, makeRedirectUri, useAuthRequest } from "expo-auth-session";
+/**
+ * useGoogleSignIn — Google OAuth for Expo Go (native) and web.
+ *
+ * ── Why server-side OAuth? ──────────────────────────────────────────────────
+ * expo-auth-session v7 (SDK 54) fully removed the auth.expo.io proxy
+ * (useProxy/projectNameForProxy). Without the proxy, makeRedirectUri() always
+ * returns exp://... which Google rejects as an invalid redirect URI.
+ *
+ * ── Native flow (server-side authorization-code exchange) ───────────────────
+ *  1. App opens system browser to  GET /api/auth/google/init?returnUrl=exp://...
+ *  2. Backend redirects to Google OAuth (server's own callback URI registered
+ *     in Google Cloud Console)
+ *  3. Google → backend GET /api/auth/google/callback  (code exchange, DB upsert)
+ *  4. Backend redirects to returnUrl (exp://...) with token+user params
+ *  5. expo-web-browser intercepts the exp:// redirect → resolves the promise
+ *
+ * ── What must be registered in Google Cloud Console ─────────────────────────
+ *   Authorized Redirect URI:
+ *     https://ebbc153d-be87-4465-be89-9166f3df9b6e-00-2vao16i2ayviu.janeway.replit.dev/api/auth/google/callback
+ *     https://mayaaujau.replit.app/api/auth/google/callback  (production)
+ *
+ * ── Web flow ─────────────────────────────────────────────────────────────────
+ * On web the regular expo-auth-session useAuthRequest still works fine
+ * (same-origin redirect, no proxy needed).
+ */
+
+import {
+  exchangeCodeAsync,
+  makeRedirectUri,
+  useAuthRequest,
+} from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
+import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Platform } from "react-native";
 
 import type { SessionUser } from "@/contexts/AuthContext";
@@ -9,32 +40,50 @@ import type { SessionUser } from "@/contexts/AuthContext";
 WebBrowser.maybeCompleteAuthSession();
 
 const CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+const IS_WEB    = Platform.OS === "web";
 
-// On web: use the same origin so requests go through the dev proxy on port 5000,
-// which routes /api/* to Express on port 3000 — same-origin, no CORS/mixed-content.
-// On native: use the configured env var (or localhost for local development).
-const API_URL =
-  Platform.OS === "web"
-    ? typeof window !== "undefined"
-      ? window.location.origin
-      : ""
-    : (process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000");
+/**
+ * The publicly accessible HTTPS URL for the API server.
+ *
+ * On web: derived from window.location.origin (same-origin, goes through the
+ *   dev proxy which routes /api/* to Express).
+ * On native: use the EXPO_PUBLIC_BACKEND_URL env var (the Replit dev HTTPS URL)
+ *   or fall back to the EXPO_PUBLIC_API_URL. Localhost doesn't work on a real
+ *   physical device, so this must be a real HTTPS address.
+ */
+function getBackendUrl(): string {
+  if (IS_WEB) {
+    return typeof window !== "undefined" ? window.location.origin : "";
+  }
+  // Prefer the explicit backend URL if configured
+  if (process.env.EXPO_PUBLIC_BACKEND_URL) {
+    return process.env.EXPO_PUBLIC_BACKEND_URL;
+  }
+  // Derive from the Expo Metro URL:
+  //   exp://xxx.expo.janeway.replit.dev  →  https://xxx.janeway.replit.dev
+  // (strips the .expo. subdomain that Metro adds)
+  try {
+    const expoUrl = Linking.createURL("");
+    const match   = expoUrl.match(/^exp:\/\/([^/?]+)/);
+    if (match?.[1]) {
+      const apiHost = match[1].replace(".expo.", ".");
+      return `https://${apiHost}`;
+    }
+  } catch {
+    // ignore — fall through to fallback
+  }
+  return process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+}
 
-// Build the redirect URI that must be registered in Google Cloud Console.
-// On web: use the current origin so Google redirects back to the Replit preview.
-// On native: use the Expo proxy so Expo Go can intercept the OAuth callback.
-const REDIRECT_URI = makeRedirectUri(
-  Platform.OS === "web"
-    ? { scheme: undefined }
-    : { useProxy: true },
-);
+// ── Web redirect URI (only used on web) ─────────────────────────────────────
+const WEB_REDIRECT_URI =
+  IS_WEB && typeof window !== "undefined" ? window.location.origin : "https://placeholder";
 
 type OnSuccess = (token: string, user: SessionUser) => Promise<void>;
 
 export function useGoogleSignIn(onSuccess: OnSuccess) {
   const [isLoading, setIsLoading] = useState(false);
   const mountedRef = useRef(true);
-  const loggedRef  = useRef(false);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -43,146 +92,169 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
     };
   }, []);
 
-  // Use the lower-level useAuthRequest instead of Google.useAuthRequest so we
-  // are NOT forced to supply iosClientId / androidClientId for Expo Go native
-  // testing (which uses the auth proxy and only needs the web client ID).
-  const [request, response, promptAsync] = useAuthRequest(
+  // ── Web: keep the existing expo-auth-session flow ─────────────────────────
+  // (useAuthRequest is always called — hooks can't be conditional)
+  const [webRequest, webResponse, webPromptAsync] = useAuthRequest(
     {
-      clientId:             CLIENT_ID ?? "unconfigured",
-      redirectUri:          REDIRECT_URI,
-      scopes:               ["openid", "profile", "email"],
-      usePKCE:              true,
+      clientId:    CLIENT_ID ?? "unconfigured",
+      redirectUri: WEB_REDIRECT_URI,
+      scopes:      ["openid", "profile", "email"],
+      usePKCE:     true,
     },
     Google.discovery,
   );
 
-  // Log all diagnostic info once the request object is ready.
+  // Handle web OAuth response
   useEffect(() => {
-    if (!request?.redirectUri || loggedRef.current) return;
-    loggedRef.current = true;
+    if (!IS_WEB || !webResponse || !CLIENT_ID) return;
 
-    const platform = Platform.OS === "web" ? "web" : `native (${Platform.OS})`;
-    const origin   = typeof window !== "undefined" ? window.location.origin : "N/A (non-web)";
+    if (webResponse.type === "error") {
+      console.error("[GoogleOAuth/web] Error:", webResponse.error);
+      if (mountedRef.current) {
+        Alert.alert("Sign In Failed", webResponse.error?.message ?? "Google sign-in failed.");
+      }
+      return;
+    }
 
-    console.log("=== [GoogleOAuth] Diagnostic Info ===");
-    console.log(`  Platform         : ${platform}`);
-    console.log(`  window.location.origin : ${origin}`);
-    console.log(`  Computed redirectUri   : ${REDIRECT_URI}`);
-    console.log(`  request.redirectUri    : ${request.redirectUri}`);
-    console.log(`  AuthSession redirectUri: ${makeRedirectUri()}`);
-    console.log(`  Client ID configured   : ${!!CLIENT_ID}`);
-    console.log(`  API_URL                : ${API_URL}`);
-    console.log("=====================================");
-    console.log(
-      "[GoogleOAuth] ⚠️  Register this Redirect URI in Google Cloud Console:",
-      request.redirectUri,
-    );
-    console.log(
-      "[GoogleOAuth] ⚠️  Register this JavaScript Origin in Google Cloud Console:",
-      origin,
-    );
-  }, [request?.redirectUri]);
-
-  // Handle OAuth response — log full response for debugging.
-  useEffect(() => {
-    if (!response) return;
-
-    console.log(`[GoogleOAuth] Response type: ${response.type}`);
-    console.log("[GoogleOAuth] Full OAuth response:", JSON.stringify(response, null, 2));
-
-    if (!CLIENT_ID || response.type !== "success") return;
+    if (webResponse.type !== "success") return;
 
     (async () => {
       if (!mountedRef.current) return;
-
       setIsLoading(true);
-
       try {
         let accessToken: string | null = null;
 
-        if (response.authentication?.accessToken) {
-          accessToken = response.authentication.accessToken;
-          console.log("[GoogleOAuth] ✓ Got access token from authentication object");
-        }
-
-        if (!accessToken && response.params.code && request?.codeVerifier) {
-          console.log("[GoogleOAuth] Exchanging code for access token…");
-          const tokenResult = await exchangeCodeAsync(
+        if (webResponse.authentication?.accessToken) {
+          accessToken = webResponse.authentication.accessToken;
+        } else if (webResponse.params.code && webRequest?.codeVerifier) {
+          const result = await exchangeCodeAsync(
             {
-              code:        response.params.code,
-              redirectUri: request.redirectUri,
+              code:        webResponse.params.code,
+              redirectUri: WEB_REDIRECT_URI,
               clientId:    CLIENT_ID,
-              extraParams: { code_verifier: request.codeVerifier },
+              extraParams: { code_verifier: webRequest.codeVerifier },
             },
             Google.discovery,
           );
-          accessToken = tokenResult.accessToken ?? null;
-          console.log("[GoogleOAuth] ✓ Code exchange result:", JSON.stringify(tokenResult, null, 2));
+          accessToken = result.accessToken ?? null;
         }
 
-        if (!accessToken && response.params.access_token) {
-          accessToken = response.params.access_token;
-          console.log("[GoogleOAuth] ✓ Got access token from params");
-        }
+        if (!accessToken) throw new Error("No access token received from Google.");
 
-        if (!accessToken) {
-          throw new Error("Google sign-in did not return an access token.");
-        }
-
-        console.log("[GoogleOAuth] Exchanging access token with backend…");
-        console.log(`[GoogleOAuth] POST ${API_URL}/api/auth/google`);
-
-        const res = await fetch(`${API_URL}/api/auth/google`, {
+        const apiUrl = typeof window !== "undefined" ? window.location.origin : "";
+        const res = await fetch(`${apiUrl}/api/auth/google`, {
           method:  "POST",
           headers: { "Content-Type": "application/json" },
           body:    JSON.stringify({ accessToken }),
         });
-
         const data = (await res.json()) as {
           token?: string;
           user?:  SessionUser;
           error?: string;
         };
-
-        console.log(`[GoogleOAuth] Backend response status: ${res.status}`);
-        console.log("[GoogleOAuth] Backend response body:", JSON.stringify(data, null, 2));
-
-        if (!res.ok) {
-          throw new Error(data.error ?? "Google sign-in failed");
-        }
-
-        console.log("[GoogleOAuth] ✓ Backend returned JWT — saving session…");
+        if (!res.ok) throw new Error(data.error ?? "Google sign-in failed.");
         await onSuccess(data.token!, data.user!);
-        console.log("[GoogleOAuth] ✓ Session saved successfully.");
-      } catch (error) {
+      } catch (err) {
         if (!mountedRef.current) return;
-        console.error("[GoogleOAuth] ✗ Error:", error);
-        Alert.alert(
-          "Sign In Failed",
-          error instanceof Error ? error.message : "Google sign-in failed.",
-        );
+        Alert.alert("Sign In Failed", err instanceof Error ? err.message : "Google sign-in failed.");
       } finally {
         if (mountedRef.current) setIsLoading(false);
       }
     })();
-  }, [response]);
+  }, [webResponse]);
 
-  return {
-    promptAsync: () => {
-      if (!CLIENT_ID) {
-        Alert.alert(
-          "Google Sign-In Not Configured",
-          "Set EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID in Replit Secrets to enable Google Sign-In.",
-        );
+  // ── Native: server-side authorization-code flow ──────────────────────────
+  const handleNativeSignIn = useCallback(async () => {
+    const backendUrl = getBackendUrl();
+
+    // The return URL that the backend redirects to after OAuth completes.
+    // In Expo Go: exp://xxx.expo.janeway.replit.dev/--/oauth-callback
+    // openAuthSessionAsync watches for navigations to this prefix and closes.
+    const returnUrl = Linking.createURL("oauth-callback");
+
+    console.log("╔════════════════════════════════════════════╗");
+    console.log("║    Google OAuth — Server-Side Flow          ║");
+    console.log("╠════════════════════════════════════════════╣");
+    console.log(`║ Backend URL : ${backendUrl}`);
+    console.log(`║ Return URL  : ${returnUrl}`);
+    console.log("╠════════════════════════════════════════════╣");
+    console.log("║ ACTION: Register this redirect URI in GCC:");
+    console.log(`║   ${backendUrl}/api/auth/google/callback`);
+    console.log("╚════════════════════════════════════════════╝");
+
+    const initUrl =
+      `${backendUrl}/api/auth/google/init?` +
+      new URLSearchParams({ returnUrl }).toString();
+
+    if (!mountedRef.current) return;
+    setIsLoading(true);
+    try {
+      const result = await WebBrowser.openAuthSessionAsync(initUrl, returnUrl);
+      console.log(`[GoogleOAuth/native] Browser result type: ${result.type}`);
+
+      if (result.type !== "success") {
+        // User cancelled or dismissed the browser — not an error
         return;
       }
-      console.log("[GoogleOAuth] Launching OAuth flow…");
-      console.log(`[GoogleOAuth]   redirectUri : ${request?.redirectUri}`);
-      console.log(`[GoogleOAuth]   origin      : ${typeof window !== "undefined" ? window.location.origin : "N/A"}`);
-      promptAsync();
-    },
+
+      // Parse token + user from the return URL params
+      const parsed   = Linking.parse(result.url);
+      const qp       = parsed.queryParams ?? {};
+      const token    = qp.token as string | undefined;
+      const errParam = qp.error as string | undefined;
+
+      if (errParam) {
+        const friendly = decodeURIComponent(errParam).replace(/_/g, " ");
+        throw new Error(`Google declined: ${friendly}`);
+      }
+      if (!token) {
+        console.error("[GoogleOAuth/native] Return URL:", result.url);
+        throw new Error("No authentication token received. Please try again.");
+      }
+
+      const user: SessionUser = {
+        id:        qp.id        as string,
+        email:     qp.email     as string,
+        name:      qp.name      as string,
+        avatarUrl: (qp.avatarUrl as string) ?? null,
+      };
+
+      console.log("[GoogleOAuth/native] ✓ Token received — saving session…");
+      await onSuccess(token, user);
+      console.log("[GoogleOAuth/native] ✓ Done.");
+    } catch (err) {
+      if (!mountedRef.current) return;
+      const msg = err instanceof Error ? err.message : "Google sign-in failed.";
+      console.error("[GoogleOAuth/native] ✗ Error:", msg);
+      Alert.alert("Sign In Failed", msg);
+    } finally {
+      if (mountedRef.current) setIsLoading(false);
+    }
+  }, [onSuccess]);
+
+  // ── Public API ────────────────────────────────────────────────────────────
+  const promptAsync = useCallback(() => {
+    if (!CLIENT_ID) {
+      Alert.alert(
+        "Google Sign-In Not Configured",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID is missing from Replit Secrets.",
+      );
+      return;
+    }
+    if (IS_WEB) {
+      webPromptAsync();
+    } else {
+      handleNativeSignIn();
+    }
+  }, [webPromptAsync, handleNativeSignIn]);
+
+  return {
+    promptAsync,
     isLoading,
-    isReady:     !!request && !!CLIENT_ID,
-    redirectUri: request?.redirectUri ?? REDIRECT_URI,
+    isReady: !!CLIENT_ID,
+    // Expose the callback URL for debugging — printed in sign-in screen
+    debugCallbackUrl: IS_WEB
+      ? WEB_REDIRECT_URI
+      : `${getBackendUrl()}/api/auth/google/callback`,
   };
 }

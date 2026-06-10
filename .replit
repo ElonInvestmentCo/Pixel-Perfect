@@ -100,6 +100,7 @@ EXPO_PUBLIC_API_URL = "http://localhost:3000"
 
 [userenv.development]
 PORT = "3000"
+EXPO_PUBLIC_BACKEND_URL = "https://ebbc153d-be87-4465-be89-9166f3df9b6e-00-2vao16i2ayviu.janeway.replit.dev"
 
 [userenv.production]
 PORT = "5000"
