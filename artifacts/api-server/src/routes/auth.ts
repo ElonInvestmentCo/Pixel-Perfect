@@ -79,10 +79,24 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000).unref();
 
-/** Construct the backend's own callback URL from the incoming request. */
+/**
+ * Return the backend's public HTTPS callback URL for Google OAuth.
+ *
+ * IMPORTANT: do NOT derive from req.get("host") in this project because
+ * dev-proxy.cjs (port 5000 → 3000) overwrites the Host header with
+ * "127.0.0.1:3000", which would produce the wrong callback URL.
+ *
+ * Resolution order:
+ *  1. GOOGLE_CALLBACK_URL env var (explicit, always correct)
+ *  2. X-Forwarded-Host header (set by Replit's outer TLS proxy)
+ *  3. Host header fallback (works in production where Host is correct)
+ */
 function buildCallbackUrl(req: Parameters<Parameters<typeof router.get>[1]>[0]): string {
-  // Works correctly behind Replit's reverse proxy because app.ts sets trust proxy.
-  return `${req.protocol}://${req.get("host")}/api/auth/google/callback`;
+  if (env.GOOGLE_CALLBACK_URL) return env.GOOGLE_CALLBACK_URL;
+  const forwardedHost = req.get("x-forwarded-host");
+  const host          = forwardedHost ?? req.get("host") ?? "localhost:3000";
+  const proto         = req.get("x-forwarded-proto")?.split(",")[0]?.trim() ?? req.protocol;
+  return `${proto}://${host}/api/auth/google/callback`;
 }
 
 /**

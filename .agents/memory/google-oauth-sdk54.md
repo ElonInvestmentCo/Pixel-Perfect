@@ -8,6 +8,13 @@ description: auth.expo.io proxy fully removed; server-side OAuth required for Ex
 from `makeRedirectUri`. The parameters are silently ignored — the function always returns
 `exp://…` regardless. The `auth.expo.io` proxy service no longer works via this API.
 
+## Critical: dev-proxy Host header bug
+`dev-proxy.cjs` overwrites the `Host` header with `127.0.0.1:3000` when forwarding requests
+to Express (port 3000). This means `req.get("host")` in Express returns `127.0.0.1:3000`
+instead of the public Replit dev domain. NEVER compute the OAuth callback URL from
+`req.get("host")` in this project — always use the `GOOGLE_CALLBACK_URL` env var.
+Set `GOOGLE_CALLBACK_URL` per-environment (dev/prod) to the correct HTTPS callback URL.
+
 **Why:** Expo deprecated the proxy in SDK 49 and removed it entirely in v7. Google rejects
 `exp://` as an invalid redirect URI for web OAuth clients.
 

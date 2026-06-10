@@ -90,6 +90,21 @@ const schema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().optional(),
 
   /**
+   * Explicit public HTTPS callback URL for Google OAuth server-side flow.
+   *
+   * REQUIRED for the server-side Google Sign-In flow (GET /api/auth/google/init).
+   * Cannot be derived from the request because dev-proxy.cjs overwrites the
+   * Host header with "127.0.0.1:3000", causing buildCallbackUrl to generate
+   * the wrong URL.
+   *
+   * Development:  https://<REPLIT_DEV_DOMAIN>/api/auth/google/callback
+   * Production:   https://mayaaujau.replit.app/api/auth/google/callback
+   *
+   * Must be registered as an Authorized Redirect URI in Google Cloud Console.
+   */
+  GOOGLE_CALLBACK_URL: z.string().url().optional(),
+
+  /**
    * Apple iOS bundle ID used to verify the `aud` claim in Apple identity tokens.
    * Must match ios.bundleIdentifier in app.json.
    * Defaults to "com.payvora.mobile".
