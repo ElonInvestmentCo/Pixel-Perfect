@@ -1,0 +1,8 @@
+{
+  "build": {
+    "cmds": ["pnpm --filter @workspace/api-server run build"]
+  },
+  "deploy": {
+    "startCmd": "node --enable-source-maps artifacts/api-server/dist/index.mjs"
+  }
+}
