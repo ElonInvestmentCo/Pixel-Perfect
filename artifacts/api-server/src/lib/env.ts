@@ -77,10 +77,17 @@ const schema = z.object({
   JWT_SECRET: z.string().min(32, { message: "JWT_SECRET must be at least 32 characters" }),
 
   /**
-   * Google OAuth Web Client ID for verifying Google access tokens.
-   * Optional — if not set, Google Sign-In returns 503.
+   * Google OAuth Web Client ID for verifying the audience of Google access tokens.
+   * Required for Google Sign-In — if not set, the route returns 503.
    */
   GOOGLE_CLIENT_ID: z.string().optional(),
+
+  /**
+   * Google OAuth Web Client Secret.
+   * Used for server-side authorization-code exchange.
+   * Optional — only needed if the backend performs code exchange directly.
+   */
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
 
   /**
    * Apple iOS bundle ID used to verify the `aud` claim in Apple identity tokens.
