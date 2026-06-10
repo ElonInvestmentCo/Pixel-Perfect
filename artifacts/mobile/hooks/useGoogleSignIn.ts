@@ -20,6 +20,15 @@ const API_URL =
       : ""
     : (process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000");
 
+// Build the redirect URI that must be registered in Google Cloud Console.
+// On web: use the current origin so Google redirects back to the Replit preview.
+// On native: use the Expo proxy so Expo Go can intercept the OAuth callback.
+const REDIRECT_URI = makeRedirectUri(
+  Platform.OS === "web"
+    ? { scheme: undefined }
+    : { useProxy: true },
+);
+
 type OnSuccess = (token: string, user: SessionUser) => Promise<void>;
 
 export function useGoogleSignIn(onSuccess: OnSuccess) {
@@ -34,38 +43,47 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
     };
   }, []);
 
-  // Always call hooks unconditionally (Rules of Hooks).
-  // When CLIENT_ID is missing, pass a placeholder — the promptAsync
-  // wrapper below prevents the OAuth flow from ever launching.
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId:           CLIENT_ID ?? "unconfigured",
+    webClientId:            CLIENT_ID ?? "unconfigured",
+    redirectUri:            REDIRECT_URI,
     shouldAutoExchangeCode: !!CLIENT_ID,
   });
 
-  // Log the redirect URI once when the request object is ready.
-  // This surfaces the exact URI that must be registered in Google Cloud Console.
+  // Log all diagnostic info once the request object is ready.
   useEffect(() => {
     if (!request?.redirectUri || loggedRef.current) return;
     loggedRef.current = true;
-    const platform =
-      Platform.OS === "web"
-        ? "web"
-        : `native (${Platform.OS})`;
+
+    const platform = Platform.OS === "web" ? "web" : `native (${Platform.OS})`;
+    const origin   = typeof window !== "undefined" ? window.location.origin : "N/A (non-web)";
+
+    console.log("=== [GoogleOAuth] Diagnostic Info ===");
+    console.log(`  Platform         : ${platform}`);
+    console.log(`  window.location.origin : ${origin}`);
+    console.log(`  Computed redirectUri   : ${REDIRECT_URI}`);
+    console.log(`  request.redirectUri    : ${request.redirectUri}`);
+    console.log(`  AuthSession redirectUri: ${makeRedirectUri()}`);
+    console.log(`  Client ID configured   : ${!!CLIENT_ID}`);
+    console.log(`  API_URL                : ${API_URL}`);
+    console.log("=====================================");
     console.log(
-      `[GoogleOAuth] Redirect URI (${platform}): ${request.redirectUri}`,
+      "[GoogleOAuth] ⚠️  Register this Redirect URI in Google Cloud Console:",
+      request.redirectUri,
     );
     console.log(
-      `[GoogleOAuth] JavaScript Origin (web): ${
-        typeof window !== "undefined"
-          ? window.location.origin
-          : "N/A (non-web)"
-      }`,
+      "[GoogleOAuth] ⚠️  Register this JavaScript Origin in Google Cloud Console:",
+      origin,
     );
-    console.log(`[GoogleOAuth] Client ID configured: ${!!CLIENT_ID}`);
   }, [request?.redirectUri]);
 
+  // Handle OAuth response — log full response for debugging.
   useEffect(() => {
-    if (!CLIENT_ID || response?.type !== "success") return;
+    if (!response) return;
+
+    console.log(`[GoogleOAuth] Response type: ${response.type}`);
+    console.log("[GoogleOAuth] Full OAuth response:", JSON.stringify(response, null, 2));
+
+    if (!CLIENT_ID || response.type !== "success") return;
 
     (async () => {
       if (!mountedRef.current) return;
@@ -77,25 +95,27 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
 
         if (response.authentication?.accessToken) {
           accessToken = response.authentication.accessToken;
+          console.log("[GoogleOAuth] ✓ Got access token from authentication object");
         }
 
         if (!accessToken && response.params.code && request?.codeVerifier) {
+          console.log("[GoogleOAuth] Exchanging code for access token…");
           const tokenResult = await exchangeCodeAsync(
             {
-              code: response.params.code,
+              code:        response.params.code,
               redirectUri: request.redirectUri,
-              clientId: CLIENT_ID,
-              extraParams: {
-                code_verifier: request.codeVerifier,
-              },
+              clientId:    CLIENT_ID,
+              extraParams: { code_verifier: request.codeVerifier },
             },
             Google.discovery,
           );
           accessToken = tokenResult.accessToken ?? null;
+          console.log("[GoogleOAuth] ✓ Code exchange result:", JSON.stringify(tokenResult, null, 2));
         }
 
         if (!accessToken && response.params.access_token) {
           accessToken = response.params.access_token;
+          console.log("[GoogleOAuth] ✓ Got access token from params");
         }
 
         if (!accessToken) {
@@ -103,11 +123,12 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
         }
 
         console.log("[GoogleOAuth] Exchanging access token with backend…");
+        console.log(`[GoogleOAuth] POST ${API_URL}/api/auth/google`);
 
         const res = await fetch(`${API_URL}/api/auth/google`, {
-          method: "POST",
+          method:  "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ accessToken }),
+          body:    JSON.stringify({ accessToken }),
         });
 
         const data = (await res.json()) as {
@@ -116,15 +137,19 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
           error?: string;
         };
 
+        console.log(`[GoogleOAuth] Backend response status: ${res.status}`);
+        console.log("[GoogleOAuth] Backend response body:", JSON.stringify(data, null, 2));
+
         if (!res.ok) {
           throw new Error(data.error ?? "Google sign-in failed");
         }
 
-        console.log("[GoogleOAuth] Backend returned JWT — session saved.");
+        console.log("[GoogleOAuth] ✓ Backend returned JWT — saving session…");
         await onSuccess(data.token!, data.user!);
+        console.log("[GoogleOAuth] ✓ Session saved successfully.");
       } catch (error) {
         if (!mountedRef.current) return;
-        console.error("[GoogleOAuth] Error:", error);
+        console.error("[GoogleOAuth] ✗ Error:", error);
         Alert.alert(
           "Sign In Failed",
           error instanceof Error ? error.message : "Google sign-in failed.",
@@ -144,13 +169,13 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
         );
         return;
       }
-      console.log(
-        `[GoogleOAuth] Launching OAuth flow — redirectUri: ${request?.redirectUri}`,
-      );
+      console.log("[GoogleOAuth] Launching OAuth flow…");
+      console.log(`[GoogleOAuth]   redirectUri : ${request?.redirectUri}`);
+      console.log(`[GoogleOAuth]   origin      : ${typeof window !== "undefined" ? window.location.origin : "N/A"}`);
       promptAsync();
     },
     isLoading,
     isReady:     !!request && !!CLIENT_ID,
-    redirectUri: request?.redirectUri ?? null,
+    redirectUri: request?.redirectUri ?? REDIRECT_URI,
   };
 }

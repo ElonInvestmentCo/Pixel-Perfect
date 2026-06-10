@@ -27,12 +27,15 @@ import { env, isDev } from "../lib/env";
 // Development: allow localhost on any port + Expo tunnel subdomains.
 // Production:  only explicitly listed origins from ALLOWED_ORIGINS env var.
 const devOrigins: (string | RegExp)[] = [
-  /^http:\/\/localhost(:\d+)?$/,
-  /^http:\/\/127\.0\.0\.1(:\d+)?$/,
-  /\.exp\.direct$/,          // Expo Go tunnel
-  /\.exp\.host$/,            // Expo legacy tunnel
-  /\.replit\.dev$/,          // Replit web preview (all clusters)
-  /\.janeway\.replit\.dev$/, // Replit janeway cluster (explicit)
+  /^https?:\/\/localhost(:\d+)?$/,       // localhost http + https
+  /^https?:\/\/127\.0\.0\.1(:\d+)?$/,   // loopback http + https
+  /\.exp\.direct$/,                       // Expo Go tunnel
+  /\.exp\.host$/,                         // Expo legacy tunnel
+  /\.expo\.dev$/,                         // Expo web preview
+  /\.expo\.io$/,                          // Expo legacy domain
+  /\.replit\.dev$/,                       // Replit web preview (all clusters)
+  /\.janeway\.replit\.dev$/,              // Replit janeway cluster (explicit)
+  /\.expo\.janeway\.replit\.dev$/,        // Expo Go via Replit janeway
 ];
 
 const prodOrigins: (string | RegExp)[] = env.ALLOWED_ORIGINS

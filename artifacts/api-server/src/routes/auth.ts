@@ -68,19 +68,30 @@ router.post("/auth/google", authLimiter, async (req, res) => {
       .object({ accessToken: z.string().min(1) })
       .parse(req.body);
 
+    console.log("[auth/google] Verifying access token with Google userinfo API…");
+
     const gRes = await fetch("https://www.googleapis.com/userinfo/v2/me", {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
+
+    console.log(`[auth/google] Google userinfo status: ${gRes.status}`);
+
     if (!gRes.ok) {
+      const body = await gRes.text();
+      console.error(`[auth/google] Google rejected token: ${gRes.status} — ${body}`);
       res.status(401).json({ error: "Invalid Google access token" });
       return;
     }
-    const { id, email, name, picture } = (await gRes.json()) as {
+
+    const googleUser = (await gRes.json()) as {
       id: string;
       email: string;
       name: string;
       picture?: string;
     };
+    const { id, email, name, picture } = googleUser;
+
+    console.log(`[auth/google] Google user verified — id: ${id}, email: ${email}`);
 
     if (!email) {
       res.status(400).json({ error: "Google account has no email" });
@@ -95,6 +106,7 @@ router.post("/auth/google", authLimiter, async (req, res) => {
 
     let user = existing[0];
     if (!user) {
+      console.log(`[auth/google] Creating new user for ${email}…`);
       const [inserted] = await db
         .insert(usersTable)
         .values({ email, name: name ?? "", provider: "google", providerId: id, avatarUrl: picture })
@@ -103,6 +115,8 @@ router.post("/auth/google", authLimiter, async (req, res) => {
       user =
         inserted ??
         (await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1))[0];
+    } else {
+      console.log(`[auth/google] Existing user found — id: ${user.id}`);
     }
 
     if (!user) {
@@ -111,13 +125,14 @@ router.post("/auth/google", authLimiter, async (req, res) => {
     }
 
     const token = signToken(user.id, user.email, user.name);
+    console.log(`[auth/google] ✓ JWT issued for user ${user.id} — returning to client`);
     res.json({ token, user: { id: user.id, email: user.email, name: user.name, avatarUrl: user.avatarUrl } });
   } catch (e: unknown) {
     if (e instanceof z.ZodError) {
       res.status(400).json({ error: "Invalid request body" });
       return;
     }
-    console.error("/auth/google error:", e);
+    console.error("[auth/google] Unexpected error:", e);
     res.status(500).json({ error: "Authentication failed" });
   }
 });
