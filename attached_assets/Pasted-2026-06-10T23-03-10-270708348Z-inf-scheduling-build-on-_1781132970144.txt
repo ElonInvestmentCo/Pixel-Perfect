@@ -1,0 +1,232 @@
+2026-06-10T23:03:10.270708348Z [inf]  scheduling build on Metal builder "builder-wzpwby"
+2026-06-10T23:03:12.943117421Z [inf]  unpacking archive
+2026-06-10T23:03:13.127426658Z [inf]  using build driver railpack-v0.27.0
+2026-06-10T23:03:13.541139980Z [inf]                     
+2026-06-10T23:03:13.541144818Z [inf]  [38;2;125;86;243m╭─────────────────╮[0m
+2026-06-10T23:03:13.541145669Z [inf]  [38;2;125;86;243m│[0m Railpack 0.27.0 [38;2;125;86;243m│[0m
+2026-06-10T23:03:13.541146330Z [inf]  [38;2;125;86;243m╰─────────────────╯[0m
+2026-06-10T23:03:13.541147311Z [inf]  
+2026-06-10T23:03:13.541149164Z [inf]    [97m↳ Using config file `railpack.json`[0m
+2026-06-10T23:03:13.541151007Z [inf]    [33m⚠ The config file format is not yet finalized and subject to change.[0m
+2026-06-10T23:03:13.541152589Z [inf]    [97m↳ Detected Node[0m
+2026-06-10T23:03:13.541158548Z [inf]    [97m↳ Using pnpm package manager[0m
+2026-06-10T23:03:13.541159339Z [inf]    [97m↳ Found workspace with 8 packages[0m
+2026-06-10T23:03:13.541161152Z [inf]    [97m↳ Installing pnpm@10.26.1 with Corepack[0m
+2026-06-10T23:03:13.541162975Z [inf]              
+2026-06-10T23:03:13.541163586Z [inf]    [1mPackages[0m  
+2026-06-10T23:03:13.541164257Z [inf]    [38;5;238m──────────[0m
+2026-06-10T23:03:13.541166360Z [inf]    [95mpnpm[0m  [38;5;238m│[0m  [96m10.26.1[0m  [38;5;238m│[0m  package.json > packageManager (10.26.1)
+2026-06-10T23:03:13.541167191Z [inf]    [95mnode[0m  [38;5;238m│[0m  [96m22.22.3[0m  [38;5;238m│[0m  railpack default (22)
+2026-06-10T23:03:13.541167652Z [inf]              
+2026-06-10T23:03:13.541168273Z [inf]    [1mSteps[0m     
+2026-06-10T23:03:13.541168924Z [inf]    [38;5;238m──────────[0m
+2026-06-10T23:03:13.541169565Z [inf]    [95m▸ install[0m
+2026-06-10T23:03:13.541171458Z [inf]      [38;5;245m$[0m [1mnpm i -g corepack@latest && corepack enable && corepack prepare --activate[0m
+2026-06-10T23:03:13.541172148Z [inf]      [38;5;245m$[0m [1mpnpm install --frozen-lockfile --prefer-offline[0m
+2026-06-10T23:03:13.541172609Z [inf]           
+2026-06-10T23:03:13.541173200Z [inf]    [95m▸ build[0m
+2026-06-10T23:03:13.541173811Z [inf]      [38;5;245m$[0m [1mpnpm --filter @workspace/api-server run build[0m
+2026-06-10T23:03:13.541174322Z [inf]              
+2026-06-10T23:03:13.541174812Z [inf]    [1mDeploy[0m    
+2026-06-10T23:03:13.541175393Z [inf]    [38;5;238m──────────[0m
+2026-06-10T23:03:13.541176064Z [inf]      [38;5;245m$[0m [1mnode --enable-source-maps ./artifacts/api-server/dist/index.mjs[0m
+2026-06-10T23:03:13.541178037Z [inf]  
+2026-06-10T23:03:13.762996462Z [inf]  resolve image config for docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0
+2026-06-10T23:03:13.905791211Z [inf]  resolve image config for docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0
+2026-06-10T23:03:13.905795777Z [inf]  docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0@sha256:94dedb01622420a40ab66501b182cb5ac6edc6d0a83752c60f45b960710f24cb
+2026-06-10T23:03:13.906064851Z [inf]  docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0@sha256:94dedb01622420a40ab66501b182cb5ac6edc6d0a83752c60f45b960710f24cb
+2026-06-10T23:03:13.916061129Z [inf]  docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0@sha256:94dedb01622420a40ab66501b182cb5ac6edc6d0a83752c60f45b960710f24cb
+2026-06-10T23:03:13.916559968Z [inf]  docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0@sha256:94dedb01622420a40ab66501b182cb5ac6edc6d0a83752c60f45b960710f24cb
+2026-06-10T23:03:14.120010404Z [inf]  load build definition from ./railpack-plan.json
+2026-06-10T23:03:14.120182171Z [inf]  load build definition from ./railpack-plan.json
+2026-06-10T23:03:14.120192387Z [inf]  load build definition from ./railpack-plan.json
+2026-06-10T23:03:14.202579690Z [inf]  load build definition from ./railpack-plan.json
+2026-06-10T23:03:14.590756448Z [inf]  loading .
+2026-06-10T23:03:14.590758411Z [inf]  copy /root/.local/state/mise
+2026-06-10T23:03:14.590758711Z [inf]  copy /etc/mise/config.toml
+2026-06-10T23:03:14.590759032Z [inf]  copy /usr/local/bin/mise
+2026-06-10T23:03:14.590761576Z [inf]  copy /mise/installs
+2026-06-10T23:03:14.590761956Z [inf]  docker-image://ghcr.io/railwayapp/railpack-runtime:mise-2026.6.1
+2026-06-10T23:03:14.590762186Z [inf]  install mise packages: node
+2026-06-10T23:03:14.590762417Z [inf]  create mise config
+2026-06-10T23:03:14.590762647Z [inf]  mkdir /etc/mise
+2026-06-10T23:03:14.590762948Z [inf]  docker-image://ghcr.io/railwayapp/railpack-builder:mise-2026.6.1
+2026-06-10T23:03:14.590763178Z [inf]  install apt packages: libatomic1
+2026-06-10T23:03:14.590763408Z [inf]  copy / /app
+2026-06-10T23:03:14.590763629Z [inf]  copy /mise/shims
+2026-06-10T23:03:14.591147985Z [inf]  pnpm --filter @workspace/api-server run build
+2026-06-10T23:03:14.591150549Z [inf]  copy .
+2026-06-10T23:03:14.591151381Z [inf]  copy / /app
+2026-06-10T23:03:14.591152151Z [inf]  pnpm install --frozen-lockfile --prefer-offline
+2026-06-10T23:03:14.591152953Z [inf]  mkdir -p /app/node_modules/.cache
+2026-06-10T23:03:14.591153704Z [inf]  copy /root/.cache
+2026-06-10T23:03:14.591154475Z [inf]  [railpack] copy used secrets hash
+2026-06-10T23:03:14.591155236Z [inf]  [railpack] hash used secrets
+2026-06-10T23:03:14.591156037Z [inf]  [railpack] copy secrets hash
+2026-06-10T23:03:14.591156798Z [inf]  [railpack] secrets hash
+2026-06-10T23:03:14.591157760Z [inf]  [railpack] loading secrets
+2026-06-10T23:03:14.591158391Z [inf]  copy /app/node_modules
+2026-06-10T23:03:14.591158952Z [inf]  copy package.json
+2026-06-10T23:03:14.591159433Z [inf]  npm i -g corepack@latest && corepack enable && corepack prepare --activate
+2026-06-10T23:03:14.591178050Z [inf]  copy /mise/shims
+2026-06-10T23:03:14.591178952Z [inf]  copy /mise/installs
+2026-06-10T23:03:14.591179773Z [inf]  copy /opt/corepack
+2026-06-10T23:03:14.591183418Z [inf]  copy /app
+2026-06-10T23:03:14.591442137Z [inf]  loading .
+2026-06-10T23:03:14.591570569Z [inf]  [railpack] secrets hash
+2026-06-10T23:03:14.591968737Z [inf]  [railpack] loading secrets
+2026-06-10T23:03:14.592191431Z [inf]  docker-image://ghcr.io/railwayapp/railpack-builder:mise-2026.6.1
+2026-06-10T23:03:14.592488907Z [inf]  docker-image://ghcr.io/railwayapp/railpack-runtime:mise-2026.6.1
+2026-06-10T23:03:14.684343695Z [inf]  [railpack] loading secrets
+2026-06-10T23:03:14.684818658Z [inf]  [railpack] loading secrets
+2026-06-10T23:03:14.684826900Z [inf]  [railpack] loading secrets
+2026-06-10T23:03:14.685746981Z [inf]  loading .
+2026-06-10T23:03:14.685994552Z [inf]  [railpack] secrets hash
+2026-06-10T23:03:14.723155308Z [inf]  docker-image://ghcr.io/railwayapp/railpack-runtime:mise-2026.6.1
+2026-06-10T23:03:14.734530926Z [inf]  docker-image://ghcr.io/railwayapp/railpack-builder:mise-2026.6.1
+2026-06-10T23:03:14.817097979Z [inf]  [railpack] secrets hash
+2026-06-10T23:03:14.836564817Z [inf]  install apt packages: libatomic1
+2026-06-10T23:03:14.836903325Z [inf]  mkdir /etc/mise
+2026-06-10T23:03:14.836905068Z [inf]  create mise config
+2026-06-10T23:03:14.837151207Z [inf]  install mise packages: node
+2026-06-10T23:03:14.849142418Z [inf]  uploading snapshot
+2026-06-10T23:03:14.860358247Z [inf]  [railpack] loading secrets
+2026-06-10T23:03:14.904474979Z [inf]  [railpack] loading secrets
+2026-06-10T23:03:14.904935069Z [inf]  [railpack] copy secrets hash
+2026-06-10T23:03:15.163969914Z [inf]  [railpack] copy secrets hash
+2026-06-10T23:03:15.210319005Z [inf]  [railpack] hash used secrets
+2026-06-10T23:03:15.245648083Z [inf]  loading .
+2026-06-10T23:03:15.260550713Z [inf]  mise node@22.22.3    [1/3] install
+
+2026-06-10T23:03:15.261946737Z [inf]  mise node@22.22.3    [1/3] download node-v22.22.3-linux-x64.tar.gz
+
+2026-06-10T23:03:15.514653166Z [inf]  mise node@22.22.3    [2/3] generate checksum node-v22.22.3-linux-x64.tar.gz
+
+2026-06-10T23:03:15.539626156Z [inf]  mise node@22.22.3    [3/3] extract node-v22.22.3-linux-x64.tar.gz
+
+2026-06-10T23:03:15.786713664Z [inf]  [railpack] hash used secrets
+2026-06-10T23:03:15.828380751Z [inf]  [railpack] copy used secrets hash
+2026-06-10T23:03:16.209524337Z [inf]  mise node@22.22.3    [3/3] node -v
+
+2026-06-10T23:03:16.215191319Z [inf]  mise node@22.22.3    [3/3] v22.22.3
+
+2026-06-10T23:03:16.216244059Z [inf]  mise node@22.22.3    [3/3] npm -v
+
+2026-06-10T23:03:16.360387791Z [inf]  mise node@22.22.3    [3/3] 10.9.8
+
+2026-06-10T23:03:16.368341775Z [inf]  mise node@22.22.3    [3/3] enable corepack shims
+
+2026-06-10T23:03:16.453770392Z [inf]  mise node@22.22.3  ✓ installed
+
+2026-06-10T23:03:16.937558054Z [inf]  install mise packages: node
+2026-06-10T23:03:16.966984334Z [inf]  copy / /app
+2026-06-10T23:03:17.539319713Z [inf]  copy / /app
+2026-06-10T23:03:17.604423063Z [inf]  copy package.json
+2026-06-10T23:03:17.638935275Z [inf]  copy /mise/shims
+2026-06-10T23:03:17.935970806Z [inf]  copy package.json
+2026-06-10T23:03:17.966893221Z [inf]  npm i -g corepack@latest && corepack enable && corepack prepare --activate
+2026-06-10T23:03:18.005289340Z [inf]  copy /mise/shims
+2026-06-10T23:03:18.057145044Z [inf]  copy /mise/installs
+2026-06-10T23:03:18.597505958Z [inf]  npm warn config production Use `--omit=dev` instead.
+
+2026-06-10T23:03:19.247487907Z [inf]  copy /mise/installs
+2026-06-10T23:03:19.264254163Z [inf]  copy /usr/local/bin/mise
+2026-06-10T23:03:19.387882815Z [inf]  
+changed 1 package in 815ms
+
+2026-06-10T23:03:19.422246874Z [inf]  Reshimming mise 22.22.3...
+
+2026-06-10T23:03:19.649004090Z [inf]  copy /usr/local/bin/mise
+2026-06-10T23:03:19.673855657Z [inf]  copy /etc/mise/config.toml
+2026-06-10T23:03:19.814970985Z [inf]  Preparing pnpm@10.26.1 for immediate activation...
+
+2026-06-10T23:03:19.840425326Z [inf]  copy /etc/mise/config.toml
+2026-06-10T23:03:19.872631719Z [inf]  copy /root/.local/state/mise
+2026-06-10T23:03:20.072976264Z [inf]  copy /root/.local/state/mise
+2026-06-10T23:03:20.699331784Z [inf]  npm i -g corepack@latest && corepack enable && corepack prepare --activate
+2026-06-10T23:03:20.724673587Z [inf]  mkdir -p /app/node_modules/.cache
+2026-06-10T23:03:21.162212627Z [inf]  mkdir -p /app/node_modules/.cache
+2026-06-10T23:03:21.184065996Z [inf]  pnpm install --frozen-lockfile --prefer-offline
+2026-06-10T23:03:21.958144078Z [inf]  Scope: all 9 workspace projects
+
+2026-06-10T23:03:22.037381876Z [inf]  Lockfile is up to date, resolution step is skipped
+
+2026-06-10T23:03:22.086340343Z [inf]  Progress: resolved 1, reused 0, downloaded 0, added 0
+
+2026-06-10T23:03:22.181130776Z [inf]  Packages: +1164
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+2026-06-10T23:03:23.096921832Z [inf]  Progress: resolved 1164, reused 0, downloaded 568, added 157
+
+2026-06-10T23:03:24.097777039Z [inf]  Progress: resolved 1164, reused 0, downloaded 1138, added 483
+
+2026-06-10T23:03:25.098278044Z [inf]  Progress: resolved 1164, reused 0, downloaded 1138, added 933
+
+2026-06-10T23:03:26.098800632Z [inf]  Progress: resolved 1164, reused 0, downloaded 1138, added 1163
+
+2026-06-10T23:03:26.427990036Z [inf]  Progress: resolved 1164, reused 0, downloaded 1138, added 1164, done
+
+2026-06-10T23:03:27.291982845Z [inf]  .../esbuild@0.27.3/node_modules/esbuild postinstall$ node install.js
+
+2026-06-10T23:03:27.458499866Z [inf]  .../esbuild@0.27.3/node_modules/esbuild postinstall: Done
+
+2026-06-10T23:03:27.840298083Z [inf]  
+devDependencies:
++ prettier 3.8.3
++ typescript 5.9.3
+
+
+2026-06-10T23:03:27.876922184Z [inf]  . preinstall$ sh -c 'rm -f package-lock.json yarn.lock; case "$npm_config_user_agent" in pnpm/*) ;; *) echo "Use pnpm instead" >&2; exit 1 ;; esac'
+
+2026-06-10T23:03:27.93905697Z [inf]  . preinstall: Done
+
+2026-06-10T23:03:28.202963935Z [inf]  Done in 6.6s using pnpm v10.26.1
+
+2026-06-10T23:03:29.776352697Z [inf]  docker-image://ghcr.io/railwayapp/railpack-builder:mise-2026.6.1
+2026-06-10T23:03:29.812415645Z [inf]  pnpm install --frozen-lockfile --prefer-offline
+2026-06-10T23:03:29.812420823Z [inf]  docker-image://ghcr.io/railwayapp/railpack-builder:mise-2026.6.1
+2026-06-10T23:03:29.834043295Z [inf]  copy / /app
+2026-06-10T23:03:31.029390837Z [inf]  copy / /app
+2026-06-10T23:03:31.074028241Z [inf]  copy .
+2026-06-10T23:03:31.936837143Z [inf]  copy .
+2026-06-10T23:03:31.969538318Z [inf]  pnpm --filter @workspace/api-server run build
+2026-06-10T23:03:32.917776378Z [inf]  
+> @workspace/api-server@0.0.0 build /app/artifacts/api-server
+> node ./build.mjs
+
+
+2026-06-10T23:03:33.30940792Z [inf]  
+  dist/index.mjs                       2.1mb ⚠️
+  dist/pino-worker.mjs               153.4kb
+  dist/pino-file.mjs                 142.0kb
+  dist/pino-pretty.mjs               114.6kb
+  dist/thread-stream-worker.mjs        7.3kb
+  dist/index.mjs.map                   3.6mb
+  dist/pino-worker.mjs.map           256.9kb
+  dist/pino-file.mjs.map             229.0kb
+  dist/pino-pretty.mjs.map           204.0kb
+  dist/thread-stream-worker.mjs.map   12.0kb
+
+⚡ Done in 299ms
+
+2026-06-10T23:03:33.758705943Z [inf]  docker-image://ghcr.io/railwayapp/railpack-runtime:mise-2026.6.1
+2026-06-10T23:03:33.803182275Z [inf]  pnpm --filter @workspace/api-server run build
+2026-06-10T23:03:33.803187744Z [inf]  docker-image://ghcr.io/railwayapp/railpack-runtime:mise-2026.6.1
+2026-06-10T23:03:37.994457367Z [inf]  copy /app/node_modules
+2026-06-10T23:03:44.627964227Z [inf]  copy /app/node_modules
+2026-06-10T23:03:44.661374676Z [inf]  copy /root/.cache
+2026-06-10T23:03:45.368358540Z [inf]  copy /root/.cache
+2026-06-10T23:03:45.391422044Z [inf]  copy /app
+2026-06-10T23:03:46.048275212Z [inf]  copy /app
+2026-06-10T23:03:46.116915650Z [inf]  copy /opt/corepack
+2026-06-10T23:03:46.640347734Z [inf]  copy /opt/corepack
+2026-06-10T23:03:46.675680397Z [inf]  copy /mise/installs
+2026-06-10T23:03:49.481737416Z [inf]  copy /mise/installs
+2026-06-10T23:03:49.545385223Z [inf]  copy /mise/shims
+2026-06-10T23:03:50.131405735Z [inf]  copy /mise/shims
+2026-06-10T23:03:50.170011429Z [inf]  exporting to docker image format
+2026-06-10T23:03:58.287460055Z [inf]  exporting to docker image format
+2026-06-10T23:03:58.332090719Z [inf]  containerimage.config.digest: sha256:6c3ce4c8b380c7e761ffd1c22cd46d3934080d5fca0246ba768ee9c98f8689ad
+2026-06-10T23:03:58.332095015Z [inf]  containerimage.digest: sha256:a21acb5afb020a0247f7c7b2ccc084c9341187edf05cfd385ab271b381c4f84d
+2026-06-10T23:03:58.332098791Z [inf]  containerimage.descriptor: eyJtZWRpYVR5cGUiOiJhcHBsaWNhdGlvbi92bmQub2NpLmltYWdlLm1hbmlmZXN0LnYxK2pzb24iLCJkaWdlc3QiOiJzaGEyNTY6YTIxYWNiNWFmYjAyMGEwMjQ3ZjdjN2IyY2NjMDg0YzkzNDExODdlZGYwNWNmZDM4NWFiMjcxYjM4MWM0Zjg0ZCIsInNpemUiOjI5NTksImFubm90YXRpb25zIjp7Im9yZy5vcGVuY29udGFpbmVycy5pbWFnZS5jcmVhdGVkIjoiMjAyNi0wNi0xMFQyMzowMzo1NloifSwicGxhdGZvcm0iOnsiYXJjaGl0ZWN0dXJlIjoiYW1kNjQiLCJvcyI6ImxpbnV4In19
+2026-06-10T23:04:06.342462027Z [inf]  image push
