@@ -1,0 +1,134 @@
+2026-06-10T22:55:27.231640403Z [inf]  scheduling build on Metal builder "builder-wzpwby"
+2026-06-10T22:55:29.694073398Z [inf]  unpacking archive
+2026-06-10T22:55:29.872782962Z [inf]  using build driver railpack-v0.27.0
+2026-06-10T22:55:30.224856631Z [inf]                     
+2026-06-10T22:55:30.224860277Z [inf]  [38;2;125;86;243m╭─────────────────╮[0m
+2026-06-10T22:55:30.224860918Z [inf]  [38;2;125;86;243m│[0m Railpack 0.27.0 [38;2;125;86;243m│[0m
+2026-06-10T22:55:30.224861369Z [inf]  [38;2;125;86;243m╰─────────────────╯[0m
+2026-06-10T22:55:30.224861799Z [inf]  
+2026-06-10T22:55:30.224862881Z [inf]    [97m↳ Using config file `railpack.json`[0m
+2026-06-10T22:55:30.224864303Z [inf]    [33m⚠ The config file format is not yet finalized and subject to change.[0m
+2026-06-10T22:55:30.224865565Z [inf]    [97m↳ Detected Node[0m
+2026-06-10T22:55:30.224865925Z [inf]    [97m↳ Using pnpm package manager[0m
+2026-06-10T22:55:30.224866356Z [inf]    [97m↳ Found workspace with 8 packages[0m
+2026-06-10T22:55:30.224870452Z [inf]              
+2026-06-10T22:55:30.224870913Z [inf]    [1mPackages[0m  
+2026-06-10T22:55:30.224871364Z [inf]    [38;5;238m──────────[0m
+2026-06-10T22:55:30.224871944Z [inf]    [95mnode[0m  [38;5;238m│[0m  [96m22.22.3[0m  [38;5;238m│[0m  railpack default (22)
+2026-06-10T22:55:30.224872415Z [inf]    [95mpnpm[0m  [38;5;238m│[0m  [96m9.15.9[0m   [38;5;238m│[0m  pnpm-lock.yaml (9)
+2026-06-10T22:55:30.224872735Z [inf]              
+2026-06-10T22:55:30.224873106Z [inf]    [1mSteps[0m     
+2026-06-10T22:55:30.224873436Z [inf]    [38;5;238m──────────[0m
+2026-06-10T22:55:30.224873747Z [inf]    [95m▸ install[0m
+2026-06-10T22:55:30.224874669Z [inf]      [38;5;245m$[0m [1mpnpm add -g node-gyp[0m
+2026-06-10T22:55:30.224875129Z [inf]      [38;5;245m$[0m [1mpnpm install --frozen-lockfile --prefer-offline[0m
+2026-06-10T22:55:30.224875430Z [inf]           
+2026-06-10T22:55:30.224875800Z [inf]    [95m▸ build[0m
+2026-06-10T22:55:30.224876121Z [inf]      [38;5;245m$[0m [1mpnpm --filter @workspace/api-server run build[0m
+2026-06-10T22:55:30.224876431Z [inf]              
+2026-06-10T22:55:30.224876721Z [inf]    [1mDeploy[0m    
+2026-06-10T22:55:30.224877182Z [inf]    [38;5;238m──────────[0m
+2026-06-10T22:55:30.224877553Z [inf]      [38;5;245m$[0m [1mnode --enable-source-maps ./artifacts/api-server/dist/index.mjs[0m
+2026-06-10T22:55:30.224877833Z [inf]  
+2026-06-10T22:55:30.422453504Z [inf]  resolve image config for docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0
+2026-06-10T22:55:30.633823142Z [inf]  resolve image config for docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0
+2026-06-10T22:55:30.633847699Z [inf]  docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0@sha256:94dedb01622420a40ab66501b182cb5ac6edc6d0a83752c60f45b960710f24cb
+2026-06-10T22:55:30.634230984Z [inf]  docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0@sha256:94dedb01622420a40ab66501b182cb5ac6edc6d0a83752c60f45b960710f24cb
+2026-06-10T22:55:30.645779111Z [inf]  docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0@sha256:94dedb01622420a40ab66501b182cb5ac6edc6d0a83752c60f45b960710f24cb
+2026-06-10T22:55:30.647142186Z [inf]  docker-image://ghcr.io/railwayapp/railpack-frontend:v0.27.0@sha256:94dedb01622420a40ab66501b182cb5ac6edc6d0a83752c60f45b960710f24cb
+2026-06-10T22:55:31.038203712Z [inf]  uploading snapshot
+2026-06-10T22:55:31.259785051Z [inf]  load build definition from ./railpack-plan.json
+2026-06-10T22:55:31.259813334Z [inf]  load build definition from ./railpack-plan.json
+2026-06-10T22:55:31.260074135Z [inf]  load build definition from ./railpack-plan.json
+2026-06-10T22:55:31.420302270Z [inf]  load build definition from ./railpack-plan.json
+2026-06-10T22:55:37.349483645Z [inf]  loading .
+2026-06-10T22:55:37.349496204Z [inf]  copy /root/.local/state/mise
+2026-06-10T22:55:37.349497255Z [inf]  copy /etc/mise/config.toml
+2026-06-10T22:55:37.349498027Z [inf]  copy /usr/local/bin/mise
+2026-06-10T22:55:37.349498608Z [inf]  copy /mise/installs
+2026-06-10T22:55:37.349499829Z [inf]  [railpack] loading secrets
+2026-06-10T22:55:37.349500781Z [inf]  install mise packages: node, pnpm
+2026-06-10T22:55:37.349501732Z [inf]  create mise config
+2026-06-10T22:55:37.349503335Z [inf]  mkdir /etc/mise
+2026-06-10T22:55:37.349504897Z [inf]  docker-image://ghcr.io/railwayapp/railpack-builder:mise-2026.6.1
+2026-06-10T22:55:37.349505748Z [inf]  install apt packages: libatomic1
+2026-06-10T22:55:37.349506389Z [inf]  copy / /app
+2026-06-10T22:55:37.349507220Z [inf]  docker-image://ghcr.io/railwayapp/railpack-runtime:mise-2026.6.1
+2026-06-10T22:55:37.349507801Z [inf]  copy /mise/shims
+2026-06-10T22:55:37.349561412Z [inf]  copy /root/.cache
+2026-06-10T22:55:37.349562543Z [inf]  copy /app/node_modules
+2026-06-10T22:55:37.349566099Z [inf]  pnpm --filter @workspace/api-server run build
+2026-06-10T22:55:37.349569073Z [inf]  copy .
+2026-06-10T22:55:37.349570015Z [inf]  copy / /app
+2026-06-10T22:55:37.349573320Z [inf]  [railpack] merge $packages:apt:runtime, $packages:mise, $build, $build
+2026-06-10T22:55:37.349574481Z [inf]  pnpm add -g node-gyp
+2026-06-10T22:55:37.349575263Z [inf]  mkdir -p /app/node_modules/.cache
+2026-06-10T22:55:37.349576735Z [inf]  [railpack] copy used secrets hash
+2026-06-10T22:55:37.349578137Z [inf]  [railpack] hash used secrets
+2026-06-10T22:55:37.349581562Z [inf]  [railpack] copy secrets hash
+2026-06-10T22:55:37.349582423Z [inf]  copy /app
+2026-06-10T22:55:37.349583214Z [inf]  [railpack] secrets hash
+2026-06-10T22:55:37.349584005Z [inf]  pnpm install --frozen-lockfile --prefer-offline
+2026-06-10T22:55:37.554687001Z [inf]  [railpack] secrets hash
+2026-06-10T22:55:37.555000932Z [inf]  docker-image://ghcr.io/railwayapp/railpack-runtime:mise-2026.6.1
+2026-06-10T22:55:37.555005378Z [inf]  loading .
+2026-06-10T22:55:37.555006460Z [inf]  docker-image://ghcr.io/railwayapp/railpack-builder:mise-2026.6.1
+2026-06-10T22:55:37.555736836Z [inf]  [railpack] loading secrets
+2026-06-10T22:55:37.841307284Z [inf]  [railpack] loading secrets
+2026-06-10T22:55:37.841851060Z [inf]  [railpack] loading secrets
+2026-06-10T22:55:37.841925551Z [inf]  [railpack] loading secrets
+2026-06-10T22:55:37.843398421Z [inf]  docker-image://ghcr.io/railwayapp/railpack-builder:mise-2026.6.1
+2026-06-10T22:55:37.844507596Z [inf]  docker-image://ghcr.io/railwayapp/railpack-runtime:mise-2026.6.1
+2026-06-10T22:55:41.257085635Z [inf]  loading .
+2026-06-10T22:55:41.257633588Z [inf]  install apt packages: libatomic1
+2026-06-10T22:55:41.257634930Z [inf]  [railpack] secrets hash
+2026-06-10T22:55:41.257635350Z [inf]  mkdir /etc/mise
+2026-06-10T22:55:41.257635881Z [inf]  create mise config
+2026-06-10T22:55:41.257636792Z [inf]  install mise packages: node, pnpm
+2026-06-10T22:55:41.257637163Z [inf]  copy /mise/shims
+2026-06-10T22:55:41.257637864Z [inf]  copy /mise/installs
+2026-06-10T22:55:41.257644724Z [inf]  copy /usr/local/bin/mise
+2026-06-10T22:55:41.257645836Z [inf]  copy /etc/mise/config.toml
+2026-06-10T22:55:41.257646377Z [inf]  copy /root/.local/state/mise
+2026-06-10T22:55:41.547919340Z [inf]  install apt packages: libatomic1
+2026-06-10T22:55:41.547921263Z [inf]  copy /root/.local/state/mise
+2026-06-10T22:55:42.166793565Z [inf]  [railpack] secrets hash
+2026-06-10T22:55:42.273506537Z [inf]  loading .
+2026-06-10T22:55:42.636009023Z [inf]  [railpack] loading secrets
+2026-06-10T22:55:42.718856827Z [inf]  install mise packages: node, pnpm
+2026-06-10T22:55:43.003050369Z [inf]  [railpack] loading secrets
+2026-06-10T22:55:43.003051681Z [inf]  install mise packages: node, pnpm
+2026-06-10T22:55:43.003552192Z [inf]  copy / /app
+2026-06-10T22:55:43.003556899Z [inf]  [railpack] copy secrets hash
+2026-06-10T22:55:45.238974806Z [inf]  [railpack] copy secrets hash
+2026-06-10T22:55:45.421644582Z [inf]  copy / /app
+2026-06-10T22:55:45.448007437Z [inf]  [railpack] hash used secrets
+2026-06-10T22:55:46.950397914Z [inf]  [railpack] hash used secrets
+2026-06-10T22:55:47.220533814Z [inf]  [railpack] copy used secrets hash
+2026-06-10T22:55:47.221219453Z [inf]  mkdir -p /app/node_modules/.cache
+2026-06-10T22:55:54.254893651Z [inf]  mkdir -p /app/node_modules/.cache
+2026-06-10T22:55:54.336603027Z [inf]  pnpm add -g node-gyp
+2026-06-10T22:55:55.784438991Z [inf]  Progress: resolved 1, reused 0, downloaded 0, added 0
+
+2026-06-10T22:55:55.960844779Z [inf]  Packages: +20
+++++++++++++++++++++
+
+2026-06-10T22:55:56.148272224Z [inf]  Progress: resolved 20, reused 20, downloaded 0, added 20, done
+
+2026-06-10T22:55:56.190208535Z [inf]  
+/opt/pnpm/global/5:
++ node-gyp 12.4.0
+
+
+2026-06-10T22:55:56.23607324Z [inf]  Done in 673ms using pnpm v9.15.9
+
+2026-06-10T22:55:57.890702064Z [inf]  pnpm add -g node-gyp
+2026-06-10T22:55:57.910492678Z [inf]  pnpm install --frozen-lockfile --prefer-offline
+2026-06-10T22:55:58.724978267Z [inf]  Scope: all 9 workspace projects
+
+2026-06-10T22:55:58.786739192Z [inf]   ERR_PNPM_LOCKFILE_CONFIG_MISMATCH  Cannot proceed with the frozen installation. The current "overrides" configuration doesn't match the value found in the lockfile
+
+Update your lockfile using "pnpm install --no-frozen-lockfile"
+
+2026-06-10T22:55:59.039633073Z [err]  pnpm install --frozen-lockfile --prefer-offline
+2026-06-10T22:55:59.101199957Z [err]  Build Failed: build daemon returned an error < failed to solve: process "pnpm install --frozen-lockfile --prefer-offline" did not complete successfully: exit code: 1 >
