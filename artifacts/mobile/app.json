@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "PayVora",
-    "slug": "mobile",
+    "slug": "payvora",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "payvora",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "projectType": "MOBILE_APP_EXPO_NATIVE",
