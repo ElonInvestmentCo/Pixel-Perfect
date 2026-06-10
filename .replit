@@ -59,36 +59,8 @@ path = "scripts/post-merge.sh"
 timeoutMs = 20000
 
 [[ports]]
-localPort = 3000
-externalPort = 3000
-
-[[ports]]
 localPort = 5000
-externalPort = 5000
-
-[[ports]]
-localPort = 5001
-externalPort = 3002
-
-[[ports]]
-localPort = 8080
 externalPort = 80
-
-[[ports]]
-localPort = 8081
-externalPort = 8081
-
-[[ports]]
-localPort = 8082
-externalPort = 3003
-
-[[ports]]
-localPort = 18115
-externalPort = 3000
-
-[[ports]]
-localPort = 18116
-externalPort = 3001
 
 [nix]
 channel = "stable-25_05"
@@ -99,5 +71,4 @@ channel = "stable-25_05"
 PORT = "3000"
 NODE_ENV = "development"
 LOG_LEVEL = "info"
-JWT_SECRET = "6842c39ff6d83b2569e18ada7930b755b9e94c9cc2885c3529402952d06c0df5549aa579abb7665778385f4d0efe5574"
-EXPO_PUBLIC_API_URL = "http://localhost:3000"
+EXPO_PUBLIC_API_URL = "https://${REPLIT_DEV_DOMAIN}"
