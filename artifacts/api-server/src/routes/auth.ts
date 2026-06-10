@@ -68,7 +68,32 @@ router.post("/auth/google", authLimiter, async (req, res) => {
       .object({ accessToken: z.string().min(1) })
       .parse(req.body);
 
-    console.log("[auth/google] Verifying access token with Google userinfo API…");
+    // ── Step 1: verify token audience via tokeninfo (if GOOGLE_CLIENT_ID is set) ──
+    // This prevents tokens issued for other OAuth clients being accepted here.
+    if (env.GOOGLE_CLIENT_ID) {
+      console.log("[auth/google] Verifying token audience via tokeninfo endpoint…");
+      const tokenInfoRes = await fetch(
+        `https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=${encodeURIComponent(accessToken)}`,
+      );
+      if (!tokenInfoRes.ok) {
+        const body = await tokenInfoRes.text();
+        console.error(`[auth/google] tokeninfo rejected token: ${tokenInfoRes.status} — ${body}`);
+        res.status(401).json({ error: "Invalid Google access token" });
+        return;
+      }
+      const tokenInfo = (await tokenInfoRes.json()) as { audience?: string; issued_to?: string; error?: string };
+      console.log(`[auth/google] tokeninfo audience: ${tokenInfo.audience ?? tokenInfo.issued_to}`);
+      const audience = tokenInfo.audience ?? tokenInfo.issued_to ?? "";
+      if (audience !== env.GOOGLE_CLIENT_ID) {
+        console.error(`[auth/google] Audience mismatch — got "${audience}", expected "${env.GOOGLE_CLIENT_ID}"`);
+        res.status(401).json({ error: "Google token audience mismatch" });
+        return;
+      }
+      console.log("[auth/google] ✓ Token audience verified");
+    }
+
+    // ── Step 2: fetch the user profile ──────────────────────────────────────────
+    console.log("[auth/google] Fetching user profile from Google userinfo API…");
 
     const gRes = await fetch("https://www.googleapis.com/userinfo/v2/me", {
       headers: { Authorization: `Bearer ${accessToken}` },
