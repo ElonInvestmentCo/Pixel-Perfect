@@ -1,4 +1,4 @@
-import { exchangeCodeAsync, makeRedirectUri } from "expo-auth-session";
+import { exchangeCodeAsync, makeRedirectUri, useAuthRequest } from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect, useRef, useState } from "react";
@@ -43,11 +43,18 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
     };
   }, []);
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId:            CLIENT_ID ?? "unconfigured",
-    redirectUri:            REDIRECT_URI,
-    shouldAutoExchangeCode: !!CLIENT_ID,
-  });
+  // Use the lower-level useAuthRequest instead of Google.useAuthRequest so we
+  // are NOT forced to supply iosClientId / androidClientId for Expo Go native
+  // testing (which uses the auth proxy and only needs the web client ID).
+  const [request, response, promptAsync] = useAuthRequest(
+    {
+      clientId:             CLIENT_ID ?? "unconfigured",
+      redirectUri:          REDIRECT_URI,
+      scopes:               ["openid", "profile", "email"],
+      usePKCE:              true,
+    },
+    Google.discovery,
+  );
 
   // Log all diagnostic info once the request object is ready.
   useEffect(() => {
