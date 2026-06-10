@@ -24,28 +24,17 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
     };
   }, []);
 
-  // IMPORTANT:
-  // Never initialize Google Auth if no Client ID exists.
-  if (!CLIENT_ID) {
-    return {
-      promptAsync: () => {
-        Alert.alert(
-          "Google Sign-In Not Configured",
-          "Set EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID in Replit Secrets to enable Google Sign-In.",
-        );
-      },
-      isLoading: false,
-      isReady: false,
-    };
-  }
-
+  // Always call hooks unconditionally (Rules of Hooks).
+  // When CLIENT_ID is missing, pass a placeholder so the hook initialises
+  // without crashing — the promptAsync wrapper below prevents it from ever
+  // being invoked.
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: CLIENT_ID,
-    shouldAutoExchangeCode: true,
+    webClientId: CLIENT_ID ?? "unconfigured",
+    shouldAutoExchangeCode: !!CLIENT_ID,
   });
 
   useEffect(() => {
-    if (response?.type !== "success") return;
+    if (!CLIENT_ID || response?.type !== "success") return;
 
     (async () => {
       if (!mountedRef.current) return;
@@ -121,9 +110,16 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
 
   return {
     promptAsync: () => {
+      if (!CLIENT_ID) {
+        Alert.alert(
+          "Google Sign-In Not Configured",
+          "Set EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID in Replit Secrets to enable Google Sign-In.",
+        );
+        return;
+      }
       promptAsync();
     },
     isLoading,
-    isReady: !!request,
+    isReady: !!request && !!CLIENT_ID,
   };
 }
