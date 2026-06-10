@@ -1,0 +1,84 @@
+scheduling build on Metal builder "builder-wzpwby"
+unpacking archive
+70.1 MB
+214ms
+using build driver railpack-v0.27.0
+                   
+╭─────────────────╮
+│ Railpack 0.27.0 │
+╰─────────────────╯
+ 
+  ↳ Using config file `railpack.json`
+  ⚠ The config file format is not yet finalized and subject to change.
+  ↳ Detected Node
+  ↳ Using pnpm package manager
+  ↳ Found workspace with 8 packages
+  ↳ Installing pnpm@10.26.1 with Corepack
+            
+  Packages  
+  ──────────
+  pnpm  │  10.26.1  │  package.json > packageManager (10.26.1)
+  node  │  22.22.3  │  railpack default (22)
+            
+  Steps     
+  ──────────
+  ▸ install
+    $ npm i -g corepack@latest && corepack enable && corepack prepare --activate
+    $ pnpm install --frozen-lockfile --prefer-offline
+         
+  ▸ build
+    $ pnpm --filter @workspace/api-server run build
+            
+  Deploy    
+  ──────────
+    $ node --enable-source-maps ./artifacts/api-server/dist/index.mjs
+ 
+
+load build definition from ./railpack-plan.json
+0ms
+
+install apt packages: libatomic1 cached
+0ms
+
+install mise packages: node
+2s
+mise node@22.22.3 ✓ installed
+uploading snapshot
+65.3 MB
+2.0s
+
+copy / /app, package.json, /mise/shims
+1s
+
+npm i -g corepack@latest && corepack enable && corepack prepare --activate
+2s
+Preparing pnpm@10.26.1 for immediate activation...
+
+copy /mise/installs, /usr/local/bin/mise, /etc/mise/config.toml, /root/.local/state/mise
+2s
+
+mkdir -p /app/node_modules/.cache
+437ms
+
+pnpm install --frozen-lockfile --prefer-offline
+8s
+Done in 6.6s using pnpm v10.26.1
+
+copy / /app, .
+2s
+
+pnpm --filter @workspace/api-server run build
+1s
+⚡ Done in 299ms
+
+copy /app/node_modules, /root/.cache, /app, /opt/corepack, /mise/installs, /mise/shims
+12s
+
+exporting to docker image format
+8s
+containerimage.config.digest: sha256:6c3ce4c8b380c7e761ffd1c22cd46d3934080d5fca0246ba768ee9c98f8689ad
+containerimage.digest: sha256:a21acb5afb020a0247f7c7b2ccc084c9341187edf05cfd385ab271b381c4f84d
+containerimage.descriptor: eyJtZWRpYVR5cGUiOiJhcHBsaWNhdGlvbi92bmQub2NpLmltYWdlLm1hbmlmZXN0LnYxK2pzb24iLCJkaWdlc3QiOiJzaGEyNTY6YTIxYWNiNWFmYjAyMGEwMjQ3ZjdjN2IyY2NjMDg0YzkzNDExODdlZGYwNWNmZDM4NWFiMjcxYjM4MWM0Zjg0ZCIsInNpemUiOjI5NTksImFubm90YXRpb25zIjp7Im9yZy5vcGVuY29udGFpbmVycy5pbWFnZS5jcmVhdGVkIjoiMjAyNi0wNi0xMFQyMzowMzo1NloifSwicGxhdGZvcm0iOnsiYXJjaGl0ZWN0dXJlIjoiYW1kNjQiLCJvcyI6ImxpbnV4In19
+image push
+296.3 MB
+7.4s
