@@ -1,0 +1,82 @@
+Please verify that the Railway deployment and Git synchronization completed successfully.
+
+Perform the following checks and provide the results:
+
+Git Verification
+
+1. Confirm the latest commit was pushed to the remote repository.
+2. Show:
+    * Current branch
+    * Latest commit hash
+    * Latest commit message
+    * Remote origin URL
+3. Verify the remote repository contains the most recent changes.
+
+Railway Deployment Verification
+
+1. Confirm the latest deployment was triggered after the Git push.
+2. Check whether the deployment completed successfully.
+3. Report:
+    * Deployment ID
+    * Build status
+    * Deploy status
+    * Start time
+    * Completion time
+4. Inspect build logs for any errors, warnings, or skipped steps.
+
+Expo Web Build Verification
+
+1. Confirm that expo export --platform web executed during the Railway build.
+2. Verify the web export output directory was generated successfully.
+3. Confirm the expected web assets exist.
+4. Verify the previous message:
+
+Expo web dist not found — run 'expo export --platform web' before deploying
+
+no longer appears in the latest deployment logs.
+
+Application Health Verification
+
+1. Confirm the API service started successfully.
+2. Verify all environment variables were loaded correctly.
+3. Check for startup errors, unhandled exceptions, or failed imports.
+4. Verify all health-check endpoints return successful responses.
+5. Confirm database connectivity is healthy.
+
+Authentication Component Verification
+
+1. Confirm both Sign In and Sign Up screens use:
+    * AppleSignInButton
+    * GoogleSignInButton
+2. Verify no duplicate social-login button implementations exist.
+3. Verify styling remains identical across all authentication screens.
+4. Confirm Apple and Google logos render correctly without clipping, scaling issues, distortion, or alignment problems.
+
+Repository Audit
+
+Perform a quick audit for:
+
+* TypeScript errors
+* ESLint errors
+* Build warnings
+* Dead code
+* Unused imports
+* Duplicate components
+* Broken routes
+* Missing assets
+* Missing environment variables
+
+Deliverable
+
+Provide a concise deployment report containing:
+
+* Git Status: PASS / FAIL
+* Railway Deployment: PASS / FAIL
+* Expo Web Export: PASS / FAIL
+* API Startup: PASS / FAIL
+* Database Connection: PASS / FAIL
+* Authentication Components: PASS / FAIL
+* Build Health Score (0–100)
+* Any remaining issues that should be addressed before production deployment
+
+Do not make any code changes yet. Only inspect, verify, and report findings with evidence from logs and project files.
