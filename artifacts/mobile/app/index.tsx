@@ -77,8 +77,9 @@ const il = StyleSheet.create({
     height: 280,
   },
   balanceCardImg: {
-    width:  SW * 0.9,
-    height: SW * 0.52,
+    // Square container matches the 1:1 asset — no letterboxing, card fills the frame
+    width:  SW * 0.88,
+    height: SW * 0.88,
     zIndex: 2,
   },
 });
