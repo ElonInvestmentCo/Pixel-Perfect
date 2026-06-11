@@ -1,52 +1,78 @@
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 
 import { OC, OF, OS } from "./tokens";
 
 type ProgressConfig = {
-  /** 1-based current step */
-  step: number;
-  /** Total number of steps */
+  step:  number;
   total: number;
 };
 
 type Props = {
-  // ── Navigation button (provide exactly one) ──────────────────────────────
-  /** Renders an × close button — dismisses the current flow */
   onClose?: () => void;
-  /** Renders a ← back chevron — returns to the previous step */
   onBack?:  () => void;
-
-  // ── Optional element rendered between the nav button and the title ────────
-  /** E.g. an emoji avatar badge used on sign-in / reset-password screens */
   topSlot?: React.ReactNode;
-
-  // ── Step progress dots (KYC flow) ─────────────────────────────────────────
   progress?: ProgressConfig;
-
-  // ── Text content ──────────────────────────────────────────────────────────
   title: string;
   subtitle?: string;
-
-  // ── Styling ───────────────────────────────────────────────────────────────
-  /** Use 32pt title — for KYC screens with longer multi-line titles */
   titleLarge?: boolean;
-  /** Space rendered after the subtitle (or title when no subtitle). Default 32 */
   gap?: number;
 };
 
-/**
- * OnboardingHeader — consistent header block for every auth / KYC screen.
- *
- * Renders (top-to-bottom):
- *   1. Close (×) or Back (←) icon button
- *   2. Optional topSlot (emoji avatar, etc.)
- *   3. Optional progress step dots
- *   4. Title
- *   5. Subtitle (optional)
- *   6. Vertical spacer equal to `gap`
- */
+/* ─── Animated nav button (close × or back ←) ─────────────────────────────── */
+function NavButton({
+  onPress,
+  isClose,
+}: {
+  onPress: () => void;
+  isClose: boolean;
+}) {
+  const sc = useSharedValue(1);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: sc.value }],
+  }));
+
+  return (
+    <Animated.View
+      style={[
+        s.navBtn,
+        !isClose && s.navBtnBack,
+        animStyle,
+      ]}
+    >
+      <Pressable
+        onPressIn={() => {
+          sc.value = withSpring(0.82, { damping: 14, stiffness: 320 });
+        }}
+        onPressOut={() => {
+          sc.value = withSpring(1.0, { damping: 14, stiffness: 280 });
+        }}
+        onPress={onPress}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        accessibilityRole="button"
+        accessibilityLabel={isClose ? "Close" : "Go back"}
+        style={s.pressable}
+      >
+        {isClose ? (
+          /* Premium X — two SVG-free crisp lines via Feather at a slightly
+             larger touch target than the raw icon size */
+          <Feather name="x" size={16} color="#888888" strokeWidth={2.5 as any} />
+        ) : (
+          <Feather name="arrow-left" size={18} color={OC.black} />
+        )}
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+/* ─── Header ───────────────────────────────────────────────────────────────── */
 export function OnboardingHeader({
   onClose,
   onBack,
@@ -62,25 +88,15 @@ export function OnboardingHeader({
 
   return (
     <View>
-      {/* ── Nav button ──────────────────────────────────────────────────────── */}
-      <TouchableOpacity
-        style={[s.navBtn, !isClose && s.navBtnBack]}
-        onPress={handler}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        accessibilityRole="button"
-        accessibilityLabel={isClose ? "Close" : "Go back"}
-      >
-        <Feather
-          name={isClose ? "x" : "arrow-left"}
-          size={isClose ? 15 : 18}
-          color={isClose ? "#999999" : OC.black}
-        />
-      </TouchableOpacity>
+      {/* ── Animated nav button ──────────────────────────────────────────────── */}
+      {handler && (
+        <NavButton onPress={handler} isClose={isClose} />
+      )}
 
-      {/* ── Optional slot (avatar, illustration, etc.) ───────────────────────── */}
+      {/* ── Optional slot (avatar, illustration, etc.) ────────────────────────── */}
       {topSlot && <View style={s.topSlot}>{topSlot}</View>}
 
-      {/* ── Progress dots (KYC flow) ─────────────────────────────────────────── */}
+      {/* ── Progress dots ──────────────────────────────────────────────────────── */}
       {progress && (
         <View
           style={s.dotsRow}
@@ -88,15 +104,15 @@ export function OnboardingHeader({
           accessibilityRole="progressbar"
         >
           {Array.from({ length: progress.total }).map((_, i) => {
-            const active = i < progress.step;
+            const active  = i < progress.step;
             const current = i + 1 === progress.step;
             return (
               <View
                 key={i}
                 style={[
                   s.dot,
-                  current  ? s.dotCurrent  :
-                  active   ? s.dotPast     :
+                  current ? s.dotCurrent :
+                  active  ? s.dotPast    :
                   s.dotFuture,
                 ]}
               />
@@ -105,15 +121,12 @@ export function OnboardingHeader({
         </View>
       )}
 
-      {/* ── Title ────────────────────────────────────────────────────────────── */}
-      <Text
-        style={[s.title, titleLarge && s.titleLg]}
-        accessibilityRole="header"
-      >
+      {/* ── Title ──────────────────────────────────────────────────────────────── */}
+      <Text style={[s.title, titleLarge && s.titleLg]} accessibilityRole="header">
         {title}
       </Text>
 
-      {/* ── Subtitle + trailing gap ──────────────────────────────────────────── */}
+      {/* ── Subtitle + trailing gap ─────────────────────────────────────────────── */}
       {subtitle ? (
         <Text style={[s.subtitle, { marginBottom: gap }]}>{subtitle}</Text>
       ) : (
@@ -124,70 +137,62 @@ export function OnboardingHeader({
 }
 
 const s = StyleSheet.create({
-  // ── Nav button ──────────────────────────────────────────────────────────────
   navBtn: {
-    width:  OS.iconBtnSz,
-    height: OS.iconBtnSz,
-    borderRadius: OS.iconBtnR,
+    width:           OS.iconBtnSz,
+    height:          OS.iconBtnSz,
+    borderRadius:    OS.iconBtnR,
     backgroundColor: OC.closeBg,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 28,
+    alignItems:      "center",
+    justifyContent:  "center",
+    marginBottom:    28,
+    /* subtle lift */
+    shadowColor:     "#000",
+    shadowOffset:    { width: 0, height: 1 },
+    shadowOpacity:   0.06,
+    shadowRadius:    4,
+    elevation:       2,
   },
-  // Back button uses the same dimensions but slightly different visual weight
   navBtnBack: {
     backgroundColor: OC.closeBg,
   },
-
-  // ── Top slot ────────────────────────────────────────────────────────────────
-  topSlot: {
-    marginBottom: 24,
+  pressable: {
+    width:          "100%",
+    height:         "100%",
+    alignItems:     "center",
+    justifyContent: "center",
   },
 
-  // ── Progress dots ───────────────────────────────────────────────────────────
+  topSlot: { marginBottom: 24 },
+
   dotsRow: {
     flexDirection: "row",
-    gap: 6,
-    marginBottom: 20,
+    gap:           6,
+    marginBottom:  20,
   },
   dot: {
-    height: 6,
+    height:       6,
     borderRadius: 3,
   },
-  dotCurrent: {
-    // Active step — wide pill
-    width: 24,
-    backgroundColor: OC.black,
-  },
-  dotPast: {
-    // Completed step — narrow filled
-    width: 6,
-    backgroundColor: OC.black,
-    opacity: 0.35,
-  },
-  dotFuture: {
-    // Upcoming step — narrow unfilled
-    width: 6,
-    backgroundColor: OC.border,
-  },
+  dotCurrent: { width: 24, backgroundColor: OC.black },
+  dotPast:    { width: 6,  backgroundColor: OC.black, opacity: 0.35 },
+  dotFuture:  { width: 6,  backgroundColor: OC.border },
 
-  // ── Typography ──────────────────────────────────────────────────────────────
   title: {
-    fontSize: 30,
-    fontFamily: OF.bold,
-    color: OC.black,
+    fontSize:      30,
+    fontFamily:    OF.bold,
+    color:         OC.black,
     letterSpacing: -0.3,
-    marginBottom: 10,
+    marginBottom:  10,
   },
   titleLg: {
-    fontSize: 32,
+    fontSize:      32,
     letterSpacing: -0.5,
-    lineHeight: 40,
+    lineHeight:    40,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize:   15,
     fontFamily: OF.regular,
-    color: OC.muted,
+    color:      OC.muted,
     lineHeight: 22,
   },
 });

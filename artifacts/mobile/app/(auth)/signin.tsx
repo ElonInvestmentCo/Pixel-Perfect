@@ -13,6 +13,7 @@ import {
 } from "react-native";
 
 import { AppleSignInButton } from "@/components/AppleSignInButton";
+import { FloatingCardIllustration } from "@/components/FloatingCardIllustration";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import {
   AuthDivider,
@@ -127,7 +128,7 @@ export default function SignInScreen() {
         gap={28}
         topSlot={
           <View style={s.avatarWrap} accessibilityElementsHidden>
-            <Text style={s.avatarEmoji}>🎒</Text>
+            <FloatingCardIllustration />
           </View>
         }
       />
@@ -244,11 +245,10 @@ export default function SignInScreen() {
 
 const s = StyleSheet.create({
   avatarWrap: {
-    width: 52, height: 52, borderRadius: 16,
-    backgroundColor: "#FFF3DC",
+    width: 116, height: 76,
     alignItems: "center", justifyContent: "center",
+    marginBottom: 4,
   },
-  avatarEmoji: { fontSize: 28 },
 
   submitErrBox: {
     flexDirection: "row", alignItems: "center", gap: 6,

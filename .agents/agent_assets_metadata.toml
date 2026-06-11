@@ -22,10 +22,16 @@ title = "Expo Go QR Code — scan with Expo Go or iOS Camera"
 id = "OSnPh6BHWd9uC-6oN3jQo"
 uri = "file://attached_assets/IMG_1469_1781142925170.jpeg"
 type = "image"
-title = "BEFORE — card floating without container, small, low prominence"
+title = "BEFORE — static X button + 🎒 backpack emoji"
 
 [[outputs]]
 id = "GF2MgXmbjbYdOcDQaOdp3"
 uri = "file://attached_assets/after-card.jpg"
 type = "image"
 title = "AFTER — card with elevation, border, 58px balance, larger pills"
+
+[[outputs]]
+id = "TWvhN8kYiFswr5EO151fH"
+uri = "file://attached_assets/signin-after.jpg"
+type = "image"
+title = "AFTER — spring close button + animated 3D credit card illustration"
