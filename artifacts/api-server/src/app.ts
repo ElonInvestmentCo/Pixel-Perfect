@@ -96,7 +96,7 @@ if (isProd) {
       res.sendFile(path.join(webDist, "index.html"));
     });
   } else {
-    logger.warn({ webDist }, "Expo web dist not found — run 'expo export --platform web' before deploying");
+    logger.info({ webDist }, "Expo web dist not found — API-only mode, web serving skipped");
   }
 }
 
