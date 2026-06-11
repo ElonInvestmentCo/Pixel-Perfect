@@ -67,7 +67,6 @@ function ExpandedMenuRow({
   isSelected,
   onPress,
 }: ExpandedMenuRowProps) {
-  // Staggered slide-up + fade — matches reference ExpandedMenuItems animatedStyle exactly
   const rowStyle = useAnimatedStyle(() => {
     const startThreshold = 0.4 + index * 0.05;
     const endThreshold   = Math.min(startThreshold + 0.3, 1);
@@ -96,7 +95,6 @@ function ExpandedMenuRow({
       SPRING_CONFIG,
     );
 
-    // Block touch until row is sufficiently visible — matches reference exactly
     const isInteractive = animationProgress.value > 0.7;
 
     return {
@@ -106,7 +104,6 @@ function ExpandedMenuRow({
     };
   });
 
-  // Selection highlight bg — opacity static, scale spring — matches reference animatedSelectionStyle
   const selectionStyle = useAnimatedStyle(() => ({
     opacity: isSelected ? 0.15 : 0,
     transform: [{ scale: withSpring(isSelected ? 1 : 0.95, SPRING_CONFIG) }],
@@ -141,7 +138,6 @@ function ExpandedMenuRow({
 }
 
 // ─── Expand / collapse chevron button ──────────────────────────────────────
-// Identical behaviour to reference DummyTab: tap toggles open↔closed.
 
 interface ExpandToggleProps {
   animationProgress: SharedValue<number>;
@@ -149,7 +145,6 @@ interface ExpandToggleProps {
 }
 
 function ExpandToggleButton({ animationProgress, onToggle }: ExpandToggleProps) {
-  // Icon fades out as pill expands — matches reference DummyTab animatedIconStyle
   const iconStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
       animationProgress.value,
@@ -170,7 +165,6 @@ function ExpandToggleButton({ animationProgress, onToggle }: ExpandToggleProps) 
   }));
 
   return (
-    // Uses tabBarStyles.tab (flex:1, margin:5) — identical to reference DummyTab using styles.tab
     <TouchableOpacity
       activeOpacity={0.7}
       onPress={onToggle}
@@ -194,7 +188,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
 
   const startY = useSharedValue(0);
 
-  // ── helpers (called via runOnJS from gesture worklet) ────────────────────
+  // ── helpers ──────────────────────────────────────────────────────────────
 
   function triggerHaptic(style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light) {
     Haptics.impactAsync(style).catch(() => {});
@@ -213,7 +207,6 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     });
   }
 
-  // Toggle open↔closed — matches reference DummyTab onPress logic exactly
   function toggleExpanded() {
     triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
     if (animationProgress.value === 0) {
@@ -224,10 +217,11 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
   }
 
   function closeExpanded() {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
     animateTo(0);
   }
 
-  // ── menu item press (from expanded list) ─────────────────────────────────
+  // ── menu item press ───────────────────────────────────────────────────────
 
   function handleMenuItemPress(index: number) {
     const item = PAYVORA_MENU_ITEMS[index];
@@ -238,7 +232,6 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
   }
 
   // ── pan gesture — swipe-up to expand, swipe-down to collapse ─────────────
-  // Matches reference LinearTabBar panGesture exactly (runOnJS ≡ scheduleOnRN)
 
   const panGesture = Gesture.Pan()
     .onStart((event) => {
@@ -246,7 +239,6 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
       runOnJS(triggerHaptic)(Haptics.ImpactFeedbackStyle.Rigid);
     })
     .onUpdate((event) => {
-      // While expanded: track which item the finger is hovering over
       if (animationProgress.value > 0.8) {
         const itemHeight = EXPANDED_HEIGHT / PAYVORA_MENU_ITEMS.length;
         let newIndex = Math.floor(event.y / itemHeight);
@@ -259,19 +251,16 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
       const threshold = 500;
 
       if (velocity < -threshold && animationProgress.value === 0) {
-        // Fast swipe up → open
         animationProgress.value = withTiming(1, {
           duration: ANIMATION_DURATION,
           easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         });
       } else if (velocity > threshold && animationProgress.value === 1) {
-        // Fast swipe down → close
         animationProgress.value = withTiming(0, {
           duration: ANIMATION_DURATION,
           easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         });
       } else if (animationProgress.value > 0.8) {
-        // Slow release while open → navigate to hovered item and close
         const item = PAYVORA_MENU_ITEMS[selectedMenuIndex];
         runOnJS(navigation.navigate)({ name: item.route, params: {} } as never);
         animationProgress.value = withTiming(0, {
@@ -285,7 +274,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
 
   // ── animated styles ───────────────────────────────────────────────────────
 
-  // Pill height + border radius — keyframes match reference exactly
+  // Pill height + border radius
   const pillWrapperStyle = useAnimatedStyle(() => {
     const height = interpolate(
       animationProgress.value,
@@ -304,7 +293,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     return { height, borderRadius, width: PILL_WIDTH };
   });
 
-  // Pill scale + translateY — matches reference animatedTabBarStyle
+  // Pill scale + translateY
   const pillScaleStyle = useAnimatedStyle(() => {
     const scale = interpolate(
       animationProgress.value,
@@ -321,7 +310,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     return { transform: [{ scale }, { translateY }] };
   });
 
-  // Collapsed tab row fades out as pill expands — matches reference animatedOriginalTabBarStyle
+  // Collapsed tab row fades out as pill expands
   const floatingBarStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
       animationProgress.value,
@@ -329,94 +318,163 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
       [1, 0.2, 0],
       Extrapolation.CLAMP,
     );
-    // Disable touches while expanding so taps don't fall through — matches reference exactly
     return {
       opacity,
       pointerEvents: (animationProgress.value > 0.25 ? "none" : "auto") as "none" | "auto",
     };
   });
 
-  // ── visible tabs (routes that have an icon and are not hidden) ────────────
+  // ── Dismiss backdrop ─────────────────────────────────────────────────────
+  //
+  // Covers the full screen (React Navigation renders tabBar inside a
+  // StyleSheet.absoluteFill + pointerEvents="box-none" container, so our
+  // absoluteFillObject fills the entire screen).
+  //
+  // Opacity fades from 0 → 0.45 as the menu opens — subtle dark tint.
+  // pointerEvents flips to "auto" early in the open animation so any tap
+  // outside the pill fires closeExpanded(); remains "none" when closed so
+  // scrolling, gestures, and button actions on the underlying screen are
+  // completely unaffected.
+  //
+  // The backdrop is rendered BEFORE the pill in JSX, so the pill sits on
+  // top in z-order and always receives its own touches first.
+  const backdropStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      animationProgress.value,
+      [0, 0.2, 1],
+      [0, 0, 0.45],
+      Extrapolation.CLAMP,
+    );
+    return {
+      opacity,
+      pointerEvents: (animationProgress.value > 0.1 ? "auto" : "none") as "auto" | "none",
+    };
+  });
+
+  // ── visible tabs ──────────────────────────────────────────────────────────
   const visibleRoutes = state.routes.filter((route) => {
     const { options } = descriptors[route.key];
     return options?.tabBarIcon !== undefined && (options as any)?.href !== null;
   });
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Render
+  //
+  // Outer View: absoluteFillObject + pointerEvents="box-none"
+  //   → fills the full screen, passes touches through unless a child claims them
+  //
+  // 1. Backdrop Animated.View (absoluteFillObject, rendered first / lower z-order)
+  //      └── TouchableOpacity covering full area → calls closeExpanded()
+  //
+  // 2. GestureDetector → pill (rendered second / higher z-order)
+  //      → pill and its menu items always receive touches before the backdrop
+  // ─────────────────────────────────────────────────────────────────────────
   return (
-    <GestureDetector gesture={panGesture}>
-      <Animated.View
-        style={[
-          tabBarStyles.gestureWrapper,
-          { bottom: insets.bottom + 20 },
-        ]}
-      >
+    <View style={s.screenCover} pointerEvents="box-none">
+
+      {/* ── Dismiss backdrop ── */}
+      <Animated.View style={[StyleSheet.absoluteFillObject, s.backdrop, backdropStyle]}>
+        <TouchableOpacity
+          style={StyleSheet.absoluteFillObject}
+          onPress={closeExpanded}
+          activeOpacity={1}
+          accessible={false}
+          importantForAccessibility="no-hide-descendants"
+        />
+      </Animated.View>
+
+      {/* ── Pill + pan gesture ── */}
+      <GestureDetector gesture={panGesture}>
         <Animated.View
           style={[
-            tabBarStyles.pillWrapper,
-            pillWrapperStyle,
-            pillScaleStyle,
+            tabBarStyles.gestureWrapper,
+            { bottom: insets.bottom + 20 },
           ]}
         >
-          <BlurView
-            tint="systemThickMaterialDark"
-            intensity={85}
-            style={tabBarStyles.blurView}
+          <Animated.View
+            style={[
+              tabBarStyles.pillWrapper,
+              pillWrapperStyle,
+              pillScaleStyle,
+            ]}
           >
-            {/* ── Expanded menu (fades in above the tab bar row) ── */}
-            <View style={tabBarStyles.expandedMenu}>
-              {PAYVORA_MENU_ITEMS.map((item, index) => (
-                <ExpandedMenuRow
-                  key={item.route}
-                  item={item}
-                  index={index}
-                  animationProgress={animationProgress}
-                  isSelected={selectedMenuIndex === index}
-                  onPress={() => handleMenuItemPress(index)}
-                />
-              ))}
-            </View>
-
-            {/* ── Collapsed pill: tab buttons + toggle chevron ── */}
-            <Animated.View style={[tabBarStyles.floatingBar, floatingBarStyle]}>
-              {visibleRoutes.map((route) => {
-                const { options } = descriptors[route.key];
-                const isFocused   = state.index === state.routes.indexOf(route);
-                const iconName    = ICON_MAP[route.name] ?? "circle";
-
-                return (
-                  <TabButton
-                    key={route.key}
-                    isFocused={isFocused}
-                    iconName={iconName as any}
-                    accessibilityLabel={options.title ?? route.name}
+            <BlurView
+              tint="systemThickMaterialDark"
+              intensity={85}
+              style={tabBarStyles.blurView}
+            >
+              {/* ── Expanded menu ── */}
+              <View style={tabBarStyles.expandedMenu}>
+                {PAYVORA_MENU_ITEMS.map((item, index) => (
+                  <ExpandedMenuRow
+                    key={item.route}
+                    item={item}
+                    index={index}
                     animationProgress={animationProgress}
-                    onPress={() => {
-                      const event = navigation.emit({
-                        type: "tabPress",
-                        target: route.key,
-                        canPreventDefault: true,
-                      });
-                      if (!isFocused && !event.defaultPrevented) {
-                        navigation.navigate(route.name, route.params);
-                      }
-                      triggerHaptic();
-                    }}
-                    onLongPress={() => {
-                      navigation.emit({ type: "tabLongPress", target: route.key });
-                    }}
+                    isSelected={selectedMenuIndex === index}
+                    onPress={() => handleMenuItemPress(index)}
                   />
-                );
-              })}
+                ))}
+              </View>
 
-              {/* Toggle button — identical behaviour to reference DummyTab */}
-              <ExpandToggleButton
-                animationProgress={animationProgress}
-                onToggle={toggleExpanded}
-              />
-            </Animated.View>
-          </BlurView>
+              {/* ── Collapsed pill: tab buttons + toggle chevron ── */}
+              <Animated.View style={[tabBarStyles.floatingBar, floatingBarStyle]}>
+                {visibleRoutes.map((route) => {
+                  const { options } = descriptors[route.key];
+                  const isFocused   = state.index === state.routes.indexOf(route);
+                  const iconName    = ICON_MAP[route.name] ?? "circle";
+
+                  return (
+                    <TabButton
+                      key={route.key}
+                      isFocused={isFocused}
+                      iconName={iconName as any}
+                      accessibilityLabel={options.title ?? route.name}
+                      animationProgress={animationProgress}
+                      onPress={() => {
+                        const event = navigation.emit({
+                          type: "tabPress",
+                          target: route.key,
+                          canPreventDefault: true,
+                        });
+                        if (!isFocused && !event.defaultPrevented) {
+                          navigation.navigate(route.name, route.params);
+                        }
+                        triggerHaptic();
+                      }}
+                      onLongPress={() => {
+                        navigation.emit({ type: "tabLongPress", target: route.key });
+                      }}
+                    />
+                  );
+                })}
+
+                {/* Toggle button */}
+                <ExpandToggleButton
+                  animationProgress={animationProgress}
+                  onToggle={toggleExpanded}
+                />
+              </Animated.View>
+            </BlurView>
+          </Animated.View>
         </Animated.View>
-      </Animated.View>
-    </GestureDetector>
+      </GestureDetector>
+
+    </View>
   );
 }
+
+// ─── Local styles ────────────────────────────────────────────────────────────
+
+const s = StyleSheet.create({
+  // Full-screen container — matches the absoluteFill+box-none wrapper that
+  // React Navigation uses for custom tabBar components.
+  screenCover: {
+    ...StyleSheet.absoluteFillObject,
+  },
+
+  // Semi-transparent black backdrop — opacity animated 0→0.45 by backdropStyle.
+  backdrop: {
+    backgroundColor: "#000000",
+  },
+});
