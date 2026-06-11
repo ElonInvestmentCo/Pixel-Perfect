@@ -1,10 +1,18 @@
 import React from "react";
-import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from "react-native";
+import {
+  Platform,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 export type AppleButtonVariant = "signup" | "signin" | "continue";
 
-const LABEL: Record<AppleButtonVariant, string> = {
+const A11Y_LABEL: Record<AppleButtonVariant, string> = {
   signup:   "Sign up with Apple",
   signin:   "Sign in with Apple",
   continue: "Continue with Apple",
@@ -19,10 +27,15 @@ interface AppleSignInButtonProps {
 
 function AppleLogo() {
   return (
-    <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+    <Svg
+      width={20}
+      height={24}
+      viewBox="0 0 170 200"
+      style={{ flexShrink: 0 }}
+    >
       <Path
-        d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.54 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.029 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.402-2.376-2-.156-3.675 1.09-4.6 1.09zm3.378-3.066c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.56-1.702z"
-        fill="#000000"
+        d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.197-2.12-9.973-3.17-14.34-3.17-4.58 0-9.492 1.05-14.746 3.17-5.262 2.13-9.501 3.24-12.742 3.35-4.929 0.21-9.842-1.96-14.746-6.52-3.13-2.73-7.045-7.41-11.735-14.04-5.032-7.08-9.169-15.29-12.41-24.65-3.471-10.11-5.211-19.9-5.211-29.378 0-10.857 2.346-20.221 7.045-28.068 3.693-6.303 8.606-11.275 14.755-14.925s12.793-5.51 19.948-5.629c3.915 0 9.049 1.211 15.43 3.591 6.362 2.388 10.447 3.599 12.238 3.599 1.339 0 5.877-1.416 13.57-4.239 7.275-2.618 13.415-3.702 18.445-3.275 13.63 1.1 23.87 6.473 30.68 16.153-12.19 7.386-18.22 17.731-18.1 31.002 0.11 10.337 3.86 18.939 11.23 25.769 3.34 3.17 7.07 5.62 11.22 7.36-0.9 2.61-1.85 5.11-2.86 7.51zM119.11 7.24c0 8.102-2.96 15.667-8.86 22.669-7.12 8.324-15.732 13.134-25.071 12.375-0.119-0.972-0.188-1.995-0.188-3.07 0-7.778 3.386-16.102 9.399-22.908 3.002-3.446 6.82-6.311 11.45-8.597 4.62-2.254 8.99-3.498 13.1-3.71 0.12 1.083 0.17 2.166 0.17 3.241z"
+        fill="#3c4043"
       />
     </Svg>
   );
@@ -38,15 +51,15 @@ export function AppleSignInButton({
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.75}
+      activeOpacity={0.82}
       accessibilityRole="button"
-      accessibilityLabel={LABEL[variant]}
+      accessibilityLabel={A11Y_LABEL[variant]}
       accessibilityState={{ disabled }}
       style={[s.btn, disabled && s.btnDisabled, style]}
     >
       <View style={s.inner}>
         <AppleLogo />
-        <Text style={s.label} numberOfLines={1}>{LABEL[variant]}</Text>
+        <Text style={s.label} numberOfLines={1}>Apple</Text>
       </View>
     </TouchableOpacity>
   );
@@ -54,14 +67,18 @@ export function AppleSignInButton({
 
 const s = StyleSheet.create({
   btn: {
-    height:          52,
-    borderRadius:    14,
-    backgroundColor: "#FFFFFF",
-    borderWidth:     1,
-    borderColor:     "#1A1A1A",
-    alignItems:      "center",
-    justifyContent:  "center",
-    alignSelf:       "stretch",
+    backgroundColor:  "#ffffff",
+    borderRadius:     10,
+    paddingVertical:  10,
+    paddingHorizontal: 18,
+    alignItems:       "center",
+    justifyContent:   "center",
+    alignSelf:        "stretch",
+    shadowColor:      "#3c4043",
+    shadowOffset:     { width: 0, height: 1 },
+    shadowOpacity:    0.18,
+    shadowRadius:     3,
+    elevation:        3,
   },
   btnDisabled: {
     opacity: 0.42,
@@ -70,13 +87,14 @@ const s = StyleSheet.create({
     flexDirection:  "row",
     alignItems:     "center",
     justifyContent: "center",
-    gap:            9,
-    paddingHorizontal: 16,
+    gap:            8,
   },
   label: {
-    fontSize:      15,
+    fontSize:      17,
     fontFamily:    "Inter_600SemiBold",
-    color:         "#1A1A1A",
-    letterSpacing: -0.3,
+    color:         "#3c4043",
+    letterSpacing: 0.17,
+    lineHeight:    17,
+    ...(Platform.OS === "web" ? { outlineStyle: "none" } as any : {}),
   },
 });

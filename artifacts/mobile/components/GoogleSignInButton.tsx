@@ -1,10 +1,18 @@
 import React from "react";
-import { StyleProp, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from "react-native";
-import Svg, { G, Path } from "react-native-svg";
+import {
+  Platform,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native";
+import Svg, { Path } from "react-native-svg";
 
 export type GoogleButtonVariant = "signup" | "signin" | "continue";
 
-const LABEL: Record<GoogleButtonVariant, string> = {
+const A11Y_LABEL: Record<GoogleButtonVariant, string> = {
   signup:   "Sign up with Google",
   signin:   "Sign in with Google",
   continue: "Continue with Google",
@@ -21,25 +29,28 @@ interface GoogleSignInButtonProps {
 
 function GoogleGLogo() {
   return (
-    <Svg width={18} height={18} viewBox="0 0 19.6 20" fill="none">
-      <G>
-        <Path
-          d="M19.6 10.2273C19.6 9.5182 19.5364 8.8364 19.4182 8.1818H10V12.05H15.3818C15.15 13.3 14.4455 14.3591 13.3864 15.0682V17.5773H16.6182C18.5091 15.8364 19.6 13.2727 19.6 10.2273Z"
-          fill="#4285F4"
-        />
-        <Path
-          d="M10 20C12.7 20 14.9636 19.1045 16.6181 17.5773L13.3863 15.0682C12.4909 15.6682 11.3454 16.0227 10 16.0227C7.3954 16.0227 5.1909 14.2636 4.4045 11.9H1.0636V14.4909C2.7091 17.7591 6.0909 20 10 20Z"
-          fill="#34A853"
-        />
-        <Path
-          d="M4.4045 11.9C4.2045 11.3 4.0909 10.6591 4.0909 10C4.0909 9.3409 4.2045 8.7 4.4045 8.1V5.5091H1.0636C0.3864 6.8591 0 8.3864 0 10C0 11.6136 0.3864 13.1409 1.0636 14.4909L4.4045 11.9Z"
-          fill="#FBBC04"
-        />
-        <Path
-          d="M10 3.9773C11.4681 3.9773 12.7863 4.4818 13.8227 5.4727L16.6909 2.6045C14.9591 0.9909 12.6954 0 10 0C6.0909 0 2.7091 2.2409 1.0636 5.5091L4.4045 8.1C5.1909 5.7364 7.3954 3.9773 10 3.9773Z"
-          fill="#E94235"
-        />
-      </G>
+    <Svg
+      width={22}
+      height={22}
+      viewBox="0 0 24 24"
+      style={{ flexShrink: 0 }}
+    >
+      <Path
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+        fill="#4285F4"
+      />
+      <Path
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+        fill="#34A853"
+      />
+      <Path
+        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+        fill="#FBBC05"
+      />
+      <Path
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+        fill="#EA4335"
+      />
     </Svg>
   );
 }
@@ -54,15 +65,15 @@ export function GoogleSignInButton({
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.75}
+      activeOpacity={0.82}
       accessibilityRole="button"
-      accessibilityLabel={LABEL[variant]}
+      accessibilityLabel={A11Y_LABEL[variant]}
       accessibilityState={{ disabled }}
       style={[s.btn, disabled && s.btnDisabled, style]}
     >
       <View style={s.inner}>
         <GoogleGLogo />
-        <Text style={s.label} numberOfLines={1}>{LABEL[variant]}</Text>
+        <Text style={s.label} numberOfLines={1}>Google</Text>
       </View>
     </TouchableOpacity>
   );
@@ -70,14 +81,18 @@ export function GoogleSignInButton({
 
 const s = StyleSheet.create({
   btn: {
-    height:          52,
-    borderRadius:    14,
-    backgroundColor: "#FFFFFF",
-    borderWidth:     1,
-    borderColor:     "#DADCE0",
-    alignItems:      "center",
-    justifyContent:  "center",
-    alignSelf:       "stretch",
+    backgroundColor:   "#ffffff",
+    borderRadius:      10,
+    paddingVertical:   10,
+    paddingHorizontal: 18,
+    alignItems:        "center",
+    justifyContent:    "center",
+    alignSelf:         "stretch",
+    shadowColor:       "#3c4043",
+    shadowOffset:      { width: 0, height: 1 },
+    shadowOpacity:     0.18,
+    shadowRadius:      3,
+    elevation:         3,
   },
   btnDisabled: {
     opacity: 0.42,
@@ -86,13 +101,14 @@ const s = StyleSheet.create({
     flexDirection:  "row",
     alignItems:     "center",
     justifyContent: "center",
-    gap:            9,
-    paddingHorizontal: 16,
+    gap:            8,
   },
   label: {
-    fontSize:      15,
+    fontSize:      17,
     fontFamily:    "Inter_600SemiBold",
-    color:         "#1F1F1F",
-    letterSpacing: -0.1,
+    color:         "#3c4043",
+    letterSpacing: 0.17,
+    lineHeight:    17,
+    ...(Platform.OS === "web" ? { outlineStyle: "none" } as any : {}),
   },
 });
