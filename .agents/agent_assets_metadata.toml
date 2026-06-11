@@ -6,3 +6,9 @@ id = "RZPPL2TIvAlaTC-W5I6u_"
 uri = "file://artifacts/mobile/assets/images/icon.png"
 type = "image"
 title = "generated_image"
+
+[[generated]]
+id = "rGA0uU9C_01mS3Nz-9Jea"
+uri = "file://artifacts/mobile/assets/images/gift-cards.png"
+type = "image"
+title = "gift cards isometric"

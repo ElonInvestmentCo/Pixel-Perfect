@@ -105,8 +105,12 @@ export default function RootLayout() {
     Inter_700Bold,
   });
 
-  // Track whether the animated splash has completed its 2.2s sequence
-  const [splashDone, setSplashDone] = useState(false);
+  // Track whether the animated splash has completed its 2.2s sequence.
+  // On web, ?nosplash=1 skips straight to onboarding (for screenshot capture).
+  const skipSplash =
+    typeof window !== "undefined" &&
+    new URLSearchParams(window.location.search).get("nosplash") === "1";
+  const [splashDone, setSplashDone] = useState(skipSplash);
 
   useEffect(() => {
     setBaseUrl(API_URL);

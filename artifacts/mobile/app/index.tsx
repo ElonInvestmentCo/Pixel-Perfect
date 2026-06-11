@@ -17,6 +17,7 @@ const LIME  = "#e6f51b";
 const BLACK = "#1A1A1A";
 
 // ─── Slide illustrations ──────────────────────────────────────────────────────
+
 const Slide1 = React.memo(function Slide1() {
   return (
     <View style={il.wrap}>
@@ -30,13 +31,24 @@ const Slide1 = React.memo(function Slide1() {
   );
 });
 
-// ─── BTC coins illustration (from zip asset) ─────────────────────────────────
 const SlideBtc = React.memo(function SlideBtc() {
   return (
     <View style={il.wrap}>
       <Image
         source={require("../assets/images/btc-coins.png")}
-        style={il.btcImg}
+        style={il.squareImg}
+        resizeMode="contain"
+      />
+    </View>
+  );
+});
+
+const SlideGiftCards = React.memo(function SlideGiftCards() {
+  return (
+    <View style={il.wrap}>
+      <Image
+        source={require("../assets/images/gift-cards.png")}
+        style={il.squareImg}
         resizeMode="contain"
       />
     </View>
@@ -44,20 +56,28 @@ const SlideBtc = React.memo(function SlideBtc() {
 });
 
 const il = StyleSheet.create({
-  wrap: { width: SW, paddingHorizontal: 20, alignItems: "center", justifyContent: "center", flex: 1, overflow: "visible" },
-  circle: {
-    position: "absolute",
-    width: SW * 0.68, height: SW * 0.68,
-    borderRadius: SW * 0.34,
-    backgroundColor: "#D8D8D8",
-    opacity: 0.28,
+  wrap: {
+    width: SW,
+    paddingHorizontal: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    overflow: "visible",
   },
-  btcImg: {
-    width: 280,
+  circle: {
+    position:        "absolute",
+    width:           SW * 0.68,
+    height:          SW * 0.68,
+    borderRadius:    SW * 0.34,
+    backgroundColor: "#D8D8D8",
+    opacity:         0.28,
+  },
+  squareImg: {
+    width:  280,
     height: 280,
   },
   balanceCardImg: {
-    width: SW * 0.9,
+    width:  SW * 0.9,
     height: SW * 0.52,
     zIndex: 2,
   },
@@ -66,34 +86,22 @@ const il = StyleSheet.create({
 // ─── Slide metadata ───────────────────────────────────────────────────────────
 const SLIDES = [
   {
-    id: "balance",
+    id:        "balance",
     Component: Slide1,
-    headline: "The Modern Way\nYour Money",
-    sub: "Spend, save, and grow your money all\ntogether in one place.",
+    headline:  "The Modern Way\nYour Money",
+    sub:       "Spend, save, and grow your money all\ntogether in one place.",
   },
   {
-    id: "buying",
+    id:        "buying",
     Component: SlideBtc,
-    headline: "Buying & Selling",
-    sub: "Buy and sell cryptocurrencies with popular payment solutions",
+    headline:  "Buying & Selling",
+    sub:       "Buy and sell cryptocurrencies with\npopular payment solutions.",
   },
   {
-    id: "wallet",
-    Component: SlideBtc,
-    headline: "Secure Wallet",
-    sub: "Keep your assets safe with military-grade encryption technology",
-  },
-  {
-    id: "transfers",
-    Component: SlideBtc,
-    headline: "Fast Transfers",
-    sub: "Send and receive crypto instantly anywhere in the world",
-  },
-  {
-    id: "portfolio",
-    Component: SlideBtc,
-    headline: "Track Portfolio",
-    sub: "Monitor your investments with real-time price updates and charts",
+    id:        "giftcards",
+    Component: SlideGiftCards,
+    headline:  "Redeem Gift Cards",
+    sub:       "Instantly redeem and send gift cards\nto anyone, anywhere in the world.",
   },
 ];
 
@@ -106,12 +114,12 @@ const AnimatedDot = React.memo(function AnimatedDot({
   scrollX: Animated.Value;
 }) {
   const width = scrollX.interpolate({
-    inputRange: [(index - 1) * SW, index * SW, (index + 1) * SW],
+    inputRange:  [(index - 1) * SW, index * SW, (index + 1) * SW],
     outputRange: [8, 24, 8],
     extrapolate: "clamp",
   });
   const opacity = scrollX.interpolate({
-    inputRange: [(index - 1) * SW, index * SW, (index + 1) * SW],
+    inputRange:  [(index - 1) * SW, index * SW, (index + 1) * SW],
     outputRange: [0.3, 1, 0.3],
     extrapolate: "clamp",
   });
@@ -125,16 +133,29 @@ const dot = StyleSheet.create({
 // ─── Root ─────────────────────────────────────────────────────────────────────
 export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
-  // insets.top: Dynamic Island ~59pt, notch ~44pt, older iPhone ~20pt, Android varies
-  // insets.bottom: home indicator ~34pt, older iPhone 0pt
   const topPad = insets.top;
   const botPad = insets.bottom;
 
-  const scrollX      = useRef(new Animated.Value(0)).current;
-  const scrollRef    = useRef<any>(null);
+  // On web, ?slide=N forces a starting slide for screenshot capture.
+  const startSlide =
+    typeof window !== "undefined"
+      ? Math.max(0, Math.min(SLIDES.length - 1, Number(new URLSearchParams(window.location.search).get("slide") ?? 0)))
+      : 0;
+
+  const scrollX       = useRef(new Animated.Value(startSlide * SW)).current;
+  const scrollRef     = useRef<any>(null);
   const navigatingRef = useRef(false);
 
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(startSlide);
+
+  // Scroll to the forced start slide after layout
+  useEffect(() => {
+    if (startSlide > 0) {
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({ x: startSlide * SW, animated: false });
+      }, 50);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const id = scrollX.addListener(({ value }) => {
@@ -230,41 +251,58 @@ export default function OnboardingScreen() {
 }
 
 const rs = StyleSheet.create({
-  root: { flex: 1 },
-  topBar: { paddingHorizontal: 22, marginBottom: 4 },
+  root:    { flex: 1 },
+  topBar:  { paddingHorizontal: 22, marginBottom: 4 },
   skipBtn: {
-    alignSelf: "flex-start",
+    alignSelf:       "flex-start",
     backgroundColor: "#fff",
-    borderWidth: 1.5, borderColor: BLACK,
-    borderRadius: 20, paddingHorizontal: 18, paddingVertical: 6,
+    borderWidth:     1.5,
+    borderColor:     BLACK,
+    borderRadius:    20,
+    paddingHorizontal: 18,
+    paddingVertical:   6,
   },
   skipText: { fontSize: 14, fontFamily: "Inter_500Medium", color: BLACK },
-  slider: { flexGrow: 0, overflow: "visible" },
-  slide: { width: SW, overflow: "visible" },
+  slider:   { flexGrow: 0, overflow: "visible" },
+  slide:    { width: SW, overflow: "visible" },
   bottom: {
-    flex: 1, backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 32, borderTopRightRadius: 32,
-    paddingHorizontal: 28, paddingTop: 24, alignItems: "center",
+    flex:                1,
+    backgroundColor:     "#FFFFFF",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    paddingHorizontal:   28,
+    paddingTop:          24,
+    alignItems:          "center",
   },
-  dotsRow: { flexDirection: "row", alignItems: "center", marginBottom: 20 },
+  dotsRow:   { flexDirection: "row", alignItems: "center", marginBottom: 20 },
   textBlock: { alignItems: "center", marginBottom: 24, minHeight: 100 },
   headline: {
-    fontSize: 28, fontFamily: "Inter_700Bold",
-    color: BLACK, textAlign: "center",
-    lineHeight: 36, letterSpacing: -0.3, marginBottom: 10,
+    fontSize:      28,
+    fontFamily:    "Inter_700Bold",
+    color:         BLACK,
+    textAlign:     "center",
+    lineHeight:    36,
+    letterSpacing: -0.3,
+    marginBottom:  10,
   },
   sub: {
-    fontSize: 14, fontFamily: "Inter_400Regular",
-    color: "#8A8A8A", textAlign: "center", lineHeight: 22,
+    fontSize:   14,
+    fontFamily: "Inter_400Regular",
+    color:      "#8A8A8A",
+    textAlign:  "center",
+    lineHeight: 22,
   },
   cta: {
-    width: "100%", backgroundColor: LIME,
-    borderRadius: 28, height: 56,
-    alignItems: "center", justifyContent: "center",
-    marginBottom: 14,
+    width:           "100%",
+    backgroundColor: LIME,
+    borderRadius:    28,
+    height:          56,
+    alignItems:      "center",
+    justifyContent:  "center",
+    marginBottom:    14,
   },
-  ctaText: { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK },
-  signinLink: { paddingVertical: 4 },
+  ctaText:     { fontSize: 17, fontFamily: "Inter_700Bold", color: BLACK },
+  signinLink:  { paddingVertical: 4 },
   signinLinkText: { fontSize: 14, fontFamily: "Inter_400Regular", color: "#8A8A8A" },
   signinLinkBold: { fontFamily: "Inter_600SemiBold", color: BLACK },
 });
