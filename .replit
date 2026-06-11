@@ -96,13 +96,13 @@ channel = "stable-25_05"
 [userenv.shared]
 NODE_ENV = "development"
 LOG_LEVEL = "info"
-EXPO_PUBLIC_API_URL = "http://localhost:3000"
+EXPO_PUBLIC_API_URL = "https://pixel-perfect-production-812e.up.railway.app"
 
 [userenv.development]
 PORT = "3000"
-EXPO_PUBLIC_BACKEND_URL = "https://ebbc153d-be87-4465-be89-9166f3df9b6e-00-2vao16i2ayviu.janeway.replit.dev"
-GOOGLE_CALLBACK_URL = "https://ebbc153d-be87-4465-be89-9166f3df9b6e-00-2vao16i2ayviu.janeway.replit.dev/api/auth/google/callback"
+EXPO_PUBLIC_BACKEND_URL = "https://pixel-perfect-production-812e.up.railway.app"
+GOOGLE_CALLBACK_URL = "https://pixel-perfect-production-812e.up.railway.app/api/auth/google/callback"
 
 [userenv.production]
 PORT = "5000"
-GOOGLE_CALLBACK_URL = "https://mayaaujau.replit.app/api/auth/google/callback"
+GOOGLE_CALLBACK_URL = "https://pixel-perfect-production-812e.up.railway.app/api/auth/google/callback"
