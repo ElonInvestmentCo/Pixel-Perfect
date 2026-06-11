@@ -197,17 +197,19 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     });
 
   const pillWrapperStyle = useAnimatedStyle(() => {
+    // Height keyframes match reference exactly: [50, 50, 250, 400]
     const height = interpolate(
       animationProgress.value,
       [0, 0.4, 0.7, 1],
-      [62, 62, EXPANDED_HEIGHT * 0.65, EXPANDED_HEIGHT],
+      [50, 50, 250, EXPANDED_HEIGHT],
       Extrapolation.CLAMP,
     );
 
+    // Border radius matches reference: 25 collapsed → 100 mid → 40 expanded
     const borderRadius = interpolate(
       animationProgress.value,
       [0, 0.2, 1],
-      [31, 100, 36],
+      [25, 100, 40],
       Extrapolation.CLAMP,
     );
 
@@ -237,7 +239,11 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
       [1, 0.2, 0],
       Extrapolation.CLAMP,
     );
-    return { opacity };
+    // Disable touch on collapsed bar while pill is expanding (matches reference)
+    return {
+      opacity,
+      pointerEvents: (animationProgress.value > 0.25 ? "none" : "auto") as "none" | "auto",
+    };
   });
 
   const expandBtnIconStyle = useAnimatedStyle(() => ({

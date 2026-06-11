@@ -9,7 +9,8 @@ interface TabIconProps {
   activeColor?: string;
 }
 
-export function TabIcon({ name, focused, size = 22, activeColor = LIME }: TabIconProps) {
+// Default size 24 matches the reference implementation exactly
+export function TabIcon({ name, focused, size = 24, activeColor = LIME }: TabIconProps) {
   return (
     <Feather
       name={name}
