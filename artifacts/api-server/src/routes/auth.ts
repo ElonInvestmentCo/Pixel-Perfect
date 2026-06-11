@@ -22,15 +22,22 @@ const appleJWKS = createRemoteJWKSet(
 );
 
 /**
- * Verify an Apple identity token per Apple's official authentication guide.
+ * Accepted Apple audience values.
+ * Supports a comma-separated list so Expo Go ("host.exp.exponent") and the
+ * production bundle ("com.payvora.mobile") can both be accepted at the same time.
  */
+const appleAudiences: string[] = env.APPLE_BUNDLE_ID
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 async function verifyAppleIdToken(
   identityToken: string,
   rawNonce: string,
 ): Promise<{ sub: string; email?: string }> {
   const { payload } = await jwtVerify(identityToken, appleJWKS, {
     issuer: "https://appleid.apple.com",
-    audience: env.APPLE_BUNDLE_ID,
+    audience: appleAudiences.length === 1 ? appleAudiences[0] : appleAudiences,
     algorithms: ["RS256"],
   });
 

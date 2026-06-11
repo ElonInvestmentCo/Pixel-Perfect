@@ -105,11 +105,19 @@ const schema = z.object({
   GOOGLE_CALLBACK_URL: z.string().url().optional(),
 
   /**
-   * Apple iOS bundle ID used to verify the `aud` claim in Apple identity tokens.
-   * Must match ios.bundleIdentifier in app.json.
-   * Defaults to "com.payvora.mobile".
+   * Comma-separated list of Apple bundle IDs accepted as valid `aud` claims in
+   * Apple identity tokens.
+   *
+   * Production build:  "com.payvora.mobile"
+   * Expo Go testing:   "com.payvora.mobile,host.exp.exponent"
+   *
+   * Apple issues tokens with aud = the bundle ID of the app that called
+   * signInAsync. Expo Go always uses "host.exp.exponent" rather than the
+   * app's own bundle ID, so both values must be listed during development.
    */
-  APPLE_BUNDLE_ID: z.string().default("com.payvora.mobile"),
+  APPLE_BUNDLE_ID: z
+    .string()
+    .default("com.payvora.mobile,host.exp.exponent"),
 });
 
 const result = schema.safeParse(process.env);
