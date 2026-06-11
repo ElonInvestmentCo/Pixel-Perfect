@@ -17,3 +17,15 @@ id = "9yjwMcibQHFgwGAJUvnsN"
 uri = "file://attached_assets/expo-qr.png"
 type = "image"
 title = "Expo Go QR Code — scan with Expo Go or iOS Camera"
+
+[[outputs]]
+id = "OSnPh6BHWd9uC-6oN3jQo"
+uri = "file://attached_assets/IMG_1469_1781142925170.jpeg"
+type = "image"
+title = "BEFORE — card floating without container, small, low prominence"
+
+[[outputs]]
+id = "GF2MgXmbjbYdOcDQaOdp3"
+uri = "file://attached_assets/after-card.jpg"
+type = "image"
+title = "AFTER — card with elevation, border, 58px balance, larger pills"

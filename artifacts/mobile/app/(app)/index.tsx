@@ -115,34 +115,37 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ── Balance ── */}
-        <View style={s.balanceSection}>
-          <View style={s.balanceLabelRow}>
-            <Text style={s.balanceLabel}>Total Balance</Text>
-            <Feather name="eye" size={20} color={GRAY5} style={{ marginLeft: 8 }} />
+        {/* ── Wallet Card ── */}
+        <View style={s.walletCard}>
+          {/* Balance */}
+          <View style={s.balanceSection}>
+            <View style={s.balanceLabelRow}>
+              <Text style={s.balanceLabel}>Total Balance</Text>
+              <Feather name="eye" size={20} color={GRAY5} style={{ marginLeft: 8 }} />
+            </View>
+            <Text style={s.balanceAmount}>$12,765.00</Text>
           </View>
-          <Text style={s.balanceAmount}>$12,765.00</Text>
-        </View>
 
-        {/* ── Action pills ── */}
-        <View style={s.pillRow}>
-          <TouchableOpacity style={[s.pill, { flex: 1 }]} activeOpacity={0.82} onPress={() => router.push("/transfer")}>
-            <View style={s.pillIconWrap}>
-              <Feather name="arrow-up" size={20} color={BLACK} />
-            </View>
-            <Text style={s.pillLabel}>Transfer</Text>
-          </TouchableOpacity>
+          {/* Action pills */}
+          <View style={s.pillRow}>
+            <TouchableOpacity style={[s.pill, { flex: 1 }]} activeOpacity={0.82} onPress={() => router.push("/transfer")}>
+              <View style={s.pillIconWrap}>
+                <Feather name="arrow-up" size={22} color={BLACK} />
+              </View>
+              <Text style={s.pillLabel}>Transfer</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={[s.pill, { flex: 1 }]} activeOpacity={0.82}>
-            <View style={s.pillIconWrap}>
-              <Feather name="arrow-down" size={20} color={BLACK} />
-            </View>
-            <Text style={s.pillLabel}>Receive</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={[s.pill, { flex: 1 }]} activeOpacity={0.82}>
+              <View style={s.pillIconWrap}>
+                <Feather name="arrow-down" size={22} color={BLACK} />
+              </View>
+              <Text style={s.pillLabel}>Receive</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={s.menuBtn} activeOpacity={0.82}>
-            <Feather name="menu" size={24} color={BLACK} />
-          </TouchableOpacity>
+            <TouchableOpacity style={s.menuBtn} activeOpacity={0.82}>
+              <Feather name="menu" size={26} color={BLACK} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* ── Promo card ── */}
@@ -219,30 +222,45 @@ const s = StyleSheet.create({
     backgroundColor: "#EF4444",
   },
 
+  /* Wallet Card */
+  walletCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 28,
+    padding: 24,
+    marginBottom: 24,
+    borderWidth: 1.5,
+    borderColor: "#E2E4E8",
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.10,
+    shadowRadius: 28,
+    elevation: 10,
+  },
+
   /* Balance */
-  balanceSection: { marginBottom: 24 },
-  balanceLabelRow: { flexDirection: "row", alignItems: "center", marginBottom: 8 },
-  balanceLabel: { fontSize: 15, fontFamily: "Inter_400Regular", color: "#374151" },
+  balanceSection: { marginBottom: 22 },
+  balanceLabelRow: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
+  balanceLabel: { fontSize: 16, fontFamily: "Inter_500Medium", color: "#374151", letterSpacing: 0.1 },
   balanceAmount: {
-    fontSize: 52, fontFamily: "Inter_700Bold", color: BLACK,
-    letterSpacing: -1.5, lineHeight: 60,
+    fontSize: 58, fontFamily: "Inter_700Bold", color: BLACK,
+    letterSpacing: -2, lineHeight: 66,
   },
 
   /* Action pills */
-  pillRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 24 },
+  pillRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 0 },
   pill: {
-    height: 68, backgroundColor: LIME,
+    height: 72, backgroundColor: LIME,
     borderRadius: 50, flexDirection: "row",
-    alignItems: "center", justifyContent: "center", gap: 12,
+    alignItems: "center", justifyContent: "center", gap: 10,
   },
   pillIconWrap: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 44, height: 44, borderRadius: 22,
     backgroundColor: "#FFFFFF",
     alignItems: "center", justifyContent: "center",
   },
   pillLabel: { fontSize: 17, fontFamily: "Inter_600SemiBold", color: BLACK },
   menuBtn: {
-    width: 68, height: 68, borderRadius: 50,
+    width: 72, height: 72, borderRadius: 50,
     backgroundColor: LIME,
     alignItems: "center", justifyContent: "center",
   },
