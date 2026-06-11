@@ -237,11 +237,25 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
       [1, 0.2, 0],
       Extrapolation.CLAMP,
     );
-    return {
-      opacity,
-      pointerEvents: animationProgress.value > 0.25 ? "none" : "auto",
-    };
+    return { opacity };
   });
+
+  const expandBtnIconStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      animationProgress.value,
+      [0, 0.25, 0.4],
+      [1, 0.5, 0],
+      Extrapolation.CLAMP,
+    ),
+    transform: [{
+      scale: interpolate(
+        animationProgress.value,
+        [0, 0.5, 1],
+        [1, 2, 1],
+        Extrapolation.CLAMP,
+      ),
+    }],
+  }));
 
   const visibleRoutes = state.routes.filter((route) => {
     const { options } = descriptors[route.key];
@@ -320,24 +334,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
                   accessibilityRole="button"
                   accessibilityLabel="More options"
                 >
-                  <Animated.View
-                    style={useAnimatedStyle(() => ({
-                      opacity: interpolate(
-                        animationProgress.value,
-                        [0, 0.25, 0.4],
-                        [1, 0.5, 0],
-                        Extrapolation.CLAMP,
-                      ),
-                      transform: [{
-                        scale: interpolate(
-                          animationProgress.value,
-                          [0, 0.5, 1],
-                          [1, 2, 1],
-                          Extrapolation.CLAMP,
-                        ),
-                      }],
-                    }))}
-                  >
+                  <Animated.View style={expandBtnIconStyle}>
                     <Feather name="chevrons-up" size={22} color="#AAAAAA" />
                   </Animated.View>
                 </TouchableOpacity>
