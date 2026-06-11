@@ -9,27 +9,25 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { setAuthTokenGetter, setBaseUrl } from "@workspace/api-client-react";
 import * as SecureStore from "expo-secure-store";
 import { Stack } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
+import * as ExpoSplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { SplashScreen } from "@/components/SplashScreen";
 
 // Required for Google OAuth on Expo web / Expo Go web preview.
-// Must be called at module level (before any navigation) so the app can
-// intercept and complete the OAuth redirect when the browser returns to it.
 WebBrowser.maybeCompleteAuthSession();
 
-SplashScreen.preventAutoHideAsync();
+ExpoSplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
-// On web: use the same origin so requests go through the dev proxy on port 5000,
-// which routes /api/* to Express on port 3000 — same-origin, no CORS/mixed-content.
+// On web: use the same origin so requests go through the dev proxy on port 5000.
 // On native: use the configured env var (or localhost for local development).
 const API_URL =
   Platform.OS === "web"
@@ -65,7 +63,7 @@ function RootLayoutNav() {
         options={{ headerShown: false, gestureEnabled: false, animation: "fade" }}
       />
 
-      {/* ── Top Up flow ─────────────────────────────────────────────── */}
+      {/* ── Top Up flow ──────────────────────────────────────────────── */}
       <Stack.Screen
         name="top-up"
         options={{ headerShown: false, animation: "slide_from_bottom" }}
@@ -81,7 +79,7 @@ function RootLayoutNav() {
         }}
       />
 
-      {/* ── Transfer flow ───────────────────────────────────────────── */}
+      {/* ── Transfer flow ────────────────────────────────────────────── */}
       <Stack.Screen
         name="transfer"
         options={{ headerShown: false, animation: "slide_from_bottom" }}
@@ -107,18 +105,32 @@ export default function RootLayout() {
     Inter_700Bold,
   });
 
+  // Track whether the animated splash has completed its 2.2s sequence
+  const [splashDone, setSplashDone] = useState(false);
+
   useEffect(() => {
     setBaseUrl(API_URL);
     setAuthTokenGetter(() => SecureStore.getItemAsync("auth_token"));
   }, []);
 
+  // Hide the native Expo splash as soon as fonts are ready.
+  // Our animated SplashScreen is already rendered at this point,
+  // so there is no visible gap — it seamlessly takes over from the native splash.
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
+      ExpoSplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded && !fontError) return null;
+  // Show the animated splash screen until its 2.2 s animation completes.
+  // Wrap in SafeAreaProvider so useSafeAreaInsets() works inside SplashScreen.
+  if (!splashDone) {
+    return (
+      <SafeAreaProvider>
+        <SplashScreen onFinish={() => setSplashDone(true)} />
+      </SafeAreaProvider>
+    );
+  }
 
   return (
     <SafeAreaProvider>
