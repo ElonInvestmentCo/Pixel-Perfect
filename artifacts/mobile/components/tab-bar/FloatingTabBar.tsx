@@ -1,0 +1,351 @@
+import { Feather } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
+import * as Haptics from "expo-haptics";
+import React, { useState } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  Easing,
+  Extrapolation,
+  interpolate,
+  runOnJS,
+  type SharedValue,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TabButton } from "./TabButton";
+import { TabIcon } from "./TabIcon";
+import {
+  ANIMATION_DURATION,
+  EXPANDED_HEIGHT,
+  LIME,
+  PAYVORA_MENU_ITEMS,
+  PILL_WIDTH,
+  SPRING_CONFIG,
+  tabBarStyles,
+  type PayvoraMenuItem,
+} from "./tabBarStyles";
+
+import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+
+const ICON_MAP: Record<string, React.ComponentProps<typeof Feather>["name"]> = {
+  index:     "home",
+  insights:  "bar-chart-2",
+  scan:      "maximize",
+  "my-cards":"credit-card",
+  profile:   "user",
+  cards:     "credit-card",
+  settings:  "settings",
+};
+
+interface ExpandedMenuRowProps {
+  item: PayvoraMenuItem;
+  index: number;
+  animationProgress: SharedValue<number>;
+  isSelected: boolean;
+  onPress: () => void;
+}
+
+function ExpandedMenuRow({
+  item,
+  index,
+  animationProgress,
+  isSelected,
+  onPress,
+}: ExpandedMenuRowProps) {
+  const rowStyle = useAnimatedStyle(() => {
+    const startThreshold = 0.4 + index * 0.05;
+    const endThreshold   = Math.min(startThreshold + 0.3, 1);
+
+    const itemProgress = interpolate(
+      animationProgress.value,
+      [startThreshold, endThreshold],
+      [0, 1],
+      Extrapolation.CLAMP,
+    );
+
+    const opacity = interpolate(itemProgress, [0, 0.5, 1], [0, 0.8, 1], Extrapolation.CLAMP);
+
+    const translateY = withSpring(
+      interpolate(itemProgress, [0, 1], [40, 0], Extrapolation.CLAMP),
+      SPRING_CONFIG,
+    );
+
+    const scale = withSpring(
+      interpolate(itemProgress, [0, 0.8, 1], [0.7, 1.02, 1], Extrapolation.CLAMP),
+      SPRING_CONFIG,
+    );
+
+    return {
+      opacity,
+      transform: [{ translateY }, { scale }],
+    };
+  });
+
+  const selectionStyle = useAnimatedStyle(() => ({
+    opacity: withSpring(isSelected ? 0.18 : 0, SPRING_CONFIG),
+    transform: [{ scale: withSpring(isSelected ? 1 : 0.95, SPRING_CONFIG) }],
+  }));
+
+  return (
+    <Animated.View style={rowStyle}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={onPress}
+        style={tabBarStyles.menuRow}
+        accessibilityRole="button"
+        accessibilityLabel={item.label}
+        accessibilityState={{ selected: isSelected }}
+      >
+        <Animated.View
+          style={[
+            tabBarStyles.menuRowBg,
+            selectionStyle,
+            { backgroundColor: isSelected ? LIME : "rgba(255,255,255,0.06)" },
+          ]}
+        />
+        <View style={tabBarStyles.menuIconBox}>
+          <TabIcon name={item.iconName} focused={isSelected} size={20} />
+        </View>
+        <Text style={[tabBarStyles.menuLabel, { color: isSelected ? LIME : "#AAAAAA" }]}>
+          {item.label}
+        </Text>
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
+
+export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const insets = useSafeAreaInsets();
+  const animationProgress = useSharedValue(0);
+  const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
+
+  const startY = useSharedValue(0);
+
+  function triggerHaptic(style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light) {
+    Haptics.impactAsync(style).catch(() => {});
+  }
+
+  function updateSelectedIndex(index: number) {
+    setSelectedMenuIndex(index);
+  }
+
+  function openExpanded() {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    animationProgress.value = withTiming(1, {
+      duration: ANIMATION_DURATION,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    });
+  }
+
+  function closeExpanded() {
+    animationProgress.value = withTiming(0, {
+      duration: ANIMATION_DURATION,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+    });
+  }
+
+  function handleMenuItemPress(index: number) {
+    const item = PAYVORA_MENU_ITEMS[index];
+    setSelectedMenuIndex(index);
+    navigation.navigate(item.route);
+    closeExpanded();
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
+  }
+
+  const panGesture = Gesture.Pan()
+    .onStart((event) => {
+      startY.value = event.absoluteY;
+      runOnJS(triggerHaptic)(Haptics.ImpactFeedbackStyle.Rigid);
+    })
+    .onUpdate((event) => {
+      if (animationProgress.value > 0.8) {
+        const itemHeight = EXPANDED_HEIGHT / PAYVORA_MENU_ITEMS.length;
+        const relativeY  = event.y;
+        let newIndex = Math.floor(relativeY / itemHeight);
+        newIndex = Math.max(0, Math.min(PAYVORA_MENU_ITEMS.length - 1, newIndex));
+        runOnJS(updateSelectedIndex)(newIndex);
+      }
+    })
+    .onEnd((event) => {
+      const velocity  = event.velocityY;
+      const threshold = 500;
+
+      if (velocity < -threshold && animationProgress.value === 0) {
+        animationProgress.value = withTiming(1, {
+          duration: ANIMATION_DURATION,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+        });
+      } else if (velocity > threshold && animationProgress.value === 1) {
+        animationProgress.value = withTiming(0, {
+          duration: ANIMATION_DURATION,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+        });
+      } else if (animationProgress.value > 0.8) {
+        const item = PAYVORA_MENU_ITEMS[selectedMenuIndex];
+        runOnJS(navigation.navigate)({ name: item.route, params: {} } as never);
+        animationProgress.value = withTiming(0, {
+          duration: ANIMATION_DURATION,
+          easing: Easing.bezier(0.25, 0.1, 0.25, 1),
+        });
+      }
+
+      runOnJS(triggerHaptic)(Haptics.ImpactFeedbackStyle.Light);
+    });
+
+  const pillWrapperStyle = useAnimatedStyle(() => {
+    const height = interpolate(
+      animationProgress.value,
+      [0, 0.4, 0.7, 1],
+      [62, 62, EXPANDED_HEIGHT * 0.65, EXPANDED_HEIGHT],
+      Extrapolation.CLAMP,
+    );
+
+    const borderRadius = interpolate(
+      animationProgress.value,
+      [0, 0.2, 1],
+      [31, 100, 36],
+      Extrapolation.CLAMP,
+    );
+
+    return { height, borderRadius, width: PILL_WIDTH };
+  });
+
+  const pillScaleStyle = useAnimatedStyle(() => {
+    const scale = interpolate(
+      animationProgress.value,
+      [0, 0.5, 1],
+      [1, 0.5, 1],
+      Extrapolation.CLAMP,
+    );
+    const translateY = interpolate(
+      animationProgress.value,
+      [0, 0.5, 1],
+      [0, -10, -20],
+      Extrapolation.CLAMP,
+    );
+    return { transform: [{ scale }, { translateY }] };
+  });
+
+  const floatingBarStyle = useAnimatedStyle(() => {
+    const opacity = interpolate(
+      animationProgress.value,
+      [0, 0.25, 0.4],
+      [1, 0.2, 0],
+      Extrapolation.CLAMP,
+    );
+    return {
+      opacity,
+      pointerEvents: animationProgress.value > 0.25 ? "none" : "auto",
+    };
+  });
+
+  const visibleRoutes = state.routes.filter((route) => {
+    const { options } = descriptors[route.key];
+    return options?.tabBarIcon !== undefined && options?.href !== null;
+  });
+
+  return (
+    <>
+      <GestureDetector gesture={panGesture}>
+        <Animated.View
+          style={[
+            tabBarStyles.gestureWrapper,
+            { bottom: insets.bottom + 20 },
+          ]}
+        >
+          <Animated.View
+            style={[
+              tabBarStyles.pillWrapper,
+              pillWrapperStyle,
+              pillScaleStyle,
+            ]}
+          >
+            <BlurView
+              tint="systemThickMaterialDark"
+              intensity={85}
+              style={tabBarStyles.blurView}
+            >
+              <View style={tabBarStyles.expandedMenu}>
+                {PAYVORA_MENU_ITEMS.map((item, index) => (
+                  <ExpandedMenuRow
+                    key={item.route}
+                    item={item}
+                    index={index}
+                    animationProgress={animationProgress}
+                    isSelected={selectedMenuIndex === index}
+                    onPress={() => handleMenuItemPress(index)}
+                  />
+                ))}
+              </View>
+
+              <Animated.View style={[tabBarStyles.floatingBar, floatingBarStyle]}>
+                {visibleRoutes.map((route) => {
+                  const { options } = descriptors[route.key];
+                  const isFocused   = state.index === state.routes.indexOf(route);
+                  const iconName    = ICON_MAP[route.name] ?? "circle";
+
+                  return (
+                    <TabButton
+                      key={route.key}
+                      isFocused={isFocused}
+                      iconName={iconName as any}
+                      accessibilityLabel={options.title ?? route.name}
+                      animationProgress={animationProgress}
+                      onPress={() => {
+                        const event = navigation.emit({
+                          type: "tabPress",
+                          target: route.key,
+                          canPreventDefault: true,
+                        });
+                        if (!isFocused && !event.defaultPrevented) {
+                          navigation.navigate(route.name, route.params);
+                        }
+                        triggerHaptic();
+                      }}
+                      onLongPress={() => {
+                        navigation.emit({ type: "tabLongPress", target: route.key });
+                      }}
+                    />
+                  );
+                })}
+
+                <TouchableOpacity
+                  activeOpacity={0.7}
+                  onPress={openExpanded}
+                  style={tabBarStyles.expandBtn}
+                  accessibilityRole="button"
+                  accessibilityLabel="More options"
+                >
+                  <Animated.View
+                    style={useAnimatedStyle(() => ({
+                      opacity: interpolate(
+                        animationProgress.value,
+                        [0, 0.25, 0.4],
+                        [1, 0.5, 0],
+                        Extrapolation.CLAMP,
+                      ),
+                      transform: [{
+                        scale: interpolate(
+                          animationProgress.value,
+                          [0, 0.5, 1],
+                          [1, 2, 1],
+                          Extrapolation.CLAMP,
+                        ),
+                      }],
+                    }))}
+                  >
+                    <Feather name="chevrons-up" size={22} color="#AAAAAA" />
+                  </Animated.View>
+                </TouchableOpacity>
+              </Animated.View>
+            </BlurView>
+          </Animated.View>
+        </Animated.View>
+      </GestureDetector>
+    </>
+  );
+}

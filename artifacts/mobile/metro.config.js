@@ -13,6 +13,15 @@ const config = getDefaultConfig(projectRoot);
 // ─── Monorepo: watch the whole workspace so symlinked packages resolve ────────
 config.watchFolders = [workspaceRoot];
 
+// ─── Block Replit internal temp directories from being watched ────────────────
+// Metro's FallbackWatcher crashes when it tries to watch a temp path that is
+// deleted mid-session (e.g. .local/skills/.old-* written by Replit's agent).
+config.resolver.blockList = [
+  ...(Array.isArray(config.resolver.blockList) ? config.resolver.blockList : []),
+  /\/\.local\/.*/,
+  /\/attached_assets\/.*/,
+];
+
 // ─── Module resolution: project first, then workspace root ────────────────────
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot,  "node_modules"),
