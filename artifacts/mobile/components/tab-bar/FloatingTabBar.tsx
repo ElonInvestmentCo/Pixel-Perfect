@@ -31,22 +31,25 @@ import {
 
 import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
+// Maps Expo Router route names → Feather icon names
 const ICON_MAP: Record<string, React.ComponentProps<typeof Feather>["name"]> = {
-  index:     "home",
-  insights:  "bar-chart-2",
-  scan:      "maximize",
-  "my-cards":"credit-card",
-  profile:   "user",
-  cards:     "credit-card",
-  settings:  "settings",
+  index:      "home",
+  insights:   "bar-chart-2",
+  scan:       "maximize",
+  "my-cards": "credit-card",
+  profile:    "user",
+  cards:      "credit-card",
+  settings:   "settings",
 };
 
+// ─── Expanded menu row ──────────────────────────────────────────────────────
+
 interface ExpandedMenuRowProps {
-  item: PayvoraMenuItem;
-  index: number;
+  item:              PayvoraMenuItem;
+  index:             number;
   animationProgress: SharedValue<number>;
-  isSelected: boolean;
-  onPress: () => void;
+  isSelected:        boolean;
+  onPress:           () => void;
 }
 
 function ExpandedMenuRow({
@@ -56,6 +59,7 @@ function ExpandedMenuRow({
   isSelected,
   onPress,
 }: ExpandedMenuRowProps) {
+  // Staggered slide-up + fade — matches reference ExpandedMenuItems animatedStyle exactly
   const rowStyle = useAnimatedStyle(() => {
     const startThreshold = 0.4 + index * 0.05;
     const endThreshold   = Math.min(startThreshold + 0.3, 1);
@@ -67,7 +71,12 @@ function ExpandedMenuRow({
       Extrapolation.CLAMP,
     );
 
-    const opacity = interpolate(itemProgress, [0, 0.5, 1], [0, 0.8, 1], Extrapolation.CLAMP);
+    const opacity = interpolate(
+      itemProgress,
+      [0, 0.5, 1],
+      [0, 0.8, 1],
+      Extrapolation.CLAMP,
+    );
 
     const translateY = withSpring(
       interpolate(itemProgress, [0, 1], [40, 0], Extrapolation.CLAMP),
@@ -79,14 +88,19 @@ function ExpandedMenuRow({
       SPRING_CONFIG,
     );
 
+    // Block touch until row is sufficiently visible — matches reference exactly
+    const isInteractive = animationProgress.value > 0.7;
+
     return {
       opacity,
       transform: [{ translateY }, { scale }],
+      pointerEvents: (isInteractive ? "auto" : "none") as "auto" | "none",
     };
   });
 
+  // Selection highlight bg — opacity static, scale spring — matches reference animatedSelectionStyle
   const selectionStyle = useAnimatedStyle(() => ({
-    opacity: withSpring(isSelected ? 0.18 : 0, SPRING_CONFIG),
+    opacity: isSelected ? 0.15 : 0,
     transform: [{ scale: withSpring(isSelected ? 1 : 0.95, SPRING_CONFIG) }],
   }));
 
@@ -118,12 +132,61 @@ function ExpandedMenuRow({
   );
 }
 
+// ─── Expand / collapse chevron button ──────────────────────────────────────
+// Identical behaviour to reference DummyTab: tap toggles open↔closed.
+
+interface ExpandToggleProps {
+  animationProgress: SharedValue<number>;
+  onToggle:          () => void;
+}
+
+function ExpandToggleButton({ animationProgress, onToggle }: ExpandToggleProps) {
+  // Icon fades out as pill expands — matches reference DummyTab animatedIconStyle
+  const iconStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      animationProgress.value,
+      [0, 0.25, 0.4],
+      [1, 0.5, 0],
+      Extrapolation.CLAMP,
+    ),
+    transform: [
+      {
+        scale: interpolate(
+          animationProgress.value,
+          [0, 0.5, 1],
+          [1, 2, 1],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
+  }));
+
+  return (
+    // Uses tabBarStyles.tab (flex:1, margin:5) — identical to reference DummyTab using styles.tab
+    <TouchableOpacity
+      activeOpacity={0.7}
+      onPress={onToggle}
+      style={tabBarStyles.tab}
+      accessibilityRole="button"
+      accessibilityLabel="More options"
+    >
+      <Animated.View style={[tabBarStyles.expandIconWrapper, iconStyle]}>
+        <Feather name="chevrons-up" size={24} color="#AAAAAA" />
+      </Animated.View>
+    </TouchableOpacity>
+  );
+}
+
+// ─── FloatingTabBar ─────────────────────────────────────────────────────────
+
 export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const animationProgress = useSharedValue(0);
   const [selectedMenuIndex, setSelectedMenuIndex] = useState(0);
 
   const startY = useSharedValue(0);
+
+  // ── helpers (called via runOnJS from gesture worklet) ────────────────────
 
   function triggerHaptic(style: Haptics.ImpactFeedbackStyle = Haptics.ImpactFeedbackStyle.Light) {
     Haptics.impactAsync(style).catch(() => {});
@@ -133,20 +196,30 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     setSelectedMenuIndex(index);
   }
 
-  function openExpanded() {
-    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
-    animationProgress.value = withTiming(1, {
+  // ── animation helpers ────────────────────────────────────────────────────
+
+  function animateTo(target: 0 | 1) {
+    animationProgress.value = withTiming(target, {
       duration: ANIMATION_DURATION,
       easing: Easing.bezier(0.25, 0.1, 0.25, 1),
     });
   }
 
-  function closeExpanded() {
-    animationProgress.value = withTiming(0, {
-      duration: ANIMATION_DURATION,
-      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-    });
+  // Toggle open↔closed — matches reference DummyTab onPress logic exactly
+  function toggleExpanded() {
+    triggerHaptic(Haptics.ImpactFeedbackStyle.Medium);
+    if (animationProgress.value === 0) {
+      animateTo(1);
+    } else {
+      animateTo(0);
+    }
   }
+
+  function closeExpanded() {
+    animateTo(0);
+  }
+
+  // ── menu item press (from expanded list) ─────────────────────────────────
 
   function handleMenuItemPress(index: number) {
     const item = PAYVORA_MENU_ITEMS[index];
@@ -156,16 +229,19 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     triggerHaptic(Haptics.ImpactFeedbackStyle.Light);
   }
 
+  // ── pan gesture — swipe-up to expand, swipe-down to collapse ─────────────
+  // Matches reference LinearTabBar panGesture exactly (runOnJS ≡ scheduleOnRN)
+
   const panGesture = Gesture.Pan()
     .onStart((event) => {
       startY.value = event.absoluteY;
       runOnJS(triggerHaptic)(Haptics.ImpactFeedbackStyle.Rigid);
     })
     .onUpdate((event) => {
+      // While expanded: track which item the finger is hovering over
       if (animationProgress.value > 0.8) {
         const itemHeight = EXPANDED_HEIGHT / PAYVORA_MENU_ITEMS.length;
-        const relativeY  = event.y;
-        let newIndex = Math.floor(relativeY / itemHeight);
+        let newIndex = Math.floor(event.y / itemHeight);
         newIndex = Math.max(0, Math.min(PAYVORA_MENU_ITEMS.length - 1, newIndex));
         runOnJS(updateSelectedIndex)(newIndex);
       }
@@ -175,16 +251,19 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
       const threshold = 500;
 
       if (velocity < -threshold && animationProgress.value === 0) {
+        // Fast swipe up → open
         animationProgress.value = withTiming(1, {
           duration: ANIMATION_DURATION,
           easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         });
       } else if (velocity > threshold && animationProgress.value === 1) {
+        // Fast swipe down → close
         animationProgress.value = withTiming(0, {
           duration: ANIMATION_DURATION,
           easing: Easing.bezier(0.25, 0.1, 0.25, 1),
         });
       } else if (animationProgress.value > 0.8) {
+        // Slow release while open → navigate to hovered item and close
         const item = PAYVORA_MENU_ITEMS[selectedMenuIndex];
         runOnJS(navigation.navigate)({ name: item.route, params: {} } as never);
         animationProgress.value = withTiming(0, {
@@ -196,8 +275,10 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
       runOnJS(triggerHaptic)(Haptics.ImpactFeedbackStyle.Light);
     });
 
+  // ── animated styles ───────────────────────────────────────────────────────
+
+  // Pill height + border radius — keyframes match reference exactly
   const pillWrapperStyle = useAnimatedStyle(() => {
-    // Height keyframes match reference exactly: [50, 50, 250, 400]
     const height = interpolate(
       animationProgress.value,
       [0, 0.4, 0.7, 1],
@@ -205,7 +286,6 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
       Extrapolation.CLAMP,
     );
 
-    // Border radius matches reference: 25 collapsed → 100 mid → 40 expanded
     const borderRadius = interpolate(
       animationProgress.value,
       [0, 0.2, 1],
@@ -216,6 +296,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     return { height, borderRadius, width: PILL_WIDTH };
   });
 
+  // Pill scale + translateY — matches reference animatedTabBarStyle
   const pillScaleStyle = useAnimatedStyle(() => {
     const scale = interpolate(
       animationProgress.value,
@@ -232,6 +313,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     return { transform: [{ scale }, { translateY }] };
   });
 
+  // Collapsed tab row fades out as pill expands — matches reference animatedOriginalTabBarStyle
   const floatingBarStyle = useAnimatedStyle(() => {
     const opacity = interpolate(
       animationProgress.value,
@@ -239,116 +321,94 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
       [1, 0.2, 0],
       Extrapolation.CLAMP,
     );
-    // Disable touch on collapsed bar while pill is expanding (matches reference)
+    // Disable touches while expanding so taps don't fall through — matches reference exactly
     return {
       opacity,
       pointerEvents: (animationProgress.value > 0.25 ? "none" : "auto") as "none" | "auto",
     };
   });
 
-  const expandBtnIconStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      animationProgress.value,
-      [0, 0.25, 0.4],
-      [1, 0.5, 0],
-      Extrapolation.CLAMP,
-    ),
-    transform: [{
-      scale: interpolate(
-        animationProgress.value,
-        [0, 0.5, 1],
-        [1, 2, 1],
-        Extrapolation.CLAMP,
-      ),
-    }],
-  }));
-
+  // ── visible tabs (routes that have an icon and are not hidden) ────────────
   const visibleRoutes = state.routes.filter((route) => {
     const { options } = descriptors[route.key];
-    return options?.tabBarIcon !== undefined && options?.href !== null;
+    return options?.tabBarIcon !== undefined && (options as any)?.href !== null;
   });
 
   return (
-    <>
-      <GestureDetector gesture={panGesture}>
+    <GestureDetector gesture={panGesture}>
+      <Animated.View
+        style={[
+          tabBarStyles.gestureWrapper,
+          { bottom: insets.bottom + 20 },
+        ]}
+      >
         <Animated.View
           style={[
-            tabBarStyles.gestureWrapper,
-            { bottom: insets.bottom + 20 },
+            tabBarStyles.pillWrapper,
+            pillWrapperStyle,
+            pillScaleStyle,
           ]}
         >
-          <Animated.View
-            style={[
-              tabBarStyles.pillWrapper,
-              pillWrapperStyle,
-              pillScaleStyle,
-            ]}
+          <BlurView
+            tint="systemThickMaterialDark"
+            intensity={85}
+            style={tabBarStyles.blurView}
           >
-            <BlurView
-              tint="systemThickMaterialDark"
-              intensity={85}
-              style={tabBarStyles.blurView}
-            >
-              <View style={tabBarStyles.expandedMenu}>
-                {PAYVORA_MENU_ITEMS.map((item, index) => (
-                  <ExpandedMenuRow
-                    key={item.route}
-                    item={item}
-                    index={index}
+            {/* ── Expanded menu (fades in above the tab bar row) ── */}
+            <View style={tabBarStyles.expandedMenu}>
+              {PAYVORA_MENU_ITEMS.map((item, index) => (
+                <ExpandedMenuRow
+                  key={item.route}
+                  item={item}
+                  index={index}
+                  animationProgress={animationProgress}
+                  isSelected={selectedMenuIndex === index}
+                  onPress={() => handleMenuItemPress(index)}
+                />
+              ))}
+            </View>
+
+            {/* ── Collapsed pill: tab buttons + toggle chevron ── */}
+            <Animated.View style={[tabBarStyles.floatingBar, floatingBarStyle]}>
+              {visibleRoutes.map((route) => {
+                const { options } = descriptors[route.key];
+                const isFocused   = state.index === state.routes.indexOf(route);
+                const iconName    = ICON_MAP[route.name] ?? "circle";
+
+                return (
+                  <TabButton
+                    key={route.key}
+                    isFocused={isFocused}
+                    iconName={iconName as any}
+                    accessibilityLabel={options.title ?? route.name}
                     animationProgress={animationProgress}
-                    isSelected={selectedMenuIndex === index}
-                    onPress={() => handleMenuItemPress(index)}
+                    onPress={() => {
+                      const event = navigation.emit({
+                        type: "tabPress",
+                        target: route.key,
+                        canPreventDefault: true,
+                      });
+                      if (!isFocused && !event.defaultPrevented) {
+                        navigation.navigate(route.name, route.params);
+                      }
+                      triggerHaptic();
+                    }}
+                    onLongPress={() => {
+                      navigation.emit({ type: "tabLongPress", target: route.key });
+                    }}
                   />
-                ))}
-              </View>
+                );
+              })}
 
-              <Animated.View style={[tabBarStyles.floatingBar, floatingBarStyle]}>
-                {visibleRoutes.map((route) => {
-                  const { options } = descriptors[route.key];
-                  const isFocused   = state.index === state.routes.indexOf(route);
-                  const iconName    = ICON_MAP[route.name] ?? "circle";
-
-                  return (
-                    <TabButton
-                      key={route.key}
-                      isFocused={isFocused}
-                      iconName={iconName as any}
-                      accessibilityLabel={options.title ?? route.name}
-                      animationProgress={animationProgress}
-                      onPress={() => {
-                        const event = navigation.emit({
-                          type: "tabPress",
-                          target: route.key,
-                          canPreventDefault: true,
-                        });
-                        if (!isFocused && !event.defaultPrevented) {
-                          navigation.navigate(route.name, route.params);
-                        }
-                        triggerHaptic();
-                      }}
-                      onLongPress={() => {
-                        navigation.emit({ type: "tabLongPress", target: route.key });
-                      }}
-                    />
-                  );
-                })}
-
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  onPress={openExpanded}
-                  style={tabBarStyles.expandBtn}
-                  accessibilityRole="button"
-                  accessibilityLabel="More options"
-                >
-                  <Animated.View style={expandBtnIconStyle}>
-                    <Feather name="chevrons-up" size={22} color="#AAAAAA" />
-                  </Animated.View>
-                </TouchableOpacity>
-              </Animated.View>
-            </BlurView>
-          </Animated.View>
+              {/* Toggle button — identical behaviour to reference DummyTab */}
+              <ExpandToggleButton
+                animationProgress={animationProgress}
+                onToggle={toggleExpanded}
+              />
+            </Animated.View>
+          </BlurView>
         </Animated.View>
-      </GestureDetector>
-    </>
+      </Animated.View>
+    </GestureDetector>
   );
 }

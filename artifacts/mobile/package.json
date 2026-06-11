@@ -22,6 +22,7 @@
     "projectType": "MOBILE_APP_EXPO_NATIVE"
   },
   "devDependencies": {
+    "@react-navigation/bottom-tabs": "^7.16.2",
     "@babel/core": "^7.25.2",
     "@expo-google-fonts/inter": "^0.4.0",
     "@expo/cli": "54.0.23",

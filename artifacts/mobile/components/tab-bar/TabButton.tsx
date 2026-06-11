@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import React, { useEffect } from "react";
 import { TouchableOpacity } from "react-native";
 import Animated, {
@@ -32,17 +33,22 @@ export function TabButton({
   const focusAnim = useSharedValue(isFocused ? 1 : 0);
 
   useEffect(() => {
+    // Animate focus highlight — matches reference AnimatedTab useEffect
     focusAnim.value = withTiming(isFocused ? 1 : 0, {
-      duration: 280,
+      duration: 300,
       easing: Easing.out(Easing.ease),
     });
+    // Trigger haptic on tab switch — matches reference triggerHaptics() in useEffect
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
   }, [isFocused, focusAnim]);
 
+  // Focus background animates in — scale starts at 0.8 to match reference exactly
   const focusBgStyle = useAnimatedStyle(() => ({
     opacity: interpolate(focusAnim.value, [0, 1], [0, 1]),
-    transform: [{ scale: interpolate(focusAnim.value, [0, 1], [0.6, 1]) }],
+    transform: [{ scale: interpolate(focusAnim.value, [0, 1], [0.8, 1]) }],
   }));
 
+  // Icon fades + counter-scales while pill expands — identical to reference AnimatedTab
   const iconStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
       animationProgress.value,

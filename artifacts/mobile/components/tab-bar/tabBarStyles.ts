@@ -6,11 +6,12 @@ export const GRAY_INACTIVE   = "#6B7280";
 export const BORDER_COLOR    = "rgba(255,255,255,0.08)";
 export const WIDTH           = Dimensions.get("window").width;
 
-// Wider than the reference (WIDTH-150) because PayVora has 5 tabs + expand btn.
-// WIDTH-150 gives ~240px which is fine for 4 items; for 6 items we need ~320px.
+// PayVora has 5 visible tabs + 1 expand button = 6 items.
+// Reference uses WIDTH-150 for 3 tabs + DummyTab = 4 items (~240px).
+// For 6 items we need ~330px to maintain comfortable 44pt touch targets.
 export const PILL_WIDTH         = WIDTH - 60;
 export const ANIMATION_DURATION = 400;
-export const EXPANDED_HEIGHT    = 400;   // matches reference exactly
+export const EXPANDED_HEIGHT    = 400;
 
 export const SPRING_CONFIG = {
   damping:   15,
@@ -28,8 +29,8 @@ export type PayvoraIconName =
 
 export interface PayvoraMenuItem {
   iconName: PayvoraIconName;
-  label: string;
-  route: string;
+  label:    string;
+  route:    string;
 }
 
 export const PAYVORA_MENU_ITEMS: PayvoraMenuItem[] = [
@@ -42,6 +43,7 @@ export const PAYVORA_MENU_ITEMS: PayvoraMenuItem[] = [
 ];
 
 export const tabBarStyles = StyleSheet.create({
+  // Outer absolutely-positioned wrapper — keeps gesture area off-screen edges
   gestureWrapper: {
     position:   "absolute",
     left:       0,
@@ -49,68 +51,79 @@ export const tabBarStyles = StyleSheet.create({
     alignItems: "center",
     zIndex:     999,
   },
+
+  // The pill itself — reference has no border; PayVora adds a subtle one for dark-mode depth
   pillWrapper: {
     overflow:      "hidden",
     borderWidth:   1,
     borderColor:   BORDER_COLOR,
     shadowColor:   "#000",
-    shadowOffset:  { width: 0, height: 8 },
-    shadowOpacity: 0.55,
-    shadowRadius:  24,
-    elevation:     20,
+    shadowOffset:  { width: 0, height: 6 },
+    shadowOpacity: 0.45,
+    shadowRadius:  18,
+    elevation:     16,
   },
+
+  // BlurView fills the pill — background must be transparent so blur shows
   blurView: {
     flex:            1,
     width:           "100%",
     height:          "100%",
     justifyContent:  "flex-end",
+    backgroundColor: "transparent",
   },
-  // Collapsed bar — height 50 matches reference exactly
+
+  // Collapsed tab bar row — height 50 matches reference exactly
   floatingBar: {
     flexDirection: "row",
     height:        50,
   },
+
+  // Individual tab button — IDENTICAL to reference styles.tab
+  // Also used for the expand/collapse toggle button (matches reference DummyTab using same style)
   tab: {
     flex:           1,
     alignItems:     "center",
     justifyContent: "center",
-    margin:         5,           // matches reference (was 6)
     borderRadius:   200,
+    margin:         5,
     position:       "relative",
   },
+
+  // Active tab highlight — reference uses grey rgba(126,126,126,0.1);
+  // PayVora substitutes lime tint for brand consistency
   tabFocusBg: {
     ...StyleSheet.absoluteFillObject,
     borderRadius:    200,
-    // Reference uses rgba(126,126,126,0.1); PayVora uses lime tint
     backgroundColor: "rgba(200, 255, 0, 0.13)",
   },
-  expandBtn: {
-    width:          40,
-    alignItems:     "center",
-    justifyContent: "center",
-    marginRight:    5,
-    marginVertical: 5,
-    borderRadius:   200,
-  },
+
+  // Expanded menu container — identical to reference styles.expandedMenu
   expandedMenu: {
-    flex:             1,
-    paddingHorizontal: 16,   // matches reference exactly
-    paddingTop:       10,
-    paddingBottom:    8,
-    justifyContent:   "space-evenly",
+    flex:              1,
+    paddingHorizontal: 16,
+    paddingTop:        10,
+    paddingBottom:     8,
+    justifyContent:    "space-evenly",
   },
+
+  // Expanded menu row — identical to reference styles.menuItem
   menuRow: {
-    flexDirection:  "row",
-    alignItems:     "center",
+    flexDirection:    "row",
+    alignItems:       "center",
     paddingVertical:   10,
-    paddingHorizontal: 16,   // matches reference exactly
-    borderRadius:   99,
-    position:       "relative",
+    paddingHorizontal: 16,
+    borderRadius:      99,
+    position:          "relative",
   },
+
+  // Selection highlight bg inside expanded row
   menuRowBg: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 99,
+    borderRadius: 100,
   },
+
+  // Icon box inside expanded row — identical to reference styles.menuIconContainer
   menuIconBox: {
     width:          28,
     height:         28,
@@ -118,9 +131,19 @@ export const tabBarStyles = StyleSheet.create({
     justifyContent: "center",
     marginRight:    12,
   },
+
+  // Menu item label — identical to reference styles.menuLabel
   menuLabel: {
     fontSize:   15,
     fontWeight: "600",
     flex:       1,
+  },
+
+  // Expand/collapse chevron icon wrapper — same size as reference dummyIcon
+  expandIconWrapper: {
+    width:          24,
+    height:         24,
+    alignItems:     "center",
+    justifyContent: "center",
   },
 });
