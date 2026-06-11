@@ -1,5 +1,4 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "RZPPL2TIvAlaTC-W5I6u_"
@@ -12,3 +11,9 @@ id = "rGA0uU9C_01mS3Nz-9Jea"
 uri = "file://artifacts/mobile/assets/images/gift-cards.png"
 type = "image"
 title = "gift cards isometric"
+
+[[outputs]]
+id = "9yjwMcibQHFgwGAJUvnsN"
+uri = "file://attached_assets/expo-qr.png"
+type = "image"
+title = "Expo Go QR Code — scan with Expo Go or iOS Camera"
