@@ -18,9 +18,10 @@
 const http = require("http");
 const net  = require("net");
 
-const API_PORT   = 3000;
-const EXPO_PORT  = 5001;
-const PROXY_PORT = 5000;
+const API_PORT     = 3000;
+const EXPO_PORT    = 5001;
+const MOCKUP_PORT  = 8081;
+const PROXY_PORT   = 5000;
 
 // ── HTTP proxy ────────────────────────────────────────────────────────────────
 
@@ -78,7 +79,13 @@ function proxyWs(req, clientSocket, head, targetPort) {
 
 const server = http.createServer((req, res) => {
   const path = req.url || "/";
-  proxyHttp(req, res, path.startsWith("/api") ? API_PORT : EXPO_PORT);
+  if (path.startsWith("/api")) {
+    proxyHttp(req, res, API_PORT);
+  } else if (path.startsWith("/__mockup")) {
+    proxyHttp(req, res, MOCKUP_PORT);
+  } else {
+    proxyHttp(req, res, EXPO_PORT);
+  }
 });
 
 server.on("upgrade", (req, socket, head) => {
