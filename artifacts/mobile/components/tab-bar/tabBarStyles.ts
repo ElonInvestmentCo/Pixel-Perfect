@@ -6,12 +6,11 @@ export const GRAY_INACTIVE   = "#6B7280";
 export const BORDER_COLOR    = "rgba(255,255,255,0.08)";
 export const WIDTH           = Dimensions.get("window").width;
 
-// PayVora has 5 visible tabs + 1 expand button = 6 items.
-// Reference uses WIDTH-150 for 3 tabs + DummyTab = 4 items (~240px).
-// For 6 items we need ~330px to maintain comfortable 44pt touch targets.
+// 5 visible tabs + 1 expand button = 6 items in collapsed pill
 export const PILL_WIDTH         = WIDTH - 60;
 export const ANIMATION_DURATION = 400;
-export const EXPANDED_HEIGHT    = 400;
+// 9 menu items × ~56px per row = 504px + padding
+export const EXPANDED_HEIGHT    = 560;
 
 export const SPRING_CONFIG = {
   damping:   15,
@@ -21,11 +20,19 @@ export const SPRING_CONFIG = {
 
 export type PayvoraIconName =
   | "home"
-  | "bar-chart-2"
-  | "maximize"
+  | "repeat"
   | "credit-card"
+  | "clock"
   | "user"
-  | "settings";
+  | "settings"
+  | "gift"
+  | "tag"
+  | "trending-up"
+  | "trending-down"
+  | "file-text"
+  | "wifi"
+  | "users"
+  | "help-circle";
 
 export interface PayvoraMenuItem {
   iconName: PayvoraIconName;
@@ -34,16 +41,18 @@ export interface PayvoraMenuItem {
 }
 
 export const PAYVORA_MENU_ITEMS: PayvoraMenuItem[] = [
-  { iconName: "home",        label: "Home",     route: "index"    },
-  { iconName: "bar-chart-2", label: "Insights", route: "insights" },
-  { iconName: "maximize",    label: "Scan",     route: "scan"     },
-  { iconName: "credit-card", label: "My Cards", route: "my-cards" },
-  { iconName: "user",        label: "Profile",  route: "profile"  },
-  { iconName: "settings",    label: "Settings", route: "settings" },
+  { iconName: "gift",          label: "Buy Gift Card",       route: "buy-gift-card"  },
+  { iconName: "tag",           label: "Sell Gift Card",      route: "sell-gift-card" },
+  { iconName: "trending-up",   label: "Buy Crypto",          route: "buy-crypto"     },
+  { iconName: "trending-down", label: "Sell Crypto",         route: "sell-crypto"    },
+  { iconName: "credit-card",   label: "Create Virtual Card", route: "virtual-card"   },
+  { iconName: "file-text",     label: "Pay Bills",           route: "bills"          },
+  { iconName: "wifi",          label: "eSIM",                route: "esim"           },
+  { iconName: "users",         label: "Referral",            route: "referral"       },
+  { iconName: "help-circle",   label: "Support",             route: "support"        },
 ];
 
 export const tabBarStyles = StyleSheet.create({
-  // Outer absolutely-positioned wrapper — keeps gesture area off-screen edges
   gestureWrapper: {
     position:   "absolute",
     left:       0,
@@ -52,7 +61,6 @@ export const tabBarStyles = StyleSheet.create({
     zIndex:     999,
   },
 
-  // The pill itself — reference has no border; PayVora adds a subtle one for dark-mode depth
   pillWrapper: {
     overflow:      "hidden",
     borderWidth:   1,
@@ -64,7 +72,6 @@ export const tabBarStyles = StyleSheet.create({
     elevation:     16,
   },
 
-  // BlurView fills the pill — background must be transparent so blur shows
   blurView: {
     flex:            1,
     width:           "100%",
@@ -73,14 +80,11 @@ export const tabBarStyles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 
-  // Collapsed tab bar row — height 50 matches reference exactly
   floatingBar: {
     flexDirection: "row",
     height:        50,
   },
 
-  // Individual tab button — IDENTICAL to reference styles.tab
-  // Also used for the expand/collapse toggle button (matches reference DummyTab using same style)
   tab: {
     flex:           1,
     alignItems:     "center",
@@ -90,24 +94,20 @@ export const tabBarStyles = StyleSheet.create({
     position:       "relative",
   },
 
-  // Active tab highlight — reference uses grey rgba(126,126,126,0.1);
-  // PayVora substitutes lime tint for brand consistency
   tabFocusBg: {
     ...StyleSheet.absoluteFillObject,
     borderRadius:    200,
     backgroundColor: "rgba(200, 255, 0, 0.13)",
   },
 
-  // Expanded menu container — identical to reference styles.expandedMenu
   expandedMenu: {
     flex:              1,
     paddingHorizontal: 16,
-    paddingTop:        10,
+    paddingTop:        12,
     paddingBottom:     8,
     justifyContent:    "space-evenly",
   },
 
-  // Expanded menu row — identical to reference styles.menuItem
   menuRow: {
     flexDirection:    "row",
     alignItems:       "center",
@@ -115,15 +115,14 @@ export const tabBarStyles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius:      99,
     position:          "relative",
+    minHeight:         44,
   },
 
-  // Selection highlight bg inside expanded row
   menuRowBg: {
     ...StyleSheet.absoluteFillObject,
     borderRadius: 100,
   },
 
-  // Icon box inside expanded row — identical to reference styles.menuIconContainer
   menuIconBox: {
     width:          28,
     height:         28,
@@ -132,14 +131,12 @@ export const tabBarStyles = StyleSheet.create({
     marginRight:    12,
   },
 
-  // Menu item label — identical to reference styles.menuLabel
   menuLabel: {
     fontSize:   15,
     fontWeight: "600",
     flex:       1,
   },
 
-  // Expand/collapse chevron icon wrapper — same size as reference dummyIcon
   expandIconWrapper: {
     width:          24,
     height:         24,

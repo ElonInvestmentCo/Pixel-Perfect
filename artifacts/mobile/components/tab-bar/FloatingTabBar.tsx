@@ -33,13 +33,21 @@ import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 
 // Maps Expo Router route names → Feather icon names
 const ICON_MAP: Record<string, React.ComponentProps<typeof Feather>["name"]> = {
-  index:      "home",
-  insights:   "bar-chart-2",
-  scan:       "maximize",
-  "my-cards": "credit-card",
-  profile:    "user",
-  cards:      "credit-card",
-  settings:   "settings",
+  index:             "home",
+  trade:             "repeat",
+  cards:             "credit-card",
+  activity:          "clock",
+  account:           "user",
+  settings:          "settings",
+  "buy-gift-card":   "gift",
+  "sell-gift-card":  "tag",
+  "buy-crypto":      "trending-up",
+  "sell-crypto":     "trending-down",
+  "virtual-card":    "credit-card",
+  bills:             "file-text",
+  esim:              "wifi",
+  referral:          "users",
+  support:           "help-circle",
 };
 
 // ─── Expanded menu row ──────────────────────────────────────────────────────

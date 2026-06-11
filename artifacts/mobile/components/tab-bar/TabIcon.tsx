@@ -9,7 +9,6 @@ interface TabIconProps {
   activeColor?: string;
 }
 
-// Default size 24 matches reference AnimatedTab which passes size:24 to tabBarIcon callback
 export function TabIcon({
   name,
   focused,
@@ -18,7 +17,7 @@ export function TabIcon({
 }: TabIconProps) {
   return (
     <Feather
-      name={name}
+      name={name as React.ComponentProps<typeof Feather>["name"]}
       size={size}
       color={focused ? activeColor : GRAY_INACTIVE}
     />

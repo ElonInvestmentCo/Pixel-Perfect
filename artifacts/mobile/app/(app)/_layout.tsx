@@ -12,58 +12,68 @@ export default function AppLayout() {
         tabBarStyle: { display: "none" },
       }}
     >
+      {/* ── Primary tabs ── */}
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
-            <Feather name="home" size={24} color={color} />
+            <Feather name="home" size={22} color={color} />
           ),
         }}
       />
 
       <Tabs.Screen
-        name="insights"
+        name="trade"
         options={{
-          title: "Insights",
+          title: "Trade",
           tabBarIcon: ({ color }) => (
-            <Feather name="bar-chart-2" size={24} color={color} />
+            <Feather name="repeat" size={22} color={color} />
           ),
         }}
       />
 
       <Tabs.Screen
-        name="scan"
+        name="cards"
         options={{
-          title: "Scan",
+          title: "Cards",
           tabBarIcon: ({ color }) => (
-            <Feather name="maximize" size={24} color={color} />
+            <Feather name="credit-card" size={22} color={color} />
           ),
         }}
       />
 
       <Tabs.Screen
-        name="my-cards"
+        name="activity"
         options={{
-          title: "My Cards",
+          title: "Activity",
           tabBarIcon: ({ color }) => (
-            <Feather name="credit-card" size={24} color={color} />
+            <Feather name="clock" size={22} color={color} />
           ),
         }}
       />
 
       <Tabs.Screen
-        name="profile"
+        name="account"
         options={{
-          title: "Profile",
+          title: "Account",
           tabBarIcon: ({ color }) => (
-            <Feather name="user" size={24} color={color} />
+            <Feather name="user" size={22} color={color} />
           ),
         }}
       />
 
-      <Tabs.Screen name="cards"    options={{ href: null }} />
-      <Tabs.Screen name="settings" options={{ href: null }} />
+      {/* ── Hidden routes (accessible via expandable menu) ── */}
+      <Tabs.Screen name="settings"       options={{ href: null }} />
+      <Tabs.Screen name="buy-gift-card"  options={{ href: null }} />
+      <Tabs.Screen name="sell-gift-card" options={{ href: null }} />
+      <Tabs.Screen name="buy-crypto"     options={{ href: null }} />
+      <Tabs.Screen name="sell-crypto"    options={{ href: null }} />
+      <Tabs.Screen name="virtual-card"   options={{ href: null }} />
+      <Tabs.Screen name="bills"          options={{ href: null }} />
+      <Tabs.Screen name="esim"           options={{ href: null }} />
+      <Tabs.Screen name="referral"       options={{ href: null }} />
+      <Tabs.Screen name="support"        options={{ href: null }} />
     </Tabs>
   );
 }

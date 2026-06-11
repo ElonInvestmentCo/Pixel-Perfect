@@ -1,0 +1,98 @@
+Update the bottom navigation and expandable menu across the entire PayVora application.
+
+BOTTOM NAVIGATION (Primary Navigation)
+
+Replace the existing navigation items:
+
+- Home
+- Insights
+- Scan
+- My Cards
+- Profile
+
+With:
+
+1. Home
+2. Trade
+3. Cards
+4. Activity
+5. Account
+
+Navigation Requirements:
+
+- Home icon = House
+- Trade icon = Exchange / Trending Arrows
+- Cards icon = Credit Card
+- Activity icon = Clock / Transaction History
+- Account icon = User Profile
+
+- Keep the current glassmorphism design.
+- Keep the neon green active state.
+- Maintain smooth animations.
+- Active tab should have a glowing neon green pill background.
+- Inactive tabs should remain muted gray.
+- Ensure pixel-perfect alignment on all iPhone screen sizes.
+- Use proper safe-area spacing above the bottom edge.
+
+EXPANDABLE MENU (More Actions)
+
+When the user taps the floating menu button, display the following actions:
+
+1. Buy Gift Card
+2. Sell Gift Card
+3. Buy Crypto
+4. Sell Crypto
+5. Create Virtual Card
+6. Pay Bills
+7. eSIM
+8. Referral
+9. Support
+
+MENU DESIGN REQUIREMENTS
+
+- Keep the premium dark glassmorphism container.
+- Add icons for every menu item.
+- Add smooth slide-up animation.
+- Use neon green highlight on hover, focus, and active states.
+- Use rounded corners (32px+).
+- Add subtle background blur.
+- Ensure accessibility and touch targets are at least 44px high.
+- Support both light and dark mode.
+
+ROUTING REQUIREMENTS
+
+Home → Dashboard Screen
+
+Trade → Trading Hub
+    - Gift Cards
+    - Crypto
+
+Cards → Virtual Card Management
+    - Create Card
+    - Freeze Card
+    - View Card Details
+
+Activity → Transaction History
+    - Gift Card Transactions
+    - Crypto Transactions
+    - Bill Payments
+    - Transfers
+
+Account → User Profile
+    - KYC
+    - Security
+    - Referral
+    - Settings
+    - Support
+
+ADDITIONAL REQUIREMENTS
+
+- Remove all references to Insights.
+- Remove all references to Scan.
+- Remove all references to My Cards.
+- Replace Profile with Account.
+- Ensure navigation state updates correctly.
+- Ensure all menu actions have working routes.
+- Ensure no overflow, clipping, or broken layouts occur.
+- Follow premium fintech UI standards similar to Revolut, Coinbase, Cash App, Monzo, Cardtonic, and Prestmit.
+- Make every screen fully responsive and pixel-perfect.
