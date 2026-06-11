@@ -3,15 +3,20 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
 import {
+  Dimensions,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+
 import Svg, { Path, Ellipse } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BalanceCard } from "../../components/BalanceCard";
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
 
 /* ─── Design tokens ────────────────────────────────────────────── */
 const LIME   = "#d4ff00";
@@ -89,6 +94,12 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      {/* ── World map background ── */}
+      <Image
+        source={require("../../assets/images/world-map.png")}
+        style={s.worldMap}
+        resizeMode="contain"
+      />
       <ScrollView
         contentContainerStyle={[
           s.scroll,
@@ -175,6 +186,17 @@ export default function HomeScreen() {
 /* ─── Styles ────────────────────────────────────────────────────── */
 const s = StyleSheet.create({
   scroll: { paddingHorizontal: 20 },
+
+  /* World map background */
+  worldMap: {
+    position: "absolute",
+    width: SCREEN_WIDTH,
+    height: SCREEN_WIDTH * 0.6,
+    top: "20%",
+    left: 0,
+    opacity: 0.10,
+    zIndex: 0,
+  },
 
   /* Header */
   header: {
