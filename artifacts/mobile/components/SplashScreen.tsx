@@ -1,14 +1,10 @@
 /**
  * PayVora — Animated Splash Screen
  *
- * Design reference:
- *   - CoinPay screenshot: deep blue background with large diamond facets + dotted world map
- *   - Reference App.tsx from zip: PayVora brand identity, animation timings, dot-map grid
- *
  * Layers (bottom → top):
- *   1. DiamondFacets   — large triangular cut-gem shapes in blue family
- *   2. WorldMapDots    — 56×24 dot grid at 8% opacity (from reference App.tsx)
- *   3. VignetteOverlay — top/bottom edge darkening
+ *   1. DiamondFacets   — large triangular facets in PayVora gray palette
+ *   2. WorldMapDots    — 56×24 dot grid at low opacity
+ *   3. VignetteOverlay — top/bottom edge softening
  *   4. Logo + text     — Reanimated spring entrance
  */
 
@@ -35,13 +31,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width: SW, height: SH } = Dimensions.get("window");
 
-// ── CoinPay-style blue palette ─────────────────────────────────────────────
-const BG_BASE  = "#1035CC";   // base deep blue  (CoinPay ~#1B3EFA adapted)
-const BG_LIGHT = "#1E46EE";   // lighter facet
-const BG_MID   = "#1340DC";   // mid facet
-const BG_DARK  = "#0B28B0";   // dark facet
-const BG_DARK2 = "#0D1E98";   // darkest facet (corners)
-const WHITE    = "#FFFFFF";
+// ── PayVora brand palette (matches constants/colors.ts) ────────────────────
+const BG_BASE  = "#EBEBEB";   // app background — light gray
+const BG_LIGHT = "#FFFFFF";   // lightest facet  — white highlight
+const BG_MID   = "#DADADA";   // mid facet       — subtle shadow
+const BG_DARK  = "#C4C4C4";   // dark facet      — deeper shadow
+const BG_DARK2 = "#B2B2B2";   // darkest facet   — corner depth
+const DARK     = "#1A1A1A";   // text / logo primary
+const LIME     = "#C8FF00";   // primary accent (colors.light.lime)
 
 // ── World-map ASCII grid (56 cols × 24 rows) ──────────────────────────────
 // From reference App.tsx — rendered as white dots at 8% opacity
@@ -106,7 +103,7 @@ function DiamondFacets() {
       viewBox={`0 0 ${W} ${H}`}
       style={StyleSheet.absoluteFillObject}
     >
-      {/* Base fill — deep blue */}
+      {/* Base fill — light gray */}
       <Rect width={W} height={H} fill={BG_BASE} />
 
       {/* ── 4 main triangular facets (like cut gem) ── */}
@@ -185,17 +182,17 @@ function DiamondFacets() {
 }
 
 // ── Layer 2 — Dotted world map ────────────────────────────────────────────
-// White dots at 8% opacity covering the full screen — matches CoinPay reference
+// Dark dots at 7% opacity — subtle on the light PayVora background
 function WorldMapDots() {
   return (
     <Svg
       width={SW}
       height={SH}
       viewBox={`0 0 ${SW} ${SH}`}
-      style={[StyleSheet.absoluteFillObject, { opacity: 0.08 }]}
+      style={[StyleSheet.absoluteFillObject, { opacity: 0.07 }]}
     >
       {MAP_DOTS.map((d, i) => (
-        <Circle key={i} cx={d.cx} cy={d.cy} r={2.2} fill={WHITE} />
+        <Circle key={i} cx={d.cx} cy={d.cy} r={2.2} fill={DARK} />
       ))}
     </Svg>
   );
@@ -227,11 +224,9 @@ function VignetteOverlay() {
   );
 }
 
-// ── PayVora logo — two overlapping white circles ──────────────────────────
-// Matches CoinPay's Mastercard-style white logo exactly:
-//   left circle  = solid white
-//   right circle = white at 85% opacity
-//   intersection = blue overlay at 40% to create the characteristic depth cutout
+// ── PayVora logo — two overlapping circles ────────────────────────────────
+// Dark circle (left) + lime circle (right) — PayVora brand palette.
+// Intersection uses a bg-tinted overlay to create the characteristic depth.
 function PayVoraLogo({ size = 88 }: { size?: number }) {
   const r   = size * 0.32;
   const cx1 = size * 0.36;
@@ -241,25 +236,24 @@ function PayVoraLogo({ size = 88 }: { size?: number }) {
   return (
     <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
       <Defs>
-        {/* Intersection clip: use left circle to clip right-circle overlay */}
         <ClipPath id="leftCircleClip">
           <Circle cx={cx1} cy={cy} r={r} />
         </ClipPath>
       </Defs>
 
-      {/* Left circle — fully opaque white */}
-      <Circle cx={cx1} cy={cy} r={r} fill={WHITE} />
+      {/* Left circle — dark / primary */}
+      <Circle cx={cx1} cy={cy} r={r} fill={DARK} />
 
-      {/* Right circle — slightly translucent (creates visible separation) */}
-      <Circle cx={cx2} cy={cy} r={r} fill={WHITE} opacity={0.85} />
+      {/* Right circle — lime accent */}
+      <Circle cx={cx2} cy={cy} r={r} fill={LIME} opacity={0.92} />
 
-      {/* Intersection darkening — shows through the overlap as a darker region */}
+      {/* Intersection — bg overlay creates visible depth between the two colours */}
       <Circle
         cx={cx2}
         cy={cy}
         r={r}
         fill={BG_BASE}
-        opacity={0.38}
+        opacity={0.42}
         clipPath="url(#leftCircleClip)"
       />
     </Svg>
@@ -326,7 +320,7 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
   return (
     <View style={styles.container}>
       <StatusBar
-        barStyle="light-content"
+        barStyle="dark-content"
         backgroundColor={BG_BASE}
         translucent={Platform.OS === "android"}
       />
@@ -378,12 +372,10 @@ const styles = StyleSheet.create({
     height:          200,
     borderRadius:    100,
     backgroundColor: "transparent",
-    // iOS: true radial glow via shadow
-    shadowColor:     WHITE,
+    shadowColor:     DARK,
     shadowOffset:    { width: 0, height: 0 },
-    shadowOpacity:   0.18,
-    shadowRadius:    55,
-    // Android: elevation with transparent bg creates subtle glow ring
+    shadowOpacity:   0.10,
+    shadowRadius:    40,
     elevation:       0,
   },
 
@@ -397,16 +389,15 @@ const styles = StyleSheet.create({
   },
 
   brandName: {
-    color:          WHITE,
+    color:          DARK,
     fontSize:       28,
     fontWeight:     "700",
     letterSpacing:  0.6,
-    // Use system bold as fallback — Inter might not be loaded yet
     fontFamily:     Platform.OS === "ios" ? "System" : "sans-serif-medium",
   },
 
   tagline: {
-    color:          "rgba(255,255,255,0.52)",
+    color:          "rgba(26,26,26,0.48)",
     fontSize:       11,
     fontWeight:     "500",
     letterSpacing:  3.8,
@@ -419,6 +410,6 @@ const styles = StyleSheet.create({
     width:           130,
     height:          5,
     borderRadius:    3,
-    backgroundColor: "rgba(255,255,255,0.28)",
+    backgroundColor: "rgba(26,26,26,0.18)",
   },
 });
