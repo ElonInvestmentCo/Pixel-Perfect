@@ -58,7 +58,7 @@ React Compiler enabled
 Starting Metro Bundler
 
 › Metro waiting on
-  exp://9dc44c35-ee2d-4abc-b82a-e7a6ed163530-00-2d0rckwi9x0z.expo.picard.replit.dev
+  exp://9dc44c35-ee2d-4abc-b82a-e7a6ed163530-00-2d0rckwi9x0z.expo.picard.replit.dev  [STALE — session-specific, expired]
 
 › Scan the QR code above with Expo Go (Android) or the Camera app (iOS)
 › Web is waiting on http://localhost:18115
@@ -79,8 +79,12 @@ Bundled 10232ms — 1,426 modules
 Scan with **Expo Go** (iOS App Store / Google Play):
 
 ```
-exp://9dc44c35-ee2d-4abc-b82a-e7a6ed163530-00-2d0rckwi9x0z.expo.picard.replit.dev
+exp://9dc44c35-ee2d-4abc-b82a-e7a6ed163530-00-2d0rckwi9x0z.expo.picard.replit.dev  [STALE — session-specific, expired]
 ```
+
+> The `exp://` address above is a historical example from a previous session and is no longer valid.
+> Check the **Start Expo Native App** workflow console for the current live QR code.
+> Production API backend: https://pixel-perfect-production-812e.up.railway.app
 
 For tunnel mode (outside Replit, physical iPhone):
 ```bash
