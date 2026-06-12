@@ -12,7 +12,7 @@ interface TabIconProps {
 export function TabIcon({
   name,
   focused,
-  size = 24,
+  size = 26,
   activeColor = LIME,
 }: TabIconProps) {
   return (

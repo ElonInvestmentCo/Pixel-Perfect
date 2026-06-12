@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import React, { useEffect } from "react";
-import { TouchableOpacity } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 import Animated, {
   Easing,
   Extrapolation,
@@ -11,11 +11,12 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { TabIcon } from "./TabIcon";
-import { tabBarStyles, type PayvoraIconName } from "./tabBarStyles";
+import { GRAY_INACTIVE, LIME, tabBarStyles, type PayvoraIconName } from "./tabBarStyles";
 
 interface TabButtonProps {
   isFocused: boolean;
   iconName: PayvoraIconName;
+  label?: string;
   accessibilityLabel?: string;
   onPress: () => void;
   onLongPress: () => void;
@@ -25,6 +26,7 @@ interface TabButtonProps {
 export function TabButton({
   isFocused,
   iconName,
+  label,
   accessibilityLabel,
   onPress,
   onLongPress,
@@ -33,22 +35,18 @@ export function TabButton({
   const focusAnim = useSharedValue(isFocused ? 1 : 0);
 
   useEffect(() => {
-    // Animate focus highlight — matches reference AnimatedTab useEffect
     focusAnim.value = withTiming(isFocused ? 1 : 0, {
       duration: 300,
       easing: Easing.out(Easing.ease),
     });
-    // Trigger haptic on tab switch — matches reference triggerHaptics() in useEffect
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
   }, [isFocused, focusAnim]);
 
-  // Focus background animates in — scale starts at 0.8 to match reference exactly
   const focusBgStyle = useAnimatedStyle(() => ({
     opacity: interpolate(focusAnim.value, [0, 1], [0, 1]),
     transform: [{ scale: interpolate(focusAnim.value, [0, 1], [0.8, 1]) }],
   }));
 
-  // Icon fades + counter-scales while pill expands — identical to reference AnimatedTab
   const iconStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
       animationProgress.value,
@@ -80,8 +78,19 @@ export function TabButton({
     >
       <Animated.View style={[tabBarStyles.tabFocusBg, focusBgStyle]} />
       <Animated.View style={iconStyle}>
-        <TabIcon name={iconName} focused={isFocused} />
+        <TabIcon name={iconName} focused={isFocused} size={26} />
       </Animated.View>
+      {label ? (
+        <Text
+          style={[
+            tabBarStyles.tabLabel,
+            { color: isFocused ? LIME : GRAY_INACTIVE },
+          ]}
+          numberOfLines={1}
+        >
+          {label}
+        </Text>
+      ) : null}
     </TouchableOpacity>
   );
 }

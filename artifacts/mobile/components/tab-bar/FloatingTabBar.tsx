@@ -173,7 +173,7 @@ function ExpandToggleButton({ animationProgress, onToggle }: ExpandToggleProps) 
       accessibilityLabel="More options"
     >
       <Animated.View style={[tabBarStyles.expandIconWrapper, iconStyle]}>
-        <Feather name="chevrons-up" size={24} color="#AAAAAA" />
+        <Feather name="chevrons-up" size={26} color="#C0C0C0" />
       </Animated.View>
     </TouchableOpacity>
   );
@@ -429,6 +429,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
                       key={route.key}
                       isFocused={isFocused}
                       iconName={iconName as any}
+                      label={options.title ?? route.name}
                       accessibilityLabel={options.title ?? route.name}
                       animationProgress={animationProgress}
                       onPress={() => {

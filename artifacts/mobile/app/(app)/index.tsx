@@ -1,7 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
-import React from "react";
+import React, { useState } from "react";
 import {
   Dimensions,
   Image,
@@ -11,22 +10,20 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
 import Svg, { Path, Ellipse } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BalanceCard } from "../../components/BalanceCard";
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-/* ─── Design tokens ────────────────────────────────────────────── */
+/* ─── Design tokens ── */
 const LIME   = "#d4ff00";
 const BLACK  = "#000000";
 const INDIGO = "#6366f1";
-const GRAY5  = "#6B7280";   /* gray-500 */
-const GRAY4  = "#9CA3AF";   /* gray-400 */
-const GRAY2  = "#E5E7EB";   /* gray-200 */
+const GRAY5  = "#6B7280";
+const GRAY2  = "#E5E7EB";
+const DARK   = "#0D0D0D";
 
-/* ─── SVG icons (from design zip) ─────────────────────────────── */
+/* ─── SVG icons ── */
 function FigmaIcon() {
   return (
     <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
@@ -49,15 +46,7 @@ function MediumIcon() {
   );
 }
 
-function ArrowIcon({ name }: { name: "invite" }) {
-  return (
-    <Svg width={20} height={20} viewBox="0 0 20 20" fill="none">
-      <Path d="M4 10H16M16 10L11 5M16 10L11 15" stroke={LIME} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </Svg>
-  );
-}
-
-/* ─── Transactions data ─────────────────────────────────────────── */
+/* ─── Transactions data ── */
 const TRANSACTIONS = [
   {
     id: "1",
@@ -88,70 +77,150 @@ const TRANSACTIONS = [
   },
 ] as const;
 
-/* ─── Screen ────────────────────────────────────────────────────── */
-export default function HomeScreen() {
-  const insets = useSafeAreaInsets();
+/* ─── Hero action pill button ── */
+function HeroActionButton({
+  icon,
+  label,
+}: {
+  icon: "arrow-up" | "arrow-down";
+  label: string;
+}) {
+  return (
+    <TouchableOpacity style={h.pill} activeOpacity={0.82}>
+      <View style={h.pillCircle}>
+        <Feather name={icon} size={14} color={BLACK} />
+      </View>
+      <Text style={h.pillLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+/* ─── Hero more button ── */
+function HeroMoreButton() {
+  return (
+    <TouchableOpacity style={h.moreBtn} activeOpacity={0.82}>
+      <View style={h.moreBtnInner}>
+        <Feather name="menu" size={15} color={BLACK} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+/* ─── Hero card ── */
+function HeroCard({
+  insets,
+  onLayout,
+}: {
+  insets: { top: number };
+  onLayout: (height: number) => void;
+}) {
+  const [balanceVisible, setBalanceVisible] = useState(true);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      {/* ── World map background ── */}
+    <View
+      style={[h.card, { paddingTop: insets.top + 14 }]}
+      onLayout={(e) => onLayout(e.nativeEvent.layout.height)}
+    >
+      {/* World map watermark inside hero */}
+      <Image
+        source={require("../../assets/images/world-map.png")}
+        style={h.mapWatermark}
+        resizeMode="contain"
+      />
+
+      {/* Subtle gradient overlay for depth */}
+      <LinearGradient
+        colors={["rgba(180,255,0,0.07)", "transparent"]}
+        start={{ x: 1, y: 0 }}
+        end={{ x: 0, y: 1 }}
+        style={StyleSheet.absoluteFillObject}
+        pointerEvents="none"
+      />
+
+      {/* Profile row */}
+      <View style={h.profileRow}>
+        <LinearGradient
+          colors={["#D1D5DB", "#9CA3AF"]}
+          style={h.avatar}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        />
+        <View style={{ flex: 1 }}>
+          <Text style={h.hiText}>Hi, Jennifer 👋</Text>
+          <Text style={h.morningText}>Good Morning!</Text>
+        </View>
+        <TouchableOpacity
+          activeOpacity={0.75}
+          style={h.bellWrap}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <View style={h.bellBg}>
+            <Feather name="bell" size={20} color="#FFFFFF" />
+          </View>
+          <View style={h.bellDot} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Balance label */}
+      <View style={h.labelRow}>
+        <Text style={h.labelText}>Total Balance</Text>
+        <TouchableOpacity
+          onPress={() => setBalanceVisible((v) => !v)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          activeOpacity={0.6}
+        >
+          <Feather
+            name={balanceVisible ? "eye" : "eye-off"}
+            size={16}
+            color="rgba(255,255,255,0.45)"
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* Balance amount */}
+      <Text style={h.amount}>
+        {balanceVisible ? "$12,765.00" : "• • • • • • •"}
+      </Text>
+
+      {/* Action buttons */}
+      <View style={h.actionRow}>
+        <HeroActionButton icon="arrow-up" label="Transfer" />
+        <HeroActionButton icon="arrow-down" label="Receive" />
+        <HeroMoreButton />
+      </View>
+    </View>
+  );
+}
+
+/* ─── Screen ── */
+export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
+  const [heroHeight, setHeroHeight] = useState(insets.top + 268);
+
+  return (
+    <View style={{ flex: 1, backgroundColor: "#F4F4F6" }}>
+      {/* World map background for content area */}
       <Image
         source={require("../../assets/images/world-map.png")}
         style={s.worldMap}
         resizeMode="contain"
       />
+
+      {/* Full-width hero header — fixed above scroll */}
+      <HeroCard insets={insets} onLayout={setHeroHeight} />
+
+      {/* Scrollable content — sits beneath the hero */}
       <ScrollView
         contentContainerStyle={[
           s.scroll,
-          { paddingTop: insets.top + 8, paddingBottom: insets.bottom + 100 },
+          {
+            paddingTop: heroHeight + 28,
+            paddingBottom: insets.bottom + 100,
+          },
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Header ── */}
-        <View style={s.header}>
-          <View style={s.avatarRow}>
-            <LinearGradient
-              colors={["#D1D5DB", "#9CA3AF"]}
-              style={s.avatar}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            />
-            <View>
-              <Text style={s.hiText}>Hi, Jennifer</Text>
-              <Text style={s.morningText}>Good Morning!</Text>
-            </View>
-          </View>
-          <TouchableOpacity activeOpacity={0.75} style={{ position: "relative" }}>
-            <Feather name="bell" size={24} color={BLACK} strokeWidth={1.5} />
-            <View style={s.bellDot} />
-          </TouchableOpacity>
-        </View>
-
-        {/* ── Balance Card (ported from ZIP) ── */}
-        <BalanceCard balance="$12,765.00" />
-
-        {/* ── Promo card ── */}
-        <TouchableOpacity activeOpacity={0.9} style={s.promoWrap}>
-          <LinearGradient
-            colors={["#6366f1", "#7c3aed", "#8b5cf6"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={s.promoCard}
-          >
-            {/* Decorative circles */}
-            <View style={s.promoCircle1} />
-            <View style={s.promoCircle2} />
-            <View style={s.promoContent}>
-              <Text style={s.promoTitle}>{"Invite a friend and\nboth earn cashback"}</Text>
-              <View style={s.promoLink}>
-                <Text style={s.promoLinkText}>Invite friends</Text>
-                <ArrowIcon name="invite" />
-              </View>
-            </View>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        {/* ── Transactions ── */}
+        {/* Transactions */}
         <View style={s.txHeader}>
           <Text style={s.txTitle}>Transactions</Text>
           <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
@@ -163,7 +232,9 @@ export default function HomeScreen() {
           {TRANSACTIONS.map((tx) => (
             <TouchableOpacity key={tx.id} style={s.txCard} activeOpacity={0.7}>
               <View style={[s.txIconWrap, { backgroundColor: tx.iconBg }]}>
-                {tx.icon ? tx.icon : (
+                {tx.icon ? (
+                  tx.icon
+                ) : (
                   <Feather name="arrow-down" size={24} color={BLACK} />
                 )}
               </View>
@@ -183,82 +254,213 @@ export default function HomeScreen() {
   );
 }
 
-/* ─── Styles ────────────────────────────────────────────────────── */
+/* ─── Hero styles ── */
+const h = StyleSheet.create({
+  card: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: DARK,
+    borderBottomLeftRadius: 36,
+    borderBottomRightRadius: 36,
+    paddingHorizontal: 24,
+    paddingBottom: 30,
+    overflow: "hidden",
+    zIndex: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 14,
+  },
+  mapWatermark: {
+    position: "absolute",
+    width: SCREEN_WIDTH,
+    height: SCREEN_WIDTH * 0.56,
+    top: 30,
+    left: 0,
+    opacity: 0.09,
+  },
+  profileRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 26,
+  },
+  avatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+  },
+  hiText: {
+    fontSize: 18,
+    fontFamily: "Inter_700Bold",
+    color: "#FFFFFF",
+    lineHeight: 24,
+  },
+  morningText: {
+    fontSize: 13,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(255,255,255,0.55)",
+    marginTop: 2,
+  },
+  bellWrap: {
+    position: "relative",
+  },
+  bellBg: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: "rgba(255,255,255,0.10)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bellDot: {
+    position: "absolute",
+    top: 2,
+    right: 2,
+    width: 9,
+    height: 9,
+    borderRadius: 4.5,
+    backgroundColor: "#EF4444",
+    borderWidth: 1.5,
+    borderColor: DARK,
+  },
+  labelRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 6,
+  },
+  labelText: {
+    fontSize: 14,
+    fontFamily: "Inter_400Regular",
+    color: "rgba(255,255,255,0.55)",
+    letterSpacing: 0.2,
+  },
+  amount: {
+    fontSize: 44,
+    fontFamily: "Inter_700Bold",
+    color: "#FFFFFF",
+    letterSpacing: -1.5,
+    marginBottom: 26,
+    lineHeight: 54,
+  },
+  actionRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  pill: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 9,
+    backgroundColor: LIME,
+    borderRadius: 999,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 8,
+    paddingRight: 18,
+    shadowColor: LIME,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  pillCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  pillLabel: {
+    fontSize: 15,
+    fontFamily: "Inter_700Bold",
+    color: BLACK,
+    lineHeight: 18,
+  },
+  moreBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: LIME,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+    shadowColor: LIME,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  moreBtnInner: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
+
+/* ─── Screen styles ── */
 const s = StyleSheet.create({
   scroll: { paddingHorizontal: 20 },
 
-  /* World map background */
   worldMap: {
     position: "absolute",
     width: SCREEN_WIDTH,
     height: SCREEN_WIDTH * 0.6,
-    top: "20%",
+    top: "45%",
     left: 0,
-    opacity: 0.10,
+    opacity: 0.07,
     zIndex: 0,
   },
 
-  /* Header */
-  header: {
-    flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between", marginBottom: 32,
-  },
-  avatarRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-  avatar: {
-    width: 60, height: 60, borderRadius: 30,
-  },
-  hiText: { fontSize: 22, fontFamily: "Inter_600SemiBold", color: BLACK, lineHeight: 28 },
-  morningText: { fontSize: 15, fontFamily: "Inter_400Regular", color: GRAY5, marginTop: 2 },
-  bellDot: {
-    position: "absolute", top: -2, right: -2,
-    width: 10, height: 10, borderRadius: 5,
-    backgroundColor: "#EF4444",
-  },
-
-  /* Promo */
-  promoWrap: { marginBottom: 24 },
-  promoCard: {
-    height: 200, borderRadius: 28,
-    padding: 24, overflow: "hidden",
-    justifyContent: "flex-end",
-  },
-  promoCircle1: {
-    position: "absolute", top: 32, right: 32,
-    width: 112, height: 112, borderRadius: 56,
-    backgroundColor: "rgba(255,255,255,0.10)",
-  },
-  promoCircle2: {
-    position: "absolute", bottom: 32, right: 64,
-    width: 80, height: 80, borderRadius: 40,
-    backgroundColor: "rgba(255,255,255,0.05)",
-  },
-  promoContent: { position: "relative" },
-  promoTitle: {
-    color: "#FFFFFF", fontSize: 26, fontFamily: "Inter_700Bold",
-    lineHeight: 34, marginBottom: 16,
-  },
-  promoLink: { flexDirection: "row", alignItems: "center", gap: 8 },
-  promoLinkText: { color: LIME, fontSize: 16, fontFamily: "Inter_600SemiBold" },
-
-  /* Transactions */
   txHeader: {
-    flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between", marginBottom: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
   },
-  txTitle: { fontSize: 24, fontFamily: "Inter_700Bold", color: BLACK },
+  txTitle: { fontSize: 22, fontFamily: "Inter_700Bold", color: BLACK },
   seeAll: { fontSize: 15, fontFamily: "Inter_500Medium", color: INDIGO },
   txList: { gap: 12 },
   txCard: {
-    flexDirection: "row", alignItems: "center", gap: 16,
-    backgroundColor: "#FFFFFF", borderRadius: 20, padding: 16,
-    borderWidth: 1, borderColor: GRAY2,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: GRAY2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   txIconWrap: {
-    width: 56, height: 56, borderRadius: 16,
-    alignItems: "center", justifyContent: "center", flexShrink: 0,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
   },
   txInfo: { flex: 1 },
-  txName: { fontSize: 17, fontFamily: "Inter_600SemiBold", color: BLACK, marginBottom: 2 },
+  txName: {
+    fontSize: 17,
+    fontFamily: "Inter_600SemiBold",
+    color: BLACK,
+    marginBottom: 2,
+  },
   txDate: { fontSize: 14, fontFamily: "Inter_400Regular", color: GRAY5 },
   txAmount: { fontSize: 17, fontFamily: "Inter_600SemiBold", color: BLACK },
   txCat: { fontSize: 14, fontFamily: "Inter_400Regular", color: GRAY5 },

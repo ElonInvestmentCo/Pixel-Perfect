@@ -2,12 +2,12 @@ import { Dimensions, StyleSheet } from "react-native";
 
 export const LIME            = "#C8FF00";
 export const MATTE_BLACK     = "#0D0D0D";
-export const GRAY_INACTIVE   = "#6B7280";
-export const BORDER_COLOR    = "rgba(255,255,255,0.08)";
+export const GRAY_INACTIVE   = "#9CA3AF";
+export const BORDER_COLOR    = "rgba(255,255,255,0.10)";
 export const WIDTH           = Dimensions.get("window").width;
 
 // 5 visible tabs + 1 expand button = 6 items in collapsed pill
-export const PILL_WIDTH         = WIDTH - 60;
+export const PILL_WIDTH         = WIDTH - 48;
 export const ANIMATION_DURATION = 400;
 // 9 menu items × ~56px per row = 504px + padding
 export const EXPANDED_HEIGHT    = 560;
@@ -66,10 +66,10 @@ export const tabBarStyles = StyleSheet.create({
     borderWidth:   1,
     borderColor:   BORDER_COLOR,
     shadowColor:   "#000",
-    shadowOffset:  { width: 0, height: 6 },
-    shadowOpacity: 0.45,
-    shadowRadius:  18,
-    elevation:     16,
+    shadowOffset:  { width: 0, height: 8 },
+    shadowOpacity: 0.55,
+    shadowRadius:  22,
+    elevation:     20,
   },
 
   blurView: {
@@ -82,22 +82,31 @@ export const tabBarStyles = StyleSheet.create({
 
   floatingBar: {
     flexDirection: "row",
-    height:        50,
+    height:        72,
   },
 
   tab: {
     flex:           1,
     alignItems:     "center",
     justifyContent: "center",
-    borderRadius:   200,
-    margin:         5,
+    flexDirection:  "column",
+    gap:            4,
+    borderRadius:   18,
+    margin:         6,
     position:       "relative",
   },
 
   tabFocusBg: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius:    200,
-    backgroundColor: "rgba(200, 255, 0, 0.13)",
+    borderRadius:    18,
+    backgroundColor: "rgba(200, 255, 0, 0.20)",
+  },
+
+  tabLabel: {
+    fontSize:      10,
+    fontWeight:    "700",
+    letterSpacing: 0.2,
+    lineHeight:    12,
   },
 
   expandedMenu: {
@@ -124,22 +133,22 @@ export const tabBarStyles = StyleSheet.create({
   },
 
   menuIconBox: {
-    width:          28,
-    height:         28,
+    width:          30,
+    height:         30,
     alignItems:     "center",
     justifyContent: "center",
     marginRight:    12,
   },
 
   menuLabel: {
-    fontSize:   15,
-    fontWeight: "600",
+    fontSize:   16,
+    fontWeight: "700",
     flex:       1,
   },
 
   expandIconWrapper: {
-    width:          24,
-    height:         24,
+    width:          28,
+    height:         28,
     alignItems:     "center",
     justifyContent: "center",
   },
