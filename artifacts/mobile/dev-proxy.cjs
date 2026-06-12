@@ -4,10 +4,13 @@
  *
  * Listens on the webview port (5000) and routes:
  *   /api/*      → Local API server  (port 3000)
- *   /__mockup   → Mockup sandbox    (port 8081)
- *   /*          → Expo Metro web    (port 5001)
+ *   /*          → Expo Metro web    (port 8081)
  *
  * WebSocket upgrades (Expo Metro HMR) are tunnelled via raw TCP.
+ *
+ * NOTE: Metro runs directly on port 8081 (external port 8081) so that
+ * Expo Go's exp:// QR URL targets port 8081 directly — bypassing the
+ * mTLS-protected webview port 5000 that blocks external phone connections.
  */
 "use strict";
 
@@ -15,8 +18,7 @@ const http = require("http");
 const net  = require("net");
 
 const API_PORT    = 3000;
-const EXPO_PORT   = 5001;
-const MOCKUP_PORT = 8081;
+const EXPO_PORT   = 8081;
 const PROXY_PORT  = 5000;
 
 // ── HTTP proxy to a local port ────────────────────────────────────────────────
@@ -78,8 +80,6 @@ const server = http.createServer((req, res) => {
 
   if (path.startsWith("/api")) {
     proxyHttpLocal(req, res, API_PORT);
-  } else if (path.startsWith("/__mockup")) {
-    proxyHttpLocal(req, res, MOCKUP_PORT);
   } else {
     proxyHttpLocal(req, res, EXPO_PORT);
   }
