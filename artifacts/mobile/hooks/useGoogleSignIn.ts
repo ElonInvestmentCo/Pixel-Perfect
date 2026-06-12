@@ -46,32 +46,21 @@ const IS_WEB    = Platform.OS === "web";
  *
  * On web: derived from window.location.origin (same-origin, goes through the
  *   dev proxy which routes /api/* to Express).
- * On native: use the EXPO_PUBLIC_BACKEND_URL env var (the Replit dev HTTPS URL)
- *   or fall back to the EXPO_PUBLIC_API_URL. Localhost doesn't work on a real
- *   physical device, so this must be a real HTTPS address.
+ * On native: EXPO_PUBLIC_BACKEND_URL must be set to the production HTTPS
+ *   backend (Railway). Localhost does not work on a physical device, and
+ *   deriving the URL from the Expo Metro tunnel address is unreliable and
+ *   produces stale Replit dev domains when running in Expo Go.
  */
 function getBackendUrl(): string {
   if (IS_WEB) {
     return typeof window !== "undefined" ? window.location.origin : "";
   }
-  // Prefer the explicit backend URL if configured
-  if (process.env.EXPO_PUBLIC_BACKEND_URL) {
-    return process.env.EXPO_PUBLIC_BACKEND_URL;
-  }
-  // Derive from the Expo Metro URL:
-  //   exp://xxx.expo.dev  →  https://xxx.dev
-  // (strips the .expo. subdomain that Metro adds — fallback only; superseded by EXPO_PUBLIC_BACKEND_URL)
-  try {
-    const expoUrl = Linking.createURL("");
-    const match   = expoUrl.match(/^exp:\/\/([^/?]+)/);
-    if (match?.[1]) {
-      const apiHost = match[1].replace(".expo.", ".");
-      return `https://${apiHost}`;
-    }
-  } catch {
-    // ignore — fall through to fallback
-  }
-  return process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000";
+  // Always use the explicit backend URL for native — never derive from Expo tunnel.
+  return (
+    process.env.EXPO_PUBLIC_BACKEND_URL ??
+    process.env.EXPO_PUBLIC_API_URL ??
+    "http://localhost:3000"
+  );
 }
 
 // ── Web redirect URI (only used on web) ─────────────────────────────────────

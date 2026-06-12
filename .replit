@@ -96,6 +96,8 @@ channel = "stable-25_05"
 [userenv.shared]
 NODE_ENV = "development"
 LOG_LEVEL = "info"
+EXPO_PUBLIC_BACKEND_URL = "https://pixel-perfect-production-812e.up.railway.app"
+GOOGLE_CALLBACK_URL = "https://pixel-perfect-production-812e.up.railway.app/api/auth/google/callback"
 
 [userenv.development]
 PORT = "3000"
