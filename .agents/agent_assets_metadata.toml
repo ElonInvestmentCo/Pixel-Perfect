@@ -35,3 +35,9 @@ id = "TWvhN8kYiFswr5EO151fH"
 uri = "file://attached_assets/signin-after.jpg"
 type = "image"
 title = "AFTER — spring close button + animated 3D credit card illustration"
+
+[[outputs]]
+id = "w88xF2Tb3dZI6AKQ4Lgnz"
+uri = "file://attached_assets/google-oauth-branding/payvora-oauth-logo-120x120.png"
+type = "image"
+title = "PayVora OAuth Logo — 120×120px (upload to GCC Branding)"
