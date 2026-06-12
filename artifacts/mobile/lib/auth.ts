@@ -3,16 +3,11 @@ import * as Crypto from "expo-crypto";
 import { Alert, Platform } from "react-native";
 
 import type { SessionUser } from "@/contexts/AuthContext";
+import { AUTH_BASE_URL } from "@/constants/apiUrls";
 
-// On web: use the same origin so requests go through the dev proxy on port 5000,
-// which routes /api/* to Railway backend — same-origin, no CORS/mixed-content.
-// On native: use the Railway backend URL (set via EXPO_PUBLIC_BACKEND_URL).
-const API_URL =
-  Platform.OS === "web"
-    ? typeof window !== "undefined"
-      ? window.location.origin
-      : ""
-    : (process.env.EXPO_PUBLIC_BACKEND_URL ?? "https://pixel-perfect-production-812e.up.railway.app");
+// Auth calls always go to Railway — the permanent auth authority.
+// AUTH_BASE_URL is never affected by the local-API toggle.
+const API_URL = AUTH_BASE_URL;
 
 /**
  * Sign In with Apple — follows Apple's official authentication guide.

@@ -12,9 +12,11 @@ import { Stack } from "expo-router";
 import * as ExpoSplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
 import React, { useEffect, useState } from "react";
-import { Platform, View } from "react-native";
+import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+
+import { getDataBaseUrl } from "@/constants/apiUrls";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -28,16 +30,6 @@ WebBrowser.maybeCompleteAuthSession();
 ExpoSplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
-
-// On web: use the same origin so requests go through the dev proxy on port 5000,
-// which routes /api/* to Railway backend — same-origin, no CORS/mixed-content.
-// On native: use the Railway backend URL (set via EXPO_PUBLIC_BACKEND_URL).
-const API_URL =
-  Platform.OS === "web"
-    ? typeof window !== "undefined"
-      ? window.location.origin
-      : ""
-    : (process.env.EXPO_PUBLIC_BACKEND_URL ?? "https://pixel-perfect-production-812e.up.railway.app");
 
 let KeyboardProviderSafe: React.ComponentType<{ children: React.ReactNode }>;
 try {
@@ -96,6 +88,14 @@ function RootLayoutNav() {
           contentStyle: { backgroundColor: "transparent" },
         }}
       />
+
+      {/* ── OAuth deep-link handler ──────────────────────────────────── */}
+      {/* Catches exp://.../oauth-callback?token=...&id=...&email=...   */}
+      {/* when the link arrives outside an active openAuthSessionAsync. */}
+      <Stack.Screen
+        name="oauth-callback"
+        options={{ headerShown: false, animation: "none" }}
+      />
     </Stack>
   );
 }
@@ -116,7 +116,9 @@ export default function RootLayout() {
   const [splashDone, setSplashDone] = useState(skipSplash);
 
   useEffect(() => {
-    setBaseUrl(API_URL);
+    // Non-auth data routes follow the local-API toggle.
+    // Auth routes (Apple, Google, email/password) always use AUTH_BASE_URL — see lib/auth.ts.
+    setBaseUrl(getDataBaseUrl());
     setAuthTokenGetter(() => storage.getItem("auth_token"));
   }, []);
 

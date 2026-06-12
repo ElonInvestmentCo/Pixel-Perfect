@@ -35,6 +35,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Platform } from "react-native";
 
 import type { SessionUser } from "@/contexts/AuthContext";
+import { AUTH_BASE_URL } from "@/constants/apiUrls";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -42,25 +43,12 @@ const CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 const IS_WEB    = Platform.OS === "web";
 
 /**
- * The publicly accessible HTTPS URL for the API server.
- *
- * On web: derived from window.location.origin (same-origin, goes through the
- *   dev proxy which routes /api/* to Express).
- * On native: EXPO_PUBLIC_BACKEND_URL must be set to the production HTTPS
- *   backend (Railway). Localhost does not work on a physical device, and
- *   deriving the URL from the Expo Metro tunnel address is unreliable and
- *   produces stale Replit dev domains when running in Expo Go.
+ * The auth backend URL — always Railway, never the local API server.
+ * Google OAuth init/callback and JWT issuance must always go to Railway
+ * because the Google Cloud Console redirect URI is registered there.
  */
 function getBackendUrl(): string {
-  if (IS_WEB) {
-    return typeof window !== "undefined" ? window.location.origin : "";
-  }
-  // Always use the explicit backend URL for native — never derive from Expo tunnel.
-  return (
-    process.env.EXPO_PUBLIC_BACKEND_URL ??
-    process.env.EXPO_PUBLIC_API_URL ??
-    "http://localhost:3000"
-  );
+  return AUTH_BASE_URL;
 }
 
 // ── Web redirect URI (only used on web) ─────────────────────────────────────

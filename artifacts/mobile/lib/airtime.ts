@@ -1,23 +1,11 @@
 /**
  * airtime.ts — Mobile API client for Reloadly airtime & data routes.
  *
- * All requests go through the dev-proxy which routes /api/* → Express.
- * On native, EXPO_PUBLIC_BACKEND_URL is the Replit dev domain (injected at
- * Metro startup); on web, window.location.origin is used (same-origin).
+ * Uses getDataBaseUrl() which respects the EXPO_PUBLIC_LOCAL_API toggle.
+ * Auth routes are never called here — this file is data-only.
  */
 
-import { Platform } from "react-native";
-
-function getBaseUrl(): string {
-  if (Platform.OS === "web") {
-    return typeof window !== "undefined" ? window.location.origin : "";
-  }
-  return (
-    process.env.EXPO_PUBLIC_BACKEND_URL ??
-    process.env.EXPO_PUBLIC_API_URL ??
-    "http://localhost:3000"
-  );
-}
+import { getDataBaseUrl } from "@/constants/apiUrls";
 
 async function airtimeFetch<T>(
   path: string,
@@ -30,7 +18,7 @@ async function airtimeFetch<T>(
     ...(options.headers as Record<string, string> ?? {}),
   };
 
-  const res = await fetch(`${getBaseUrl()}/api${path}`, {
+  const res = await fetch(`${getDataBaseUrl()}/api${path}`, {
     ...options,
     headers,
   });
@@ -107,7 +95,7 @@ export async function detectAirtimeOperator(
 ): Promise<AirtimeOperator> {
   const params = new URLSearchParams({ phone, countryCode });
 
-  const res = await fetch(`${getBaseUrl()}/api/airtime/detect?${params}`, {
+  const res = await fetch(`${getDataBaseUrl()}/api/airtime/detect?${params}`, {
     headers: { "Content-Type": "application/json" },
   });
 

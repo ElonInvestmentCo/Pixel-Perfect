@@ -10,6 +10,7 @@ import React, {
   useState,
 } from "react";
 import { Platform } from "react-native";
+import { getDataBaseUrl } from "@/constants/apiUrls";
 
 /* ─── Types ──────────────────────────────────────────────────────────────── */
 
@@ -49,10 +50,7 @@ Notifications.setNotificationHandler({
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
 
-const API_BASE =
-  Platform.OS === "web"
-    ? ""
-    : (process.env.EXPO_PUBLIC_BACKEND_URL ?? "https://pixel-perfect-production-812e.up.railway.app");
+const API_BASE = getDataBaseUrl();
 
 /* ─── Provider ───────────────────────────────────────────────────────────── */
 
