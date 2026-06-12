@@ -12,13 +12,15 @@ import { Stack } from "expo-router";
 import * as ExpoSplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
 import React, { useEffect, useState } from "react";
-import { Platform } from "react-native";
+import { Platform, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SplashScreen } from "@/components/SplashScreen";
+import { NotificationProvider } from "@/contexts/NotificationContext";
+import { NotificationOverlay } from "@/components/notifications/NotificationOverlay";
 
 // Required for Google OAuth on Expo web / Expo Go web preview.
 WebBrowser.maybeCompleteAuthSession();
@@ -142,9 +144,14 @@ export default function RootLayout() {
         <AuthProvider>
           <QueryClientProvider client={queryClient}>
             <GestureHandlerRootView style={{ flex: 1 }}>
-              <KeyboardProviderSafe>
-                <RootLayoutNav />
-              </KeyboardProviderSafe>
+              <NotificationProvider>
+                <KeyboardProviderSafe>
+                  <View style={{ flex: 1 }}>
+                    <RootLayoutNav />
+                    <NotificationOverlay />
+                  </View>
+                </KeyboardProviderSafe>
+              </NotificationProvider>
             </GestureHandlerRootView>
           </QueryClientProvider>
         </AuthProvider>

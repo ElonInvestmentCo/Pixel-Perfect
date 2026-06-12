@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import Svg, { Path, Ellipse } from "react-native-svg";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNotifications, type NotificationType } from "@/contexts/NotificationContext";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -110,9 +111,11 @@ function HeroMoreButton() {
 function HeroCard({
   insets,
   onLayout,
+  onBellPress,
 }: {
-  insets: { top: number };
-  onLayout: (height: number) => void;
+  insets:       { top: number };
+  onLayout:     (height: number) => void;
+  onBellPress?: () => void;
 }) {
   const [balanceVisible, setBalanceVisible] = useState(true);
 
@@ -153,6 +156,7 @@ function HeroCard({
           activeOpacity={0.75}
           style={h.bellWrap}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          onPress={onBellPress}
         >
           <View style={h.bellBg}>
             <Feather name="bell" size={20} color="#FFFFFF" />
@@ -196,6 +200,13 @@ function HeroCard({
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [heroHeight, setHeroHeight] = useState(insets.top + 268);
+  const { triggerTestNotification } = useNotifications();
+  const notifTypeRef = useRef<NotificationType>("transfer");
+
+  function handleBellPress() {
+    triggerTestNotification(notifTypeRef.current);
+    notifTypeRef.current = notifTypeRef.current === "transfer" ? "card" : "transfer";
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F4F4F6" }}>
@@ -207,7 +218,7 @@ export default function HomeScreen() {
       />
 
       {/* Full-width hero header — fixed above scroll */}
-      <HeroCard insets={insets} onLayout={setHeroHeight} />
+      <HeroCard insets={insets} onLayout={setHeroHeight} onBellPress={handleBellPress} />
 
       {/* Scrollable content — sits beneath the hero */}
       <ScrollView
