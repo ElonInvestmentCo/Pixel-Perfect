@@ -51,6 +51,17 @@ const WHITE  = "#FFFFFF";
 const RED    = "#EF4444";
 const GREEN  = "#22C55E";
 
+// ── Flag emoji from ISO-3166-1 alpha-2 code ──────────────────────────────────
+// Each letter maps to a Unicode Regional Indicator Symbol (U+1F1E6…U+1F1FF).
+// Works on iOS, Android, and most web renderers — no extra assets needed.
+function flagFromIso(isoCode: string): string {
+  return isoCode
+    .toUpperCase()
+    .replace(/[A-Z]/g, (ch) =>
+      String.fromCodePoint(ch.charCodeAt(0) - 65 + 0x1f1e6),
+    );
+}
+
 // ── ISO code mapping ──────────────────────────────────────────────────────────
 // Maps country names (from COUNTRIES array) to 2-letter ISO codes for Reloadly
 
@@ -228,12 +239,31 @@ interface OperatorPickerProps {
   onClose:    () => void;
 }
 
-function OperatorPickerModal({ visible, operators, loading, onSelect, onClose }: OperatorPickerProps) {
-  const [query, setQuery] = useState("");
+type OpFilter = "all" | "airtime" | "data" | "bundle";
 
-  const filtered = operators.filter((op) =>
-    op.name.toLowerCase().includes(query.toLowerCase()),
-  );
+const OP_FILTER_LABELS: { key: OpFilter; label: string }[] = [
+  { key: "all",     label: "All"     },
+  { key: "airtime", label: "Airtime" },
+  { key: "data",    label: "Data"    },
+  { key: "bundle",  label: "Bundle"  },
+];
+
+function OperatorPickerModal({ visible, operators, loading, onSelect, onClose }: OperatorPickerProps) {
+  const [query,     setQuery]     = useState("");
+  const [typeFilter, setTypeFilter] = useState<OpFilter>("all");
+
+  // Reset filters when modal opens
+  useEffect(() => {
+    if (visible) { setQuery(""); setTypeFilter("all"); }
+  }, [visible]);
+
+  const filtered = operators.filter((op) => {
+    if (!op.name.toLowerCase().includes(query.toLowerCase())) return false;
+    if (typeFilter === "airtime") return !op.bundle && !op.data;
+    if (typeFilter === "data")    return op.data && !op.bundle;
+    if (typeFilter === "bundle")  return op.bundle;
+    return true;
+  });
 
   return (
     <Modal
@@ -257,6 +287,7 @@ function OperatorPickerModal({ visible, operators, loading, onSelect, onClose }:
           </View>
         ) : (
           <>
+            {/* ── Search bar ── */}
             <View style={op2.searchWrap}>
               <Feather name="search" size={16} color={GRAY5} style={{ marginRight: 8 }} />
               <TextInput
@@ -267,14 +298,50 @@ function OperatorPickerModal({ visible, operators, loading, onSelect, onClose }:
                 onChangeText={setQuery}
                 autoFocus
               />
+              {query.length > 0 && (
+                <TouchableOpacity onPress={() => setQuery("")} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                  <Feather name="x-circle" size={16} color={GRAY5} />
+                </TouchableOpacity>
+              )}
             </View>
+
+            {/* ── Type filter chips ── */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={op2.filterRow}
+            >
+              {OP_FILTER_LABELS.map(({ key, label }) => {
+                const active = typeFilter === key;
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    style={[op2.filterChip, active && op2.filterChipActive]}
+                    onPress={() => setTypeFilter(key)}
+                    activeOpacity={0.75}
+                  >
+                    <Text style={[op2.filterChipText, active && op2.filterChipTextActive]}>
+                      {label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
+            {/* ── Results count ── */}
+            <Text style={op2.resultsCount}>
+              {filtered.length} operator{filtered.length !== 1 ? "s" : ""}
+            </Text>
 
             <FlatList
               data={filtered}
               keyExtractor={(o) => String(o.operatorId)}
               contentContainerStyle={{ paddingBottom: 40 }}
               ListEmptyComponent={
-                <Text style={op2.emptyText}>No operators found.</Text>
+                <View style={op2.emptyWrap}>
+                  <Feather name="search" size={32} color={GRAY3} />
+                  <Text style={op2.emptyText}>No operators match your search.</Text>
+                </View>
               }
               renderItem={({ item }) => (
                 <TouchableOpacity
@@ -282,22 +349,37 @@ function OperatorPickerModal({ visible, operators, loading, onSelect, onClose }:
                   onPress={() => { onSelect(item); onClose(); }}
                   activeOpacity={0.7}
                 >
+                  {/* Operator logo */}
                   {item.logoUrls?.[0] ? (
                     <Image source={{ uri: item.logoUrls[0] }} style={op2.logo} resizeMode="contain" />
                   ) : (
                     <View style={op2.logoPlaceholder}>
-                      <Feather name="phone" size={18} color={GRAY5} />
+                      <Text style={op2.flagInPlaceholder}>
+                        {flagFromIso(item.country.isoName)}
+                      </Text>
                     </View>
                   )}
+
                   <View style={{ flex: 1 }}>
-                    <Text style={op2.operatorName}>{item.name}</Text>
-                    <Text style={op2.operatorMeta}>
-                      {item.denominationType === "RANGE"
-                        ? `$${item.minAmount}–$${item.maxAmount}`
-                        : `${item.fixedAmounts.length} fixed amounts`}
-                      {item.data ? "  ·  Data" : ""}
-                    </Text>
+                    {/* Name row with country flag */}
+                    <View style={op2.nameRow}>
+                      <Text style={op2.flagSmall}>{flagFromIso(item.country.isoName)}</Text>
+                      <Text style={op2.operatorName} numberOfLines={1}>{item.name}</Text>
+                    </View>
+
+                    {/* Meta row: range or fixed + type badges */}
+                    <View style={op2.metaRow}>
+                      <Text style={op2.operatorMeta}>
+                        {item.denominationType === "RANGE"
+                          ? `$${item.minAmount}–$${item.maxAmount}`
+                          : `${item.fixedAmounts.length} fixed`}
+                      </Text>
+                      {item.bundle && <View style={[op2.typeBadge, op2.badgeBundle]}><Text style={op2.typeBadgeText}>Bundle</Text></View>}
+                      {item.data   && !item.bundle && <View style={[op2.typeBadge, op2.badgeData]}><Text style={op2.typeBadgeText}>Data</Text></View>}
+                      {!item.data  && !item.bundle && <View style={[op2.typeBadge, op2.badgeAirtime]}><Text style={op2.typeBadgeText}>Airtime</Text></View>}
+                    </View>
                   </View>
+
                   <Feather name="chevron-right" size={18} color={GRAY5} />
                 </TouchableOpacity>
               )}
@@ -728,7 +810,12 @@ export default function AirtimeScreen() {
 
             <View style={{ flex: 1 }}>
               <Text style={s.operatorName}>{operator.name}</Text>
-              <Text style={s.operatorCountry}>{operator.country.name}</Text>
+              <View style={s.operatorCountryRow}>
+                <Text style={s.operatorCountryFlag}>
+                  {flagFromIso(ISO_CODES[country.name] ?? operator.country.isoName)}
+                </Text>
+                <Text style={s.operatorCountry}>{operator.country.name}</Text>
+              </View>
             </View>
 
             <View style={s.detectedBadge}>
@@ -1035,8 +1122,10 @@ const s = StyleSheet.create({
     alignItems:      "center",
     justifyContent:  "center",
   },
-  operatorName:    { fontSize: 17, fontFamily: "Inter_700Bold",    color: BLACK },
-  operatorCountry: { fontSize: 13, fontFamily: "Inter_400Regular", color: GRAY5, marginTop: 2 },
+  operatorName:       { fontSize: 17, fontFamily: "Inter_700Bold",    color: BLACK },
+  operatorCountryRow: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 2 },
+  operatorCountryFlag:{ fontSize: 14 },
+  operatorCountry:    { fontSize: 13, fontFamily: "Inter_400Regular", color: GRAY5 },
   detectedBadge: {
     flexDirection:   "row",
     alignItems:      "center",
@@ -1377,11 +1466,85 @@ const op2 = StyleSheet.create({
     gap:             16,
   },
   loadingText: { fontSize: 14, fontFamily: "Inter_400Regular", color: GRAY5 },
-  emptyText:   {
-    fontSize:        14,
-    fontFamily:      "Inter_400Regular",
-    color:           GRAY5,
-    textAlign:       "center",
-    paddingVertical: 40,
+  emptyWrap: {
+    alignItems:      "center",
+    justifyContent:  "center",
+    paddingVertical: 48,
+    gap:             12,
+  },
+  emptyText: {
+    fontSize:   14,
+    fontFamily: "Inter_400Regular",
+    color:      GRAY5,
+    textAlign:  "center",
+  },
+
+  filterRow: {
+    paddingHorizontal: 20,
+    paddingVertical:   10,
+    gap:               8,
+    flexDirection:     "row",
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical:    8,
+    borderRadius:      99,
+    backgroundColor:   GRAY1,
+    borderWidth:       1.5,
+    borderColor:       GRAY3,
+  },
+  filterChipActive: {
+    backgroundColor: BLACK,
+    borderColor:     BLACK,
+  },
+  filterChipText: {
+    fontSize:   13,
+    fontFamily: "Inter_600SemiBold",
+    color:      GRAY5,
+  },
+  filterChipTextActive: {
+    color: WHITE,
+  },
+
+  resultsCount: {
+    fontSize:          12,
+    fontFamily:        "Inter_400Regular",
+    color:             GRAY5,
+    paddingHorizontal: 20,
+    paddingBottom:      6,
+  },
+
+  nameRow: {
+    flexDirection: "row",
+    alignItems:    "center",
+    gap:           5,
+  },
+  flagSmall: {
+    fontSize: 14,
+  },
+  flagInPlaceholder: {
+    fontSize: 18,
+  },
+  metaRow: {
+    flexDirection:  "row",
+    alignItems:     "center",
+    gap:             6,
+    marginTop:       3,
+    flexWrap:       "wrap",
+  },
+  typeBadge: {
+    paddingHorizontal: 7,
+    paddingVertical:   2,
+    borderRadius:      6,
+  },
+  badgeAirtime: { backgroundColor: "#EFF6FF" },
+  badgeData:    { backgroundColor: "#F0FDF4" },
+  badgeBundle:  { backgroundColor: "#FFF7ED" },
+  typeBadgeText: {
+    fontSize:   10,
+    fontFamily: "Inter_600SemiBold",
+    color:      GRAY5,
+    textTransform: "uppercase",
+    letterSpacing:  0.4,
   },
 });
