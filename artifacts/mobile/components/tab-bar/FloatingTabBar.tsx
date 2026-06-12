@@ -429,7 +429,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
         <Animated.View
           style={[
             tabBarStyles.gestureWrapper,
-            { bottom: insets.bottom + 20 },
+            { bottom: Math.max(insets.bottom + 16, 36) },
           ]}
         >
           <Animated.View

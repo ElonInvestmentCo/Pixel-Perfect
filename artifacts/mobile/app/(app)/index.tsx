@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import {
   Dimensions,
   Image,
@@ -112,10 +112,12 @@ function HeroCard({
   insets,
   onLayout,
   onBellPress,
+  greeting,
 }: {
   insets:       { top: number };
   onLayout:     (height: number) => void;
   onBellPress?: () => void;
+  greeting:     string;
 }) {
   const [balanceVisible, setBalanceVisible] = useState(true);
 
@@ -150,7 +152,7 @@ function HeroCard({
         />
         <View style={{ flex: 1 }}>
           <Text style={h.hiText}>Hi, Jennifer 👋</Text>
-          <Text style={h.morningText}>Good Morning!</Text>
+          <Text style={h.morningText}>{greeting}</Text>
         </View>
         <TouchableOpacity
           activeOpacity={0.75}
@@ -196,12 +198,20 @@ function HeroCard({
   );
 }
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12)  return "Good Morning!";
+  if (hour >= 12 && hour < 17) return "Good Afternoon!";
+  return "Good Evening!";
+}
+
 /* ─── Screen ── */
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const [heroHeight, setHeroHeight] = useState(insets.top + 268);
   const { triggerTestNotification } = useNotifications();
   const notifTypeRef = useRef<NotificationType>("transfer");
+  const greeting = useMemo(() => getGreeting(), []);
 
   function handleBellPress() {
     triggerTestNotification(notifTypeRef.current);
@@ -218,7 +228,7 @@ export default function HomeScreen() {
       />
 
       {/* Full-width hero header — fixed above scroll */}
-      <HeroCard insets={insets} onLayout={setHeroHeight} onBellPress={handleBellPress} />
+      <HeroCard insets={insets} onLayout={setHeroHeight} onBellPress={handleBellPress} greeting={greeting} />
 
       {/* Scrollable content — sits beneath the hero */}
       <ScrollView
@@ -329,8 +339,8 @@ const h = StyleSheet.create({
   },
   bellDot: {
     position: "absolute",
-    top: 2,
-    right: 2,
+    top: 5,
+    right: 4,
     width: 9,
     height: 9,
     borderRadius: 4.5,
