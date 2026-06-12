@@ -1,5 +1,5 @@
-import * as SecureStore from "expo-secure-store";
 import React, { createContext, useContext, useEffect, useState } from "react";
+import * as storage from "@/lib/storage";
 
 export type SessionUser = {
   id:        string;
@@ -33,8 +33,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       try {
         const [token, userJson] = await Promise.all([
-          SecureStore.getItemAsync(TOKEN_KEY),
-          SecureStore.getItemAsync(USER_KEY),
+          storage.getItem(TOKEN_KEY),
+          storage.getItem(USER_KEY),
         ]);
         if (token && userJson) {
           setSession({ token, user: JSON.parse(userJson) as SessionUser });
@@ -49,16 +49,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const saveSession = async (token: string, user: SessionUser) => {
     await Promise.all([
-      SecureStore.setItemAsync(TOKEN_KEY, token),
-      SecureStore.setItemAsync(USER_KEY, JSON.stringify(user)),
+      storage.setItem(TOKEN_KEY, token),
+      storage.setItem(USER_KEY, JSON.stringify(user)),
     ]);
     setSession({ token, user });
   };
 
   const clearSession = async () => {
     await Promise.all([
-      SecureStore.deleteItemAsync(TOKEN_KEY),
-      SecureStore.deleteItemAsync(USER_KEY),
+      storage.deleteItem(TOKEN_KEY),
+      storage.deleteItem(USER_KEY),
     ]);
     setSession(null);
   };

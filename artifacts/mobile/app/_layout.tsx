@@ -7,7 +7,7 @@ import {
 } from "@expo-google-fonts/inter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { setAuthTokenGetter, setBaseUrl } from "@workspace/api-client-react";
-import * as SecureStore from "expo-secure-store";
+import * as storage from "@/lib/storage";
 import { Stack } from "expo-router";
 import * as ExpoSplashScreen from "expo-splash-screen";
 import * as WebBrowser from "expo-web-browser";
@@ -116,7 +116,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     setBaseUrl(API_URL);
-    setAuthTokenGetter(() => SecureStore.getItemAsync("auth_token"));
+    setAuthTokenGetter(() => storage.getItem("auth_token"));
   }, []);
 
   // Hide the native Expo splash as soon as fonts are ready.
