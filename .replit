@@ -23,7 +23,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "fuser -k 5000/tcp 8081/tcp 2>/dev/null; node artifacts/mobile/dev-proxy.cjs & EXPO_PUBLIC_BACKEND_URL=https://$REPLIT_DEV_DOMAIN REACT_NATIVE_PACKAGER_HOSTNAME=$REPLIT_DEV_DOMAIN pnpm --filter @workspace/mobile exec expo start --localhost --port 8081"
+args = "fuser -k 5000/tcp 8081/tcp 2>/dev/null; node artifacts/mobile/dev-proxy.cjs & EXPO_PUBLIC_BACKEND_URL=https://pixel-perfect-production-812e.up.railway.app REACT_NATIVE_PACKAGER_HOSTNAME=$REPLIT_DEV_DOMAIN pnpm --filter @workspace/mobile exec expo start --localhost --port 8081"
 waitForPort = 5000
 
 [[workflows.workflow]]
@@ -34,22 +34,6 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Start Expo Native App"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Start API Server"
-
-[[workflows.workflow]]
-name = "Start API Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "pnpm --filter @workspace/api-server run dev"
-waitForPort = 3000
 
 [agent]
 stack = "BEST_EFFORT_FALLBACK"
@@ -67,10 +51,6 @@ externalPort = 3003
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
 
 [[ports]]
 localPort = 8081
@@ -92,6 +72,7 @@ channel = "stable-25_05"
 [userenv.shared]
 NODE_ENV = "development"
 LOG_LEVEL = "info"
+EXPO_PUBLIC_BACKEND_URL = "https://pixel-perfect-production-812e.up.railway.app"
 
 [userenv.development]
 PORT = "3000"

@@ -52,7 +52,7 @@ const NotificationContext = createContext<NotificationContextValue | null>(null)
 const API_BASE =
   Platform.OS === "web"
     ? ""
-    : (process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000");
+    : (process.env.EXPO_PUBLIC_BACKEND_URL ?? "https://pixel-perfect-production-812e.up.railway.app");
 
 /* ─── Provider ───────────────────────────────────────────────────────────── */
 

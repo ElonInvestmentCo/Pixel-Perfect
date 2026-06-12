@@ -29,14 +29,15 @@ ExpoSplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
-// On web: use the same origin so requests go through the dev proxy on port 5000.
-// On native: use the configured env var (or localhost for local development).
+// On web: use the same origin so requests go through the dev proxy on port 5000,
+// which routes /api/* to Railway backend — same-origin, no CORS/mixed-content.
+// On native: use the Railway backend URL (set via EXPO_PUBLIC_BACKEND_URL).
 const API_URL =
   Platform.OS === "web"
     ? typeof window !== "undefined"
       ? window.location.origin
       : ""
-    : (process.env.EXPO_PUBLIC_API_URL ?? "http://localhost:3000");
+    : (process.env.EXPO_PUBLIC_BACKEND_URL ?? "https://pixel-perfect-production-812e.up.railway.app");
 
 let KeyboardProviderSafe: React.ComponentType<{ children: React.ReactNode }>;
 try {
