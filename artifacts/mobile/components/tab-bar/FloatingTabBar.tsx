@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -357,6 +357,47 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     return options?.tabBarIcon !== undefined && (options as any)?.href !== null;
   });
 
+  // ── sliding indicator ─────────────────────────────────────────────────────
+  // 5 visible tabs + 1 expand button = 6 equally-wide flex items
+  const NUM_ITEMS   = visibleRoutes.length + 1;
+  const TAB_W       = PILL_WIDTH / NUM_ITEMS;
+  const IND_MARGIN  = 6;
+
+  // Which visible-tab index is currently focused?
+  const focusedRoute         = state.routes[state.index];
+  const focusedVisibleIndex  = visibleRoutes.findIndex((r) => r.key === focusedRoute?.key);
+  const safeFocusedIdx       = Math.max(0, focusedVisibleIndex);
+
+  // Shared value lives at the left-edge of the indicator capsule
+  const indicatorLeft = useSharedValue(safeFocusedIdx * TAB_W + IND_MARGIN);
+
+  // Spring-animate the indicator whenever the active tab changes
+  useEffect(() => {
+    if (focusedVisibleIndex >= 0) {
+      indicatorLeft.value = withSpring(
+        focusedVisibleIndex * TAB_W + IND_MARGIN,
+        { damping: 22, stiffness: 200, mass: 0.85, overshootClamping: false },
+      );
+    }
+  }, [focusedVisibleIndex, indicatorLeft, TAB_W]);
+
+  // Glassmorphism capsule: positioned behind the tab icons/labels
+  const slidingIndicatorStyle = useAnimatedStyle(() => ({
+    position:        "absolute",
+    top:             IND_MARGIN,
+    left:            indicatorLeft.value,
+    width:           TAB_W - IND_MARGIN * 2,
+    height:          72 - IND_MARGIN * 2,
+    borderRadius:    14,
+    backgroundColor: "rgba(200, 255, 0, 0.14)",
+    borderWidth:     1,
+    borderColor:     "rgba(200, 255, 0, 0.28)",
+    shadowColor:     "#C8FF00",
+    shadowOpacity:   0.22,
+    shadowRadius:    10,
+    shadowOffset:    { width: 0, height: 2 },
+  }));
+
   // ─────────────────────────────────────────────────────────────────────────
   // Render
   //
@@ -419,9 +460,13 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
 
               {/* ── Collapsed pill: tab buttons + toggle chevron ── */}
               <Animated.View style={[tabBarStyles.floatingBar, floatingBarStyle]}>
-                {visibleRoutes.map((route) => {
+
+                {/* Glassmorphism sliding indicator — rendered first so it appears BEHIND tabs */}
+                <Animated.View style={slidingIndicatorStyle} />
+
+                {visibleRoutes.map((route, visIdx) => {
                   const { options } = descriptors[route.key];
-                  const isFocused   = state.index === state.routes.indexOf(route);
+                  const isFocused   = visIdx === focusedVisibleIndex;
                   const iconName    = ICON_MAP[route.name] ?? "circle";
 
                   return (

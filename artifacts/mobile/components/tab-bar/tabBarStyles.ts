@@ -96,12 +96,6 @@ export const tabBarStyles = StyleSheet.create({
     position:       "relative",
   },
 
-  tabFocusBg: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius:    18,
-    backgroundColor: "rgba(200, 255, 0, 0.20)",
-  },
-
   tabLabel: {
     fontSize:      10,
     fontWeight:    "700",
