@@ -23,7 +23,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "fuser -k 5000/tcp 5001/tcp 2>/dev/null; node artifacts/mobile/dev-proxy.cjs & pnpm --filter @workspace/mobile exec expo start --localhost --port 5001 --clear"
+args = "fuser -k 5000/tcp 5001/tcp 2>/dev/null; node artifacts/mobile/dev-proxy.cjs & EXPO_PACKAGER_PROXY_URL=https://$REPLIT_DEV_DOMAIN REACT_NATIVE_PACKAGER_HOSTNAME=$REPLIT_DEV_DOMAIN pnpm --filter @workspace/mobile exec expo start --localhost --port 5001"
 waitForPort = 5000
 
 [[workflows.workflow]]
@@ -63,10 +63,6 @@ timeoutMs = 20000
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 5001
-externalPort = 3000
 
 [[ports]]
 localPort = 5002
