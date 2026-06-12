@@ -64,6 +64,7 @@ export default function AppLayout() {
       />
 
       {/* ── Hidden routes (accessible via expandable menu) ── */}
+      <Tabs.Screen name="airtime"        options={{ href: null }} />
       <Tabs.Screen name="settings"       options={{ href: null }} />
       <Tabs.Screen name="buy-gift-card"  options={{ href: null }} />
       <Tabs.Screen name="sell-gift-card" options={{ href: null }} />

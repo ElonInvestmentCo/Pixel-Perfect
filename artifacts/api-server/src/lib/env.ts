@@ -118,6 +118,25 @@ const schema = z.object({
   APPLE_BUNDLE_ID: z
     .string()
     .default("com.payvora.mobile,host.exp.exponent"),
+
+  /**
+   * Reloadly API credentials for airtime/data top-ups.
+   * Obtain from https://developers.reloadly.com/
+   * Both are required to use the airtime routes; routes return 503 if absent.
+   */
+  RELOADLY_CLIENT_ID: z.string().optional(),
+
+  RELOADLY_CLIENT_SECRET: z.string().optional(),
+
+  /**
+   * Set to "true" to use Reloadly sandbox (test mode, no real money).
+   * Defaults to false — uses production API by default.
+   * Override via RELOADLY_SANDBOX=true in Replit Secrets for test mode.
+   */
+  RELOADLY_SANDBOX: z
+    .string()
+    .optional()
+    .transform((v) => v === "true"),
 });
 
 const result = schema.safeParse(process.env);

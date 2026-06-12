@@ -9,8 +9,8 @@ export const WIDTH           = Dimensions.get("window").width;
 // 5 visible tabs + 1 expand button = 6 items in collapsed pill
 export const PILL_WIDTH         = WIDTH - 48;
 export const ANIMATION_DURATION = 400;
-// 9 menu items × ~56px per row = 504px + padding
-export const EXPANDED_HEIGHT    = 560;
+// 10 menu items × ~56px per row = 560px + padding
+export const EXPANDED_HEIGHT    = 620;
 
 export const SPRING_CONFIG = {
   damping:   15,
@@ -32,7 +32,8 @@ export type PayvoraIconName =
   | "file-text"
   | "wifi"
   | "users"
-  | "help-circle";
+  | "help-circle"
+  | "phone";
 
 export interface PayvoraMenuItem {
   iconName: PayvoraIconName;
@@ -41,6 +42,7 @@ export interface PayvoraMenuItem {
 }
 
 export const PAYVORA_MENU_ITEMS: PayvoraMenuItem[] = [
+  { iconName: "phone",         label: "Airtime & Data",      route: "airtime"        },
   { iconName: "gift",          label: "Buy Gift Card",       route: "buy-gift-card"  },
   { iconName: "tag",           label: "Sell Gift Card",      route: "sell-gift-card" },
   { iconName: "trending-up",   label: "Buy Crypto",          route: "buy-crypto"     },

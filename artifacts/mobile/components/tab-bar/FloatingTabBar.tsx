@@ -39,6 +39,7 @@ const ICON_MAP: Record<string, React.ComponentProps<typeof Feather>["name"]> = {
   activity:          "clock",
   account:           "user",
   settings:          "settings",
+  airtime:           "phone",
   "buy-gift-card":   "gift",
   "sell-gift-card":  "tag",
   "buy-crypto":      "trending-up",
