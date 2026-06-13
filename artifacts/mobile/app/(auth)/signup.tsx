@@ -3,7 +3,6 @@ import { CommonActions } from "@react-navigation/native";
 import { router, useNavigation } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Alert,
   Keyboard,
   StyleSheet,
   Text,
@@ -126,6 +125,7 @@ export default function SignUpScreen() {
   const handleAppleSignUp = useCallback(async () => {
     if (isAnyLoading) return;
     setLoading(true);
+    setSubmitErr("");
     try {
       const result = await signInWithApple();
       if (!result) return;
@@ -134,7 +134,7 @@ export default function SignUpScreen() {
     } catch (e: unknown) {
       if (!mountedRef.current) return;
       const msg = e instanceof Error ? e.message : "Apple sign-in failed. Please try again.";
-      Alert.alert("Sign Up Failed", msg);
+      setSubmitErr(msg);
     } finally {
       if (mountedRef.current) setLoading(false);
     }

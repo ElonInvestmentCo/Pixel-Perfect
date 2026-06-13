@@ -23,6 +23,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SplashScreen } from "@/components/SplashScreen";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { NotificationOverlay } from "@/components/notifications/NotificationOverlay";
+import { ToastProvider } from "@/contexts/ToastContext";
 
 // Required for Google OAuth on Expo web / Expo Go web preview.
 WebBrowser.maybeCompleteAuthSession();
@@ -123,8 +124,6 @@ export default function RootLayout() {
   }, []);
 
   // Hide the native Expo splash as soon as fonts are ready.
-  // Our animated SplashScreen is already rendered at this point,
-  // so there is no visible gap — it seamlessly takes over from the native splash.
   useEffect(() => {
     if (fontsLoaded || fontError) {
       ExpoSplashScreen.hideAsync();
@@ -132,7 +131,6 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError]);
 
   // Show the animated splash screen until its 2.2 s animation completes.
-  // Wrap in SafeAreaProvider so useSafeAreaInsets() works inside SplashScreen.
   if (!splashDone) {
     return (
       <SafeAreaProvider>
@@ -149,10 +147,12 @@ export default function RootLayout() {
             <GestureHandlerRootView style={{ flex: 1 }}>
               <NotificationProvider>
                 <KeyboardProviderSafe>
-                  <View style={{ flex: 1 }}>
-                    <RootLayoutNav />
-                    <NotificationOverlay />
-                  </View>
+                  <ToastProvider>
+                    <View style={{ flex: 1 }}>
+                      <RootLayoutNav />
+                      <NotificationOverlay />
+                    </View>
+                  </ToastProvider>
                 </KeyboardProviderSafe>
               </NotificationProvider>
             </GestureHandlerRootView>

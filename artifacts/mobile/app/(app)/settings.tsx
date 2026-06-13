@@ -4,7 +4,6 @@ import { useNavigation } from "expo-router";
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -12,6 +11,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { ConfirmModal } from "@/components/ConfirmModal";
 import { useAuth } from "@/contexts/AuthContext";
 
 const BLACK  = "#1A1A1A";
@@ -19,36 +19,33 @@ const INDIGO = "#4F46E5";
 const RED    = "#DC2626";
 
 export default function SettingsScreen() {
-  const insets     = useSafeAreaInsets();
-  const navigation = useNavigation();
-  const { clearSession } = useAuth();
-  const [signingOut, setSigningOut] = useState(false);
+  const insets            = useSafeAreaInsets();
+  const navigation        = useNavigation();
+  const { clearSession }  = useAuth();
+  const [signingOut,    setSigningOut]    = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false);
 
-  const handleSignOut = useCallback(() => {
-    Alert.alert(
-      "Sign Out",
-      "Are you sure you want to sign out?",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Sign Out",
-          style: "destructive",
-          onPress: async () => {
-            setSigningOut(true);
-            try {
-              await clearSession();
-              const rootNav = navigation.getParent() ?? navigation;
-              rootNav.dispatch(
-                CommonActions.reset({ index: 0, routes: [{ name: "index" }] }),
-              );
-            } finally {
-              setSigningOut(false);
-            }
-          },
-        },
-      ],
-    );
+  const handleSignOutPress = useCallback(() => {
+    setConfirmVisible(true);
+  }, []);
+
+  const handleSignOutConfirm = useCallback(async () => {
+    setSigningOut(true);
+    try {
+      await clearSession();
+      const rootNav = navigation.getParent() ?? navigation;
+      rootNav.dispatch(
+        CommonActions.reset({ index: 0, routes: [{ name: "index" }] }),
+      );
+    } finally {
+      setSigningOut(false);
+      setConfirmVisible(false);
+    }
   }, [clearSession, navigation]);
+
+  const handleSignOutCancel = useCallback(() => {
+    setConfirmVisible(false);
+  }, []);
 
   return (
     <View style={[s.root, { paddingTop: insets.top + 16 }]}>
@@ -67,7 +64,7 @@ export default function SettingsScreen() {
       {/* Sign Out */}
       <TouchableOpacity
         style={[s.signOutBtn, signingOut && s.signOutBtnDisabled]}
-        onPress={handleSignOut}
+        onPress={handleSignOutPress}
         disabled={signingOut}
         activeOpacity={0.75}
         accessibilityRole="button"
@@ -84,6 +81,18 @@ export default function SettingsScreen() {
       </TouchableOpacity>
 
       <View style={{ height: insets.bottom + 16 }} />
+
+      <ConfirmModal
+        visible={confirmVisible}
+        title="Sign Out"
+        message="Are you sure you want to sign out of your account?"
+        confirmLabel="Sign Out"
+        cancelLabel="Cancel"
+        destructive
+        loading={signingOut}
+        onConfirm={handleSignOutConfirm}
+        onCancel={handleSignOutCancel}
+      />
     </View>
   );
 }

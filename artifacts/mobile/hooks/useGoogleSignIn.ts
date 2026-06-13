@@ -32,10 +32,11 @@ import * as Google from "expo-auth-session/providers/google";
 import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Alert, Platform } from "react-native";
+import { Platform } from "react-native";
 
 import type { SessionUser } from "@/contexts/AuthContext";
 import { AUTH_BASE_URL } from "@/constants/apiUrls";
+import { useToast } from "@/contexts/ToastContext";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -61,6 +62,7 @@ type OnSuccess = (token: string, user: SessionUser) => Promise<void>;
 export function useGoogleSignIn(onSuccess: OnSuccess) {
   const [isLoading, setIsLoading] = useState(false);
   const mountedRef = useRef(true);
+  const { showToast } = useToast();
 
   useEffect(() => {
     mountedRef.current = true;
@@ -88,7 +90,7 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
     if (webResponse.type === "error") {
       if (__DEV__) console.error("[GoogleOAuth/web] Error:", webResponse.error);
       if (mountedRef.current) {
-        Alert.alert("Sign In Failed", webResponse.error?.message ?? "Google sign-in failed.");
+        showToast("error", webResponse.error?.message ?? "Google sign-in failed.");
       }
       return;
     }
@@ -133,7 +135,7 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
         await onSuccess(data.token!, data.user!);
       } catch (err) {
         if (!mountedRef.current) return;
-        Alert.alert("Sign In Failed", err instanceof Error ? err.message : "Google sign-in failed.");
+        showToast("error", err instanceof Error ? err.message : "Google sign-in failed.");
       } finally {
         if (mountedRef.current) setIsLoading(false);
       }
@@ -195,19 +197,16 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
       if (!mountedRef.current) return;
       const msg = err instanceof Error ? err.message : "Google sign-in failed.";
       if (__DEV__) console.error("[GoogleOAuth/native] ✗ Error:", msg);
-      Alert.alert("Sign In Failed", msg);
+      showToast("error", msg);
     } finally {
       if (mountedRef.current) setIsLoading(false);
     }
-  }, [onSuccess]);
+  }, [onSuccess, showToast]);
 
   // ── Public API ────────────────────────────────────────────────────────────
   const promptAsync = useCallback(() => {
     if (!CLIENT_ID) {
-      Alert.alert(
-        "Google Sign-In Not Configured",
-        "Google sign-in is not available. Please sign in with Apple or email.",
-      );
+      showToast("info", "Google sign-in is not available. Please sign in with Apple or email.");
       return;
     }
     if (IS_WEB) {
@@ -215,7 +214,7 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
     } else {
       handleNativeSignIn();
     }
-  }, [webPromptAsync, handleNativeSignIn]);
+  }, [webPromptAsync, handleNativeSignIn, showToast]);
 
   return {
     promptAsync,

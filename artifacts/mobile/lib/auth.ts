@@ -1,6 +1,6 @@
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as Crypto from "expo-crypto";
-import { Alert, Platform } from "react-native";
+import { Platform } from "react-native";
 
 import type { SessionUser } from "@/contexts/AuthContext";
 import { AUTH_BASE_URL } from "@/constants/apiUrls";
@@ -24,8 +24,7 @@ const API_URL = AUTH_BASE_URL;
  */
 export async function signInWithApple(): Promise<{ token: string; user: SessionUser } | null> {
   if (Platform.OS !== "ios") {
-    Alert.alert("Not Available", "Apple Sign-In is only available on iOS.");
-    return null;
+    throw new Error("Apple Sign-In is only available on iOS.");
   }
 
   let available = false;
@@ -36,8 +35,7 @@ export async function signInWithApple(): Promise<{ token: string; user: SessionU
   }
 
   if (!available) {
-    Alert.alert("Not Available", "Apple Sign-In is not available on this device.");
-    return null;
+    throw new Error("Apple Sign-In is not available on this device.");
   }
 
   try {
