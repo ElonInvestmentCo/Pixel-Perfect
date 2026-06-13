@@ -680,36 +680,104 @@ const landingBody = /* html */ `
   /* ────────────────────────────────────────────────────────────────────────────
      TRUST STRIP
   ──────────────────────────────────────────────────────────────────────────── */
-  .trust-strip {
-    border-bottom: 1px solid #E5E5E5;
-    padding: 32px 48px;
-    max-width: 1200px;
+  /* ── Globe / Global Reach section ── */
+  .globe-section {
+    position: relative;
+    background: #060608;
+    overflow: hidden;
+    padding: 100px 48px 80px;
+    text-align: center;
+  }
+  .globe-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    opacity: 0.55;
+    pointer-events: none;
+    user-select: none;
+  }
+  .globe-content {
+    position: relative;
+    z-index: 2;
+    max-width: 680px;
     margin: 0 auto;
   }
-  .trust-label {
-    text-align: center;
+  .globe-kicker {
+    display: inline-block;
     font-size: 11px;
-    font-weight: 600;
-    color: #9CA3AF;
+    font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 24px;
+    color: #C8FF00;
+    margin-bottom: 20px;
   }
-  .trust-logos {
+  .globe-title {
+    font-size: clamp(32px, 4.5vw, 56px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 20px;
+  }
+  .globe-title em { font-style: normal; color: #C8FF00; }
+  .globe-sub {
+    font-size: 17px;
+    color: rgba(255,255,255,0.55);
+    line-height: 1.65;
+    margin-bottom: 52px;
+  }
+  .globe-stats {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 40px;
+    gap: 0;
     flex-wrap: wrap;
   }
-  .trust-logo {
-    font-size: 15px;
-    font-weight: 700;
-    color: #C4C4C4;
-    letter-spacing: -0.02em;
-    transition: color 0.2s;
+  .globe-stat {
+    padding: 0 40px;
+    border-right: 1px solid rgba(255,255,255,0.1);
   }
-  .trust-logo:hover { color: #9CA3AF; }
+  .globe-stat:last-child { border-right: none; }
+  .globe-stat-num {
+    font-size: clamp(28px, 3.5vw, 40px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    color: #fff;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .globe-stat-num span { color: #C8FF00; }
+  .globe-stat-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.01em;
+  }
+  .globe-fade-top {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 120px;
+    background: linear-gradient(to bottom, #060608 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .globe-fade-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 120px;
+    background: linear-gradient(to top, #060608 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  @media (max-width: 640px) {
+    .globe-section { padding: 72px 24px 56px; }
+    .globe-stat { padding: 16px 24px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); width: 100%; }
+    .globe-stat:last-child { border-bottom: none; }
+    .globe-stats { flex-direction: column; gap: 0; }
+  }
 
   /* ────────────────────────────────────────────────────────────────────────────
      FEATURES
@@ -1056,17 +1124,41 @@ const landingBody = /* html */ `
     </div>
   </section>
 
-  <!-- ── Trust Strip ── -->
-  <div class="trust-strip">
-    <div class="trust-label">Trusted by users in 150+ countries</div>
-    <div class="trust-logos">
-      <span class="trust-logo">Africa</span>
-      <span class="trust-logo">Europe</span>
-      <span class="trust-logo">North America</span>
-      <span class="trust-logo">Asia Pacific</span>
-      <span class="trust-logo">Middle East</span>
-      <span class="trust-logo">Latin America</span>
+  <!-- ── Global Reach / Globe Section ── -->
+  <div class="globe-section">
+    <div class="globe-fade-top"></div>
+    <img
+      class="globe-bg"
+      src="https://ramp.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fhome-refresh-global-spend-globe.0m0jx38zbkntj.webp&w=2048&q=75&dpl=dpl_b7DFZeK21UFWJMeSiCNtSnjdc6X4"
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      decoding="async"
+    />
+    <div class="globe-content">
+      <div class="globe-kicker">Global coverage</div>
+      <h2 class="globe-title">Money moves at the<br /><em>speed of now.</em></h2>
+      <p class="globe-sub">Send, receive, and manage money across 150+ countries — no bank visits, no delays, no surprises.</p>
+      <div class="globe-stats">
+        <div class="globe-stat">
+          <div class="globe-stat-num">150<span>+</span></div>
+          <div class="globe-stat-label">Countries supported</div>
+        </div>
+        <div class="globe-stat">
+          <div class="globe-stat-num">&lt;3<span>s</span></div>
+          <div class="globe-stat-label">Average transfer time</div>
+        </div>
+        <div class="globe-stat">
+          <div class="globe-stat-num">$0</div>
+          <div class="globe-stat-label">Hidden fees</div>
+        </div>
+        <div class="globe-stat">
+          <div class="globe-stat-num">24<span>/7</span></div>
+          <div class="globe-stat-label">Always available</div>
+        </div>
+      </div>
     </div>
+    <div class="globe-fade-bottom"></div>
   </div>
 
   <!-- ── Features ── -->
