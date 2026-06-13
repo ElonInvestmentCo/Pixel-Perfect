@@ -1,0 +1,25 @@
+2026-06-12T14:50:51.950791949Z [inf]  Mounting volume on: /var/lib/containers/railwayapp/bind-mounts/b29d5e3c-66d8-4856-97d0-7578f70b96d0/vol_4f4i8kpgv7ap44jk
+2026-06-12T14:50:52.222661919Z [inf]  wrapper: removing stale /var/lib/postgresql/data/pgdata/postmaster.pid (no postgres running at container start)
+2026-06-12T14:50:52.222664809Z [inf]  Certificate will not expire
+2026-06-12T14:50:52.222667569Z [inf]  pgbackrest: volume 4614 MiB; sized wal-drop=461 MiB queue-max=2307 MiB
+2026-06-12T14:50:52.222670259Z [inf]  pgbackrest: restore-gate WAL_RECOVER_FROM_BUCKET= POSTGRES_RECOVERY_TARGET_TIME= PG_VERSION=present PG_CONTROL=present RESTORED_MARKER=missing PGDATA=/var/lib/postgresql/data/pgdata
+2026-06-12T14:50:52.222673409Z [inf]  
+2026-06-12T14:50:52.222678529Z [inf]  PostgreSQL Database directory appears to contain a database; Skipping initialization
+2026-06-12T14:50:52.222681329Z [inf]  
+2026-06-12T14:50:52.222684059Z [err]  2026-06-12 14:50:52.003 UTC [16] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+2026-06-12T14:50:52.222686789Z [err]  2026-06-12 14:50:52.003 UTC [16] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+2026-06-12T14:50:52.222690219Z [err]  2026-06-12 14:50:52.003 UTC [16] LOG:  listening on IPv6 address "::", port 5432
+2026-06-12T14:50:52.222693179Z [err]  2026-06-12 14:50:52.012 UTC [16] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+2026-06-12T14:50:52.222696289Z [err]  2026-06-12 14:50:52.022 UTC [42] LOG:  database system was interrupted; last known up at 2026-06-12 03:53:20 UTC
+2026-06-12T14:50:52.393402741Z [err]  2026-06-12 14:50:52.392 UTC [42] LOG:  database system was not properly shut down; automatic recovery in progress
+2026-06-12T14:50:52.410148761Z [err]  2026-06-12 14:50:52.403 UTC [42] LOG:  redo starts at 0/1C28CA0
+2026-06-12T14:50:52.410153701Z [err]  2026-06-12 14:50:52.403 UTC [42] LOG:  invalid record length at 0/1C28DA8: expected at least 24, got 0
+2026-06-12T14:50:52.410157031Z [err]  2026-06-12 14:50:52.403 UTC [42] LOG:  redo done at 0/1C28D70 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+2026-06-12T14:50:52.410159881Z [err]  2026-06-12 14:50:52.409 UTC [40] LOG:  checkpoint starting: end-of-recovery immediate wait
+2026-06-12T14:50:52.433219137Z [err]  2026-06-12 14:50:52.427 UTC [40] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.004 s, sync=0.006 s, total=0.021 s; sync files=2, longest=0.004 s, average=0.003 s; distance=0 kB, estimate=0 kB; lsn=0/1C28DA8, redo lsn=0/1C28DA8
+2026-06-12T14:50:52.433228537Z [err]  2026-06-12 14:50:52.430 UTC [16] LOG:  database system is ready to accept connections
+2026-06-12T14:50:52.952893417Z [inf]  Starting Container
+2026-06-13T02:26:13.908144260Z [err]  2026-06-13 02:26:05.126 UTC [40] LOG:  checkpoint starting: time
+2026-06-13T02:26:13.908152219Z [err]  2026-06-13 02:26:05.241 UTC [40] LOG:  checkpoint complete: wrote 1 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.101 s, sync=0.003 s, total=0.115 s; sync files=1, longest=0.003 s, average=0.003 s; distance=4 kB, estimate=4 kB; lsn=0/1C29EA0, redo lsn=0/1C29E48
+2026-06-13T02:36:14.050093313Z [err]  2026-06-13 02:36:05.440 UTC [40] LOG:  checkpoint starting: time
+2026-06-13T02:36:14.050097733Z [err]  2026-06-13 02:36:05.653 UTC [40] LOG:  checkpoint complete: wrote 2 buffers (0.0%), wrote 0 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.201 s, sync=0.003 s, total=0.213 s; sync files=2, longest=0.003 s, average=0.002 s; distance=8 kB, estimate=8 kB; lsn=0/1C2C1F8, redo lsn=0/1C2C1A0
