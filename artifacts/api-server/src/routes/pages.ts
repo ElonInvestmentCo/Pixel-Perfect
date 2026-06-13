@@ -339,15 +339,29 @@ const landingBody = /* html */ `
   /* ── Phone mockup ── */
   .phone-mockup-img {
     margin: 0 auto;
-    max-width: 420px;
+    max-width: 680px;
     width: 100%;
+    position: relative;
+  }
+  .phone-mockup-img::before {
+    content: '';
+    position: absolute;
+    inset: -60px;
+    background: radial-gradient(ellipse at center, rgba(200,255,0,0.14) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
   }
   .phone-mockup-img img {
     width: 100%;
     height: auto;
     display: block;
-    border-radius: 32px;
-    filter: drop-shadow(0 40px 80px rgba(0,0,0,0.7));
+    border-radius: 40px;
+    position: relative;
+    z-index: 1;
+    box-shadow:
+      0 0 0 1px rgba(200,255,0,0.2),
+      0 40px 100px rgba(0,0,0,0.85),
+      0 0 140px rgba(200,255,0,0.1);
   }
 
   /* ── Features ── */
@@ -494,7 +508,7 @@ const landingBody = /* html */ `
 
       <!-- Phone mockup -->
       <div class="phone-mockup-img">
-        <img src="https://payload-marketing.moonpay.com/api/media/file/Buy%20SOL.png" alt="PayVora app — Buy Solana screen" />
+        <img src="/app-screenshot.png" alt="PayVora app — Buy Solana screen" />
       </div>
     </div>
   </section>
@@ -556,10 +570,10 @@ const landingBody = /* html */ `
         <p>Download PayVora today and join over a million people managing their money the modern way.</p>
         <div class="store-badges">
           <a class="store-badge-link" href="#">
-            <img src="https://payload-marketing.moonpay.com/api/media/file/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" alt="Download on the App Store" />
+            <img src="/app-store-badge.svg" alt="Download on the App Store" />
           </a>
           <a class="store-badge-link" href="#">
-            <img src="https://payload-marketing.moonpay.com/api/media/file/GetItOnGooglePlay_Badge_Web_color_English.svg" alt="Get it on Google Play" />
+            <img src="/google-play-badge.svg" alt="Get it on Google Play" />
           </a>
         </div>
       </div>
