@@ -82,6 +82,14 @@ app.use((req, res, next) => {
 // Runs AFTER body parsers so req.body is populated, BEFORE routes.
 app.use(sanitizeRequest);
 
+// ── 7a. Static public assets (images, SVGs, etc.) ────────────────────────────
+// Serves files from artifacts/api-server/public/ at the root path.
+// Placed before pagesRouter so assets load without CSP interference.
+const publicDir = path.resolve(process.cwd(), "artifacts/api-server/public");
+if (fs.existsSync(publicDir)) {
+  app.use(express.static(publicDir, { maxAge: "7d", immutable: true }));
+}
+
 // ── 7b. Public HTML pages — served before API routes and SPA fallback ────────
 // Landing (/), Privacy Policy (/privacy), Terms of Service (/terms).
 // Each handler overrides the Helmet CSP for HTML rendering.

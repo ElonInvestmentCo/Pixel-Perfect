@@ -341,80 +341,18 @@ const landingBody = /* html */ `
   .btn-secondary:hover { border-color: #555; transform: translateY(-1px); text-decoration: none; }
 
   /* ── Phone mockup ── */
-  .phone-mockup {
-    width: 280px;
-    height: 580px;
-    background: linear-gradient(145deg, #1C1C1C, #111);
-    border-radius: 48px;
-    border: 2px solid #2A2A2A;
+  .phone-mockup-img {
     margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+    max-width: 420px;
+    width: 100%;
   }
-  .phone-mockup::before {
-    content: '';
-    position: absolute;
-    top: 14px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 28px;
-    background: #0A0A0A;
-    border-radius: 20px;
+  .phone-mockup-img img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 32px;
+    filter: drop-shadow(0 40px 80px rgba(0,0,0,0.7));
   }
-  .phone-screen {
-    width: 248px;
-    height: 540px;
-    background: linear-gradient(180deg, #111 0%, #0D0D0D 100%);
-    border-radius: 38px;
-    overflow: hidden;
-    padding: 52px 20px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .phone-balance-card {
-    background: linear-gradient(135deg, #1A2600, #0D1500);
-    border: 1px solid rgba(200,255,0,0.2);
-    border-radius: 20px;
-    padding: 18px;
-  }
-  .phone-balance-label { font-size: 10px; color: #666; margin-bottom: 4px; }
-  .phone-balance-amount { font-size: 26px; font-weight: 800; color: #C8FF00; letter-spacing: -1px; }
-  .phone-balance-sub { font-size: 9px; color: #555; margin-top: 2px; }
-  .phone-actions {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-  .phone-action {
-    background: #1C1C1C;
-    border-radius: 12px;
-    padding: 10px 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-  .phone-action-icon { font-size: 18px; }
-  .phone-action-label { font-size: 8px; color: #666; }
-  .phone-tx-list { display: flex; flex-direction: column; gap: 8px; }
-  .phone-tx {
-    background: #1C1C1C;
-    border-radius: 12px;
-    padding: 10px 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .phone-tx-name { font-size: 10px; font-weight: 600; }
-  .phone-tx-date { font-size: 8px; color: #555; }
-  .phone-tx-amount { font-size: 11px; font-weight: 700; }
-  .positive { color: #C8FF00; }
-  .negative { color: #fff; }
 
   /* ── Features ── */
   .section { padding: 80px 0; }
@@ -526,29 +464,23 @@ const landingBody = /* html */ `
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    gap: 16px;
     flex-wrap: wrap;
   }
-  .store-badge {
-    background: #1C1C1C;
-    border: 1px solid #333;
-    border-radius: 12px;
-    padding: 12px 22px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #fff;
-    transition: border-color 0.2s;
+  .store-badge-link {
+    display: inline-block;
+    transition: opacity 0.2s, transform 0.2s;
   }
-  .store-badge:hover { border-color: #C8FF00; text-decoration: none; }
-  .store-badge-icon { font-size: 22px; }
+  .store-badge-link:hover { opacity: 0.85; transform: translateY(-2px); text-decoration: none; }
+  .store-badge-link img {
+    height: 52px;
+    width: auto;
+    display: block;
+  }
 
   @media (max-width: 768px) {
     .hero { padding: 64px 0 48px; }
-    .phone-mockup { width: 240px; height: 480px; }
-    .phone-screen { width: 210px; height: 445px; }
+    .phone-mockup-img { max-width: 300px; }
   }
 </style>
 
@@ -565,34 +497,8 @@ const landingBody = /* html */ `
       </div>
 
       <!-- Phone mockup -->
-      <div class="phone-mockup">
-        <div class="phone-screen">
-          <div class="phone-balance-card">
-            <div class="phone-balance-label">Total Balance</div>
-            <div class="phone-balance-amount">$12,450.00</div>
-            <div class="phone-balance-sub">+2.4% this month</div>
-          </div>
-          <div class="phone-actions">
-            <div class="phone-action"><div class="phone-action-icon">↑</div><div class="phone-action-label">Send</div></div>
-            <div class="phone-action"><div class="phone-action-icon">↓</div><div class="phone-action-label">Receive</div></div>
-            <div class="phone-action"><div class="phone-action-icon">📱</div><div class="phone-action-label">Top Up</div></div>
-            <div class="phone-action"><div class="phone-action-icon">💳</div><div class="phone-action-label">Cards</div></div>
-          </div>
-          <div class="phone-tx-list">
-            <div class="phone-tx">
-              <div><div class="phone-tx-name">Alex Johnson</div><div class="phone-tx-date">Today, 9:41 AM</div></div>
-              <div class="phone-tx-amount positive">+$250.00</div>
-            </div>
-            <div class="phone-tx">
-              <div><div class="phone-tx-name">Netflix</div><div class="phone-tx-date">Yesterday</div></div>
-              <div class="phone-tx-amount negative">-$15.99</div>
-            </div>
-            <div class="phone-tx">
-              <div><div class="phone-tx-name">MTN Airtime</div><div class="phone-tx-date">Dec 10</div></div>
-              <div class="phone-tx-amount negative">-$5.00</div>
-            </div>
-          </div>
-        </div>
+      <div class="phone-mockup-img">
+        <img src="/app-screenshot.png" alt="PayVora app — Buy Solana screen" />
       </div>
     </div>
   </section>
@@ -653,13 +559,11 @@ const landingBody = /* html */ `
         <h2>Ready to take control<br />of your finances?</h2>
         <p>Download PayVora today and join over a million people managing their money the modern way.</p>
         <div class="store-badges">
-          <a class="store-badge" href="#">
-            <span class="store-badge-icon">🍎</span>
-            <div><div style="font-size:10px;color:#888;font-weight:500;">Download on the</div>App Store</div>
+          <a class="store-badge-link" href="#">
+            <img src="/app-store-badge.svg" alt="Download on the App Store" />
           </a>
-          <a class="store-badge" href="#">
-            <span class="store-badge-icon">▶</span>
-            <div><div style="font-size:10px;color:#888;font-weight:500;">Get it on</div>Google Play</div>
+          <a class="store-badge-link" href="#">
+            <img src="/google-play-badge.svg" alt="Get it on Google Play" />
           </a>
         </div>
       </div>
