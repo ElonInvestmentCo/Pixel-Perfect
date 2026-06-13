@@ -135,10 +135,10 @@ function shell(title: string, description: string, body: string, canonicalPath =
       border-bottom: 1px solid var(--border);
     }
     .nav-inner {
-      max-width: 1100px;
+      max-width: 1200px;
       margin: 0 auto;
-      padding: 0 24px;
-      height: 64px;
+      padding: 0 32px;
+      height: 72px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -150,11 +150,10 @@ function shell(title: string, description: string, body: string, canonicalPath =
       flex-shrink: 0;
     }
     .nav-brand img {
-      height: 52px;
-      width: 52px;
+      height: 72px;
+      width: auto;
       object-fit: contain;
       display: block;
-      border-radius: 12px;
     }
     .nav-brand:hover { opacity: 0.85; text-decoration: none; }
     .nav-links {
@@ -213,11 +212,10 @@ function shell(title: string, description: string, body: string, canonicalPath =
       text-decoration: none;
     }
     .footer-brand img {
-      height: 44px;
-      width: 44px;
+      height: 56px;
+      width: auto;
       object-fit: contain;
       display: block;
-      border-radius: 10px;
     }
     .footer-brand:hover { opacity: 0.85; text-decoration: none; }
     .footer-links {
@@ -248,7 +246,7 @@ function shell(title: string, description: string, body: string, canonicalPath =
 <body>
   <nav>
     <div class="nav-inner">
-      <a class="nav-brand" href="${RAILWAY_URL}"><img src="/logo.png" alt="PayVora" /></a>
+      <a class="nav-brand" href="${RAILWAY_URL}"><img src="/brand-logo.png" alt="PayVora" /></a>
       <ul class="nav-links">
         <li><a href="${RAILWAY_URL}">Home</a></li>
         <li><a href="${RAILWAY_URL}/privacy">Privacy Policy</a></li>
@@ -282,92 +280,249 @@ function shell(title: string, description: string, body: string, canonicalPath =
 
 const landingBody = /* html */ `
 <style>
+  /* ── Hero — two-column cover layout ── */
   .hero {
-    padding: 96px 0 80px;
-    text-align: center;
-  }
-  .hero-badge {
-    display: inline-flex;
+    min-height: 100vh;
+    display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(200,255,0,0.1);
-    border: 1px solid rgba(200,255,0,0.25);
-    border-radius: 100px;
-    padding: 6px 16px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #C8FF00;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    padding: 80px 0 60px;
+    position: relative;
+    overflow: hidden;
+    background: #0D0D0D;
+  }
+
+  /* Layered stone/concrete texture via CSS */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 140% 90% at 75% 55%, rgba(38,38,38,0.65) 0%, transparent 55%),
+      radial-gradient(ellipse 70% 70%  at 15% 20%, rgba(30,30,30,0.80) 0%, transparent 50%),
+      radial-gradient(ellipse 55% 55%  at 85% 85%, rgba(22,22,22,0.70) 0%, transparent 50%),
+      radial-gradient(ellipse 100% 60% at 50% 0%,  rgba(18,18,18,0.50) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Subtle grain layer */
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.035;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 48px;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 45% 55%;
+    gap: 0;
+    align-items: center;
+    min-height: calc(100vh - 72px);
+  }
+
+  /* ── Hero Left ── */
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: 40px;
+    padding-top: 20px;
+  }
+
+  .hero-logo-wrap {
     margin-bottom: 28px;
   }
-  .hero h1 {
-    font-size: clamp(40px, 6vw, 72px);
+  .hero-logo-wrap img {
+    height: 120px;
+    width: auto;
+    display: block;
+  }
+
+  .hero-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #C8FF00;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 18px;
+  }
+  .hero-eyebrow-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #C8FF00;
+    display: inline-block;
+    box-shadow: 0 0 8px rgba(200,255,0,0.8);
+  }
+
+  .hero-title {
+    font-size: clamp(44px, 4.8vw, 68px);
     font-weight: 900;
-    line-height: 1.05;
-    letter-spacing: -2px;
+    line-height: 1.0;
+    letter-spacing: -2.5px;
     margin-bottom: 20px;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
+    color: #FFFFFF;
   }
-  .hero h1 .accent { color: #C8FF00; }
-  .hero p {
-    font-size: clamp(16px, 2vw, 20px);
-    color: #888;
-    max-width: 520px;
-    margin: 0 auto 40px;
-    line-height: 1.7;
+  .hero-title .accent { color: #C8FF00; }
+
+  .hero-sub {
+    font-size: 16px;
+    color: #777;
+    max-width: 400px;
+    line-height: 1.75;
+    margin-bottom: 36px;
   }
+
   .hero-actions {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 16px;
+    gap: 14px;
     flex-wrap: wrap;
-    margin-bottom: 64px;
+    margin-bottom: 44px;
   }
   .hero-badge-link {
     display: inline-block;
     transition: opacity 0.2s, transform 0.2s;
   }
   .hero-badge-link:hover { opacity: 0.85; transform: translateY(-2px); text-decoration: none; }
-  .hero-badge-link img {
-    height: 56px;
-    width: auto;
-    display: block;
+  .hero-badge-link img { height: 54px; width: auto; display: block; }
+
+  .hero-stats {
+    display: flex;
+    gap: 28px;
+  }
+  .hero-stat-val {
+    font-size: 24px;
+    font-weight: 900;
+    color: #FFFFFF;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .hero-stat-label {
+    font-size: 11px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .hero-stat-divider {
+    width: 1px;
+    height: 32px;
+    background: #2A2A2A;
+    align-self: center;
   }
 
-  /* ── Phone mockup ── */
-  .phone-mockup-img {
-    margin: 0 auto;
-    max-width: 680px;
-    width: 100%;
+  /* ── Hero Right ── */
+  .hero-right {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    height: 100%;
   }
-  .phone-mockup-img::before {
+
+  .hero-phone {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+  .hero-phone::before {
     content: '';
     position: absolute;
-    inset: -60px;
-    background: radial-gradient(ellipse at center, rgba(200,255,0,0.14) 0%, transparent 65%);
+    inset: -80px;
+    background: radial-gradient(ellipse at 50% 50%, rgba(200,255,0,0.10) 0%, transparent 65%);
     pointer-events: none;
-    z-index: 0;
   }
-  .phone-mockup-img img {
-    width: 100%;
+  .hero-phone img {
+    max-width: 340px;
+    width: 80%;
     height: auto;
-    display: block;
-    border-radius: 40px;
+    border-radius: 44px;
     position: relative;
     z-index: 1;
     box-shadow:
-      0 0 0 1px rgba(200,255,0,0.2),
-      0 40px 100px rgba(0,0,0,0.85),
-      0 0 140px rgba(200,255,0,0.1);
+      0 0 0 1px rgba(200,255,0,0.12),
+      0 80px 140px rgba(0,0,0,0.95),
+      0 0 100px rgba(200,255,0,0.07);
+    transform: perspective(1400px) rotateY(-6deg) rotateX(2deg);
+    transition: transform 0.4s ease;
+  }
+  .hero-phone img:hover {
+    transform: perspective(1400px) rotateY(-2deg) rotateX(1deg);
   }
 
-  /* ── Features ── */
-  .section { padding: 80px 0; }
+  /* Feature tag list — bottom-right of hero (mirroring the Cover's feature list) */
+  .hero-feature-list {
+    width: 100%;
+    padding: 0 8px;
+  }
+  .hero-feature-item {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: clamp(16px, 1.6vw, 20px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: rgba(255,255,255,0.30);
+    transition: color 0.2s;
+    cursor: default;
+  }
+  .hero-feature-item:last-child { border-bottom: none; }
+  .hero-feature-item:hover { color: rgba(255,255,255,0.55); }
+  .hero-feature-item .accent { color: #C8FF00; }
+  .hero-feature-num {
+    font-size: 11px;
+    font-weight: 600;
+    color: #3A3A3A;
+    min-width: 24px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Screens badge pill (like "100+ Screens" in Cover) */
+  .hero-screens-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(200,255,0,0.1);
+    border: 1px solid rgba(200,255,0,0.25);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #C8FF00;
+    margin-bottom: 24px;
+    align-self: flex-start;
+  }
+
+  /* ── Features section ── */
+  .section {
+    padding: 96px 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 48px;
+    padding-right: 48px;
+  }
   .section-label {
     display: inline-block;
     font-size: 11px;
@@ -379,209 +534,315 @@ const landingBody = /* html */ `
   }
   .section-title {
     font-size: clamp(28px, 4vw, 44px);
-    font-weight: 800;
-    letter-spacing: -1px;
-    line-height: 1.15;
+    font-weight: 900;
+    letter-spacing: -1.5px;
+    line-height: 1.1;
     margin-bottom: 16px;
   }
   .section-subtitle {
-    font-size: 17px;
-    color: #888;
+    font-size: 16px;
+    color: #666;
     max-width: 480px;
-    line-height: 1.7;
+    line-height: 1.75;
     margin-bottom: 48px;
   }
   .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 20px;
+    gap: 1px;
+    background: #1E1E1E;
+    border: 1px solid #1E1E1E;
+    border-radius: 20px;
+    overflow: hidden;
   }
   .feature-card {
-    background: #141414;
-    border: 1px solid #2A2A2A;
-    border-radius: var(--radius);
-    padding: 28px;
-    transition: border-color 0.2s, transform 0.2s;
+    background: #111111;
+    padding: 32px 28px;
+    transition: background 0.2s;
   }
-  .feature-card:hover { border-color: rgba(200,255,0,0.3); transform: translateY(-2px); }
+  .feature-card:hover { background: #161616; }
   .feature-icon {
     width: 44px;
     height: 44px;
-    background: rgba(200,255,0,0.1);
+    background: rgba(200,255,0,0.08);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
-    margin-bottom: 16px;
+    font-size: 20px;
+    margin-bottom: 18px;
+    border: 1px solid rgba(200,255,0,0.12);
   }
-  .feature-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-  .feature-desc { font-size: 14px; color: #888; line-height: 1.6; }
+  .feature-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+  .feature-desc { font-size: 13px; color: #666; line-height: 1.65; }
 
   /* ── Stats ── */
   .stats-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 1px;
-    background: #2A2A2A;
-    border: 1px solid #2A2A2A;
-    border-radius: var(--radius);
+    background: #1E1E1E;
+    border: 1px solid #1E1E1E;
+    border-radius: 20px;
     overflow: hidden;
-    margin-top: 64px;
+    margin-top: 2px;
   }
   .stat {
-    background: #141414;
-    padding: 32px 28px;
+    background: #111111;
+    padding: 36px 28px;
   }
   .stat-value {
-    font-size: 36px;
+    font-size: 38px;
     font-weight: 900;
     color: #C8FF00;
-    letter-spacing: -1px;
+    letter-spacing: -1.5px;
     line-height: 1;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
-  .stat-label { font-size: 13px; color: #888; }
+  .stat-label { font-size: 12px; color: #555; text-transform: uppercase; letter-spacing: 0.08em; }
 
   /* ── CTA ── */
   .cta-section {
-    padding: 80px 0;
-    text-align: center;
+    padding: 0 48px 96px;
+    max-width: 1200px;
+    margin: 0 auto;
   }
   .cta-card {
-    background: linear-gradient(135deg, #1A1A1A 0%, #111 100%);
-    border: 1px solid #2A2A2A;
+    background: linear-gradient(135deg, #131313 0%, #0F0F0F 100%);
+    border: 1px solid #202020;
     border-radius: 24px;
-    padding: 64px 40px;
+    padding: 72px 48px;
+    text-align: center;
     position: relative;
     overflow: hidden;
   }
   .cta-card::before {
     content: '';
     position: absolute;
-    top: -80px;
-    right: -80px;
-    width: 300px;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 500px;
     height: 300px;
-    background: radial-gradient(circle, rgba(200,255,0,0.07) 0%, transparent 70%);
+    background: radial-gradient(ellipse, rgba(200,255,0,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-card::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    right: -60px;
+    width: 240px;
+    height: 240px;
+    background: radial-gradient(circle, rgba(200,255,0,0.04) 0%, transparent 70%);
+    pointer-events: none;
   }
   .cta-card h2 {
-    font-size: clamp(28px, 4vw, 44px);
+    font-size: clamp(28px, 4vw, 46px);
     font-weight: 900;
-    letter-spacing: -1px;
+    letter-spacing: -1.5px;
     margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
   }
-  .cta-card p { font-size: 16px; color: #888; margin-bottom: 32px; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .cta-card p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 36px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
+    position: relative;
+    z-index: 1;
+  }
   .store-badges {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 16px;
     flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
   }
   .store-badge-link {
     display: inline-block;
     transition: opacity 0.2s, transform 0.2s;
   }
   .store-badge-link:hover { opacity: 0.85; transform: translateY(-2px); text-decoration: none; }
-  .store-badge-link img {
-    height: 52px;
-    width: auto;
-    display: block;
+  .store-badge-link img { height: 52px; width: auto; display: block; }
+
+  @media (max-width: 960px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      min-height: auto;
+    }
+    .hero-container { padding: 0 24px; }
+    .hero-left {
+      padding-right: 0;
+      align-items: center;
+      text-align: center;
+      padding-top: 32px;
+      padding-bottom: 32px;
+    }
+    .hero-logo-wrap img { margin: 0 auto; }
+    .hero-eyebrow { justify-content: center; }
+    .hero-sub { margin-left: auto; margin-right: auto; }
+    .hero-actions { justify-content: center; }
+    .hero-stats { justify-content: center; }
+    .hero-right { align-items: center; padding-bottom: 48px; }
+    .hero-screens-badge { align-self: center; }
+    .hero-phone img { transform: none; max-width: 280px; }
+    .hero-feature-list { text-align: left; max-width: 400px; }
+    .section { padding: 64px 24px; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .cta-section { padding: 0 24px 64px; }
+    .cta-card { padding: 48px 24px; }
   }
 
-  @media (max-width: 768px) {
-    .hero { padding: 64px 0 48px; }
-    .phone-mockup-img { max-width: 300px; }
+  @media (max-width: 540px) {
+    .hero-title { letter-spacing: -1.5px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
   }
 </style>
 
 <main>
   <!-- ── Hero ── -->
   <section class="hero">
-    <div class="container">
-      <div class="hero-badge">&#10024; Next-gen finance</div>
-      <h1>Banking that moves<br />at the speed of <span class="accent">life</span></h1>
-      <p>Send money instantly, top up airtime, pay bills, and manage virtual cards — all from one beautifully designed app.</p>
-      <div class="hero-actions" id="download">
-        <a class="hero-badge-link" href="${APP_STORE_URL}" target="_blank" rel="noopener noreferrer">
-          <img src="/app-store-badge.svg" alt="Download on the App Store" />
-        </a>
-        <a class="hero-badge-link" href="${GOOGLE_PLAY_URL}" target="_blank" rel="noopener noreferrer">
-          <img src="/google-play-badge.svg" alt="Get it on Google Play" />
-        </a>
-      </div>
+    <div class="hero-container">
+      <div class="hero-grid">
 
-      <!-- Phone mockup -->
-      <div class="phone-mockup-img">
-        <img src="/app-screenshot.png" alt="PayVora app — Buy Solana screen" />
+        <!-- Left column: brand + headline + CTA + stats -->
+        <div class="hero-left">
+          <div class="hero-logo-wrap">
+            <img src="/brand-logo.png" alt="PayVora" />
+          </div>
+          <div class="hero-eyebrow">
+            <span class="hero-eyebrow-dot"></span>
+            Digital Wallet
+          </div>
+          <h1 class="hero-title">
+            Digital Wallet<br /><span class="accent">Finance App</span>
+          </h1>
+          <p class="hero-sub">Send money instantly, top up airtime, pay bills, and manage virtual cards — all from one beautifully designed app.</p>
+          <div class="hero-actions" id="download">
+            <a class="hero-badge-link" href="${APP_STORE_URL}" target="_blank" rel="noopener noreferrer">
+              <img src="/app-store-badge.svg" alt="Download on the App Store" />
+            </a>
+            <a class="hero-badge-link" href="${GOOGLE_PLAY_URL}" target="_blank" rel="noopener noreferrer">
+              <img src="/google-play-badge.svg" alt="Get it on Google Play" />
+            </a>
+          </div>
+          <div class="hero-stats">
+            <div>
+              <div class="hero-stat-val">1M+</div>
+              <div class="hero-stat-label">Active Users</div>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div>
+              <div class="hero-stat-val">$2B+</div>
+              <div class="hero-stat-label">Processed</div>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div>
+              <div class="hero-stat-val">150+</div>
+              <div class="hero-stat-label">Countries</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column: pill badge + phone + feature list -->
+        <div class="hero-right">
+          <div class="hero-screens-badge">
+            &#10024; 100+ App Screens
+          </div>
+          <div class="hero-phone">
+            <img src="/app-screenshot.png" alt="PayVora app interface" />
+          </div>
+          <div class="hero-feature-list">
+            <div class="hero-feature-item">
+              <span class="hero-feature-num">01</span>
+              UX Scenarios
+            </div>
+            <div class="hero-feature-item">
+              <span class="hero-feature-num">02</span>
+              <span class="accent">Global</span>&nbsp;Style Guide
+            </div>
+            <div class="hero-feature-item">
+              <span class="hero-feature-num">03</span>
+              <span class="accent">Well</span>&nbsp;Organized
+            </div>
+            <div class="hero-feature-item">
+              <span class="hero-feature-num">04</span>
+              150+ Components
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
 
   <!-- ── Features ── -->
   <section class="section">
-    <div class="container">
-      <div class="section-label">Features</div>
-      <h2 class="section-title">Everything you need,<br />nothing you don't</h2>
-      <p class="section-subtitle">PayVora brings together all the financial tools you use daily into a single, fast, secure app.</p>
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you need,<br />nothing you don't</h2>
+    <p class="section-subtitle">PayVora brings together all the financial tools you use daily into a single, fast, secure app.</p>
 
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">⚡</div>
-          <div class="feature-title">Instant Transfers</div>
-          <div class="feature-desc">Send money to anyone instantly. No delays, no hidden fees — funds arrive in seconds.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📱</div>
-          <div class="feature-title">Airtime & Data Top-Up</div>
-          <div class="feature-desc">Top up airtime and data for any network, anywhere in the world, directly from the app.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">💳</div>
-          <div class="feature-title">Virtual Cards</div>
-          <div class="feature-desc">Create virtual debit cards for secure online shopping. Freeze, unfreeze, or delete instantly.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📊</div>
-          <div class="feature-title">Portfolio Growth</div>
-          <div class="feature-desc">Track your financial growth with beautiful insights, charts, and spending analytics.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🔒</div>
-          <div class="feature-title">Bank-Grade Security</div>
-          <div class="feature-desc">Face ID, biometric authentication, and end-to-end encryption keep your money safe.</div>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🎁</div>
-          <div class="feature-title">Gift Cards & Crypto</div>
-          <div class="feature-desc">Buy and redeem gift cards, and manage crypto holdings — all within one app.</div>
-        </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Instant Transfers</div>
+        <div class="feature-desc">Send money to anyone instantly. No delays, no hidden fees — funds arrive in seconds.</div>
       </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <div class="feature-title">Airtime & Data Top-Up</div>
+        <div class="feature-desc">Top up airtime and data for any network, anywhere in the world, directly from the app.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💳</div>
+        <div class="feature-title">Virtual Cards</div>
+        <div class="feature-desc">Create virtual debit cards for secure online shopping. Freeze, unfreeze, or delete instantly.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Portfolio Growth</div>
+        <div class="feature-desc">Track your financial growth with beautiful insights, charts, and spending analytics.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">Bank-Grade Security</div>
+        <div class="feature-desc">Face ID, biometric authentication, and end-to-end encryption keep your money safe.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎁</div>
+        <div class="feature-title">Gift Cards & Crypto</div>
+        <div class="feature-desc">Buy and redeem gift cards, and manage crypto holdings — all within one app.</div>
+      </div>
+    </div>
 
-      <div class="stats-row">
-        <div class="stat"><div class="stat-value">1M+</div><div class="stat-label">Active users</div></div>
-        <div class="stat"><div class="stat-value">$2B+</div><div class="stat-label">Processed monthly</div></div>
-        <div class="stat"><div class="stat-value">150+</div><div class="stat-label">Countries supported</div></div>
-        <div class="stat"><div class="stat-value">99.9%</div><div class="stat-label">Uptime SLA</div></div>
-      </div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-value">1M+</div><div class="stat-label">Active Users</div></div>
+      <div class="stat"><div class="stat-value">$2B+</div><div class="stat-label">Processed Monthly</div></div>
+      <div class="stat"><div class="stat-value">150+</div><div class="stat-label">Countries</div></div>
+      <div class="stat"><div class="stat-value">99.9%</div><div class="stat-label">Uptime SLA</div></div>
     </div>
   </section>
 
   <!-- ── CTA ── -->
   <section class="cta-section">
-    <div class="container">
-      <div class="cta-card">
-        <h2>Ready to take control<br />of your finances?</h2>
-        <p>Download PayVora today and join over a million people managing their money the modern way.</p>
-        <div class="store-badges">
-          <a class="store-badge-link" href="${APP_STORE_URL}" target="_blank" rel="noopener noreferrer">
-            <img src="/app-store-badge.svg" alt="Download on the App Store" />
-          </a>
-          <a class="store-badge-link" href="${GOOGLE_PLAY_URL}" target="_blank" rel="noopener noreferrer">
-            <img src="/google-play-badge.svg" alt="Get it on Google Play" />
-          </a>
-        </div>
+    <div class="cta-card">
+      <h2>Ready to take control<br />of your finances?</h2>
+      <p>Download PayVora today and join over a million people managing their money the modern way.</p>
+      <div class="store-badges">
+        <a class="store-badge-link" href="${APP_STORE_URL}" target="_blank" rel="noopener noreferrer">
+          <img src="/app-store-badge.svg" alt="Download on the App Store" />
+        </a>
+        <a class="store-badge-link" href="${GOOGLE_PLAY_URL}" target="_blank" rel="noopener noreferrer">
+          <img src="/google-play-badge.svg" alt="Get it on Google Play" />
+        </a>
       </div>
     </div>
   </section>
