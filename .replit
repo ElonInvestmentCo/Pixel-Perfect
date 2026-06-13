@@ -96,7 +96,7 @@ channel = "stable-25_05"
 [userenv.shared]
 NODE_ENV = "development"
 LOG_LEVEL = "info"
-EXPO_PUBLIC_BACKEND_URL = "https://pixel-perfect-production-812e.up.railway.app"
+EXPO_PUBLIC_BACKEND_URL = "https://235a16a5-ac6b-4e86-a8ba-d16692e1a2fe-00-3kio849lrnbj8.kirk.replit.dev"
 RELOADLY_SANDBOX = "true"
 
 [userenv.development]
