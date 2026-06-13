@@ -24,7 +24,7 @@ const LOGO_ICON = path.resolve(process.cwd(), "artifacts/mobile/assets/images/ic
 const LOGO_FALLBACK = path.resolve(process.cwd(), "artifacts/mobile/assets/images/logo.png");
 const LOGO_PATH = fs.existsSync(LOGO_ICON) ? LOGO_ICON : LOGO_FALLBACK;
 
-const RAILWAY_URL = "https://pixel-perfect-production-812e.up.railway.app";
+const PRODUCTION_URL = "https://www.payvora.org";
 
 // ── App store URLs — update these once the app is approved and live ───────────
 // App Store: replace id000000000 with the real numeric Apple App ID
@@ -39,7 +39,7 @@ router.get("/logo.png", (_req: Request, res: Response) => {
 });
 
 // ── Google Search Console ownership verification ──────────────────────────────
-// Set GOOGLE_SITE_VERIFICATION=<token> in Railway env vars.
+// Set GOOGLE_SITE_VERIFICATION=<token> in Replit Secrets.
 // Supports both the HTML-tag method (meta tag in <head>) and the
 // HTML-file method (GET /google<token>.html returns the required file).
 
@@ -73,7 +73,7 @@ function setPageCsp(res: Response): void {
 // ── Shared HTML shell ─────────────────────────────────────────────────────────
 
 function shell(title: string, description: string, body: string, canonicalPath = "/"): string {
-  const canonicalUrl = `${RAILWAY_URL}${canonicalPath}`;
+  const canonicalUrl = `${PRODUCTION_URL}${canonicalPath}`;
   return /* html */ `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -82,18 +82,18 @@ function shell(title: string, description: string, body: string, canonicalPath =
   <meta name="description" content="${description}" />
   <title>${title} — PayVora</title>${GSV_TOKEN ? `\n  <meta name="google-site-verification" content="${GSV_TOKEN}" />` : ""}
   <link rel="canonical" href="${canonicalUrl}" />
-  <link rel="icon" type="image/png" href="${RAILWAY_URL}/logo.png" />
-  <link rel="apple-touch-icon" href="${RAILWAY_URL}/logo.png" />
+  <link rel="icon" type="image/png" href="${PRODUCTION_URL}/logo.png" />
+  <link rel="apple-touch-icon" href="${PRODUCTION_URL}/logo.png" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${canonicalUrl}" />
   <meta property="og:title" content="${title} — PayVora" />
   <meta property="og:description" content="${description}" />
-  <meta property="og:image" content="${RAILWAY_URL}/logo.png" />
+  <meta property="og:image" content="${PRODUCTION_URL}/logo.png" />
   <meta property="og:image:width" content="1024" />
   <meta property="og:image:height" content="1024" />
   <meta property="og:site_name" content="PayVora" />
   <meta name="twitter:card" content="summary" />
-  <meta name="twitter:image" content="${RAILWAY_URL}/logo.png" />
+  <meta name="twitter:image" content="${PRODUCTION_URL}/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -311,11 +311,11 @@ function shell(title: string, description: string, body: string, canonicalPath =
 <body>
   <nav>
     <div class="nav-inner">
-      <a class="nav-brand" href="${RAILWAY_URL}"><img src="/brand-logo.png" alt="PayVora" /></a>
+      <a class="nav-brand" href="${PRODUCTION_URL}"><img src="/brand-logo.png" alt="PayVora" /></a>
       <ul class="nav-links">
-        <li><a href="${RAILWAY_URL}">Home</a></li>
-        <li><a href="${RAILWAY_URL}/privacy">Privacy Policy</a></li>
-        <li><a href="${RAILWAY_URL}/terms">Terms of Service</a></li>
+        <li><a href="${PRODUCTION_URL}">Home</a></li>
+        <li><a href="${PRODUCTION_URL}/privacy">Privacy Policy</a></li>
+        <li><a href="${PRODUCTION_URL}/terms">Terms of Service</a></li>
         <li><a class="nav-cta" href="#download">Download</a></li>
       </ul>
       <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu" aria-expanded="false">
@@ -325,9 +325,9 @@ function shell(title: string, description: string, body: string, canonicalPath =
   </nav>
 
   <div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Mobile navigation">
-    <a href="${RAILWAY_URL}">Home</a>
-    <a href="${RAILWAY_URL}/privacy">Privacy Policy</a>
-    <a href="${RAILWAY_URL}/terms">Terms of Service</a>
+    <a href="${PRODUCTION_URL}">Home</a>
+    <a href="${PRODUCTION_URL}/privacy">Privacy Policy</a>
+    <a href="${PRODUCTION_URL}/terms">Terms of Service</a>
     <a class="mob-cta" href="#download" id="mob-download">Download</a>
   </div>
 
@@ -357,11 +357,11 @@ function shell(title: string, description: string, body: string, canonicalPath =
 
   <footer>
     <div class="footer-inner">
-      <a class="footer-brand" href="${RAILWAY_URL}"><img src="/logo.png" alt="PayVora" /></a>
+      <a class="footer-brand" href="${PRODUCTION_URL}"><img src="/logo.png" alt="PayVora" /></a>
       <ul class="footer-links">
-        <li><a href="${RAILWAY_URL}">Home</a></li>
-        <li><a href="${RAILWAY_URL}/privacy">Privacy Policy</a></li>
-        <li><a href="${RAILWAY_URL}/terms">Terms of Service</a></li>
+        <li><a href="${PRODUCTION_URL}">Home</a></li>
+        <li><a href="${PRODUCTION_URL}/privacy">Privacy Policy</a></li>
+        <li><a href="${PRODUCTION_URL}/terms">Terms of Service</a></li>
         <li><a href="mailto:support@payvora.app">Contact</a></li>
       </ul>
       <div class="footer-copy">
@@ -1321,7 +1321,7 @@ const termsBody = /* html */ `
       <div class="legal-content">
         <h2 id="agreement">1. Agreement to Terms</h2>
         <p>These Terms of Service ("Terms") constitute a legally binding agreement between you ("User", "you", or "your") and PayVora Technologies Ltd ("PayVora", "we", "our", or "us") governing your use of the PayVora mobile application and associated services (collectively, the "Service").</p>
-        <p>By downloading, installing, or using PayVora, you confirm that you have read, understood, and agree to be bound by these Terms and our <a href="https://pixel-perfect-production-812e.up.railway.app/privacy">Privacy Policy</a>. If you do not agree to these Terms, you must not use the Service.</p>
+        <p>By downloading, installing, or using PayVora, you confirm that you have read, understood, and agree to be bound by these Terms and our <a href="https://www.payvora.org/privacy">Privacy Policy</a>. If you do not agree to these Terms, you must not use the Service.</p>
 
         <div class="highlight-box">
           <p><strong>Please read these Terms carefully.</strong> They contain important information about your rights and obligations, including limitations on our liability and dispute resolution procedures.</p>

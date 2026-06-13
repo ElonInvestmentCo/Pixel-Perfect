@@ -98,7 +98,7 @@ const schema = z.object({
    * the wrong URL.
    *
    * Development:  https://<REPLIT_DEV_DOMAIN>/api/auth/google/callback
-   * Production:   https://pixel-perfect-production-812e.up.railway.app/api/auth/google/callback
+   * Production:   https://www.payvora.org/api/auth/google/callback
    *
    * Must be registered as an Authorized Redirect URI in Google Cloud Console.
    */

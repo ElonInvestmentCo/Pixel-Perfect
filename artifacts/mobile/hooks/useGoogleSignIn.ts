@@ -15,8 +15,8 @@
  *  5. expo-web-browser intercepts the exp:// redirect → resolves the promise
  *
  * ── What must be registered in Google Cloud Console ─────────────────────────
- *   Authorized Redirect URI (production / Railway):
- *     https://pixel-perfect-production-812e.up.railway.app/api/auth/google/callback
+ *   Authorized Redirect URI (production):
+ *     https://www.payvora.org/api/auth/google/callback
  *
  * ── Web flow ─────────────────────────────────────────────────────────────────
  * On web the regular expo-auth-session useAuthRequest still works fine
@@ -43,9 +43,10 @@ const CLIENT_ID = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
 const IS_WEB    = Platform.OS === "web";
 
 /**
- * The auth backend URL — always Railway, never the local API server.
- * Google OAuth init/callback and JWT issuance must always go to Railway
- * because the Google Cloud Console redirect URI is registered there.
+ * The auth backend URL — always the production domain.
+ * Google OAuth init/callback and JWT issuance must always go to
+ * https://www.payvora.org because that is the Google Cloud Console redirect
+ * URI registered for this OAuth app.
  */
 function getBackendUrl(): string {
   return AUTH_BASE_URL;

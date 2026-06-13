@@ -5,8 +5,8 @@ import { Alert, Platform } from "react-native";
 import type { SessionUser } from "@/contexts/AuthContext";
 import { AUTH_BASE_URL } from "@/constants/apiUrls";
 
-// Auth calls always go to Railway — the permanent auth authority.
-// AUTH_BASE_URL is never affected by the local-API toggle.
+// Auth calls always go to the production domain (https://www.payvora.org).
+// AUTH_BASE_URL is never affected by any local-API toggle.
 const API_URL = AUTH_BASE_URL;
 
 /**
