@@ -321,29 +321,16 @@ const landingBody = /* html */ `
     flex-wrap: wrap;
     margin-bottom: 64px;
   }
-  .btn-primary {
-    background: #C8FF00;
-    color: #000;
-    font-weight: 700;
-    font-size: 16px;
-    padding: 14px 32px;
-    border-radius: 100px;
+  .hero-badge-link {
     display: inline-block;
     transition: opacity 0.2s, transform 0.2s;
   }
-  .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); text-decoration: none; }
-  .btn-secondary {
-    background: transparent;
-    color: #fff;
-    font-weight: 600;
-    font-size: 16px;
-    padding: 14px 32px;
-    border-radius: 100px;
-    border: 1px solid #2A2A2A;
-    display: inline-block;
-    transition: border-color 0.2s, transform 0.2s;
+  .hero-badge-link:hover { opacity: 0.85; transform: translateY(-2px); text-decoration: none; }
+  .hero-badge-link img {
+    height: 56px;
+    width: auto;
+    display: block;
   }
-  .btn-secondary:hover { border-color: #555; transform: translateY(-1px); text-decoration: none; }
 
   /* ── Phone mockup ── */
   .phone-mockup-img {
@@ -511,8 +498,12 @@ const landingBody = /* html */ `
       <h1>Banking that moves<br />at the speed of <span class="accent">life</span></h1>
       <p>Send money instantly, top up airtime, pay bills, and manage virtual cards — all from one beautifully designed app.</p>
       <div class="hero-actions" id="download">
-        <a class="btn-primary" href="#">Download for iOS</a>
-        <a class="btn-secondary" href="#">Download for Android</a>
+        <a class="hero-badge-link" href="#">
+          <img src="/app-store-badge.svg" alt="Download on the App Store" />
+        </a>
+        <a class="hero-badge-link" href="#">
+          <img src="/google-play-badge.svg" alt="Get it on Google Play" />
+        </a>
       </div>
 
       <!-- Phone mockup -->
