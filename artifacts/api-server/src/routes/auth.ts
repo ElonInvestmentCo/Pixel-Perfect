@@ -1,4 +1,4 @@
-import { createHash, createHmac, randomBytes, timingSafeEqual } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import { and, eq } from "drizzle-orm";
 import { Router } from "express";
 import bcrypt from "bcryptjs";
@@ -71,40 +71,23 @@ function signToken(userId: string, email: string, name: string): string {
 // ──────────────────────────────────────────────────────────────────────────────
 
 // ── Stateless signed OAuth state ─────────────────────────────────────────────
-// Encodes returnUrl + expiry into a self-contained HMAC-SHA256 signed token so
-// no server-side storage is needed.  Safe across Railway container restarts and
-// horizontal scaling because any replica can verify with the shared JWT_SECRET.
-//
-// Format: base64url(JSON({returnUrl,expiresAt,nonce})).HMAC-SHA256-hex
+// Encodes returnUrl into a short-lived signed JWT so no server-side storage is
+// needed.  Safe across Railway container restarts and horizontal scaling because
+// any replica can verify using the shared JWT_SECRET env var.
 
 function createOAuthState(returnUrl: string): string {
-  const payload = Buffer.from(
-    JSON.stringify({
-      returnUrl,
-      expiresAt: Date.now() + 10 * 60 * 1000,
-      nonce: randomBytes(12).toString("hex"),
-    }),
-  ).toString("base64url");
-  const sig = createHmac("sha256", env.JWT_SECRET).update(payload).digest("hex");
-  return `${payload}.${sig}`;
+  return jwt.sign(
+    { returnUrl, jti: randomBytes(12).toString("hex") },
+    env.JWT_SECRET,
+    { expiresIn: "10m", noTimestamp: false },
+  );
 }
 
 function verifyOAuthState(state: string): { returnUrl: string } | null {
-  const dot = state.lastIndexOf(".");
-  if (dot === -1) return null;
-  const payload = state.slice(0, dot);
-  const sig     = state.slice(dot + 1);
-  const expected = createHmac("sha256", env.JWT_SECRET).update(payload).digest("hex");
-  const expBuf  = Buffer.from(expected, "hex");
-  const sigBuf  = Buffer.from(sig,      "hex");
-  if (expBuf.length !== sigBuf.length || !timingSafeEqual(expBuf, sigBuf)) return null;
   try {
-    const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as {
-      returnUrl: string;
-      expiresAt: number;
-    };
-    if (Date.now() > parsed.expiresAt) return null;
-    return { returnUrl: parsed.returnUrl };
+    const payload = jwt.verify(state, env.JWT_SECRET) as { returnUrl: string };
+    if (typeof payload.returnUrl !== "string") return null;
+    return { returnUrl: payload.returnUrl };
   } catch {
     return null;
   }
