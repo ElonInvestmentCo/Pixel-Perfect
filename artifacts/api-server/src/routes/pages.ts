@@ -137,15 +137,20 @@ function shell(title: string, description: string, body: string, canonicalPath =
       align-items: center;
       justify-content: space-between;
     }
-    .nav-wordmark {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--text);
+    .nav-brand {
+      display: flex;
+      align-items: center;
       text-decoration: none;
-      letter-spacing: -0.5px;
+      flex-shrink: 0;
     }
-    .nav-wordmark span { color: var(--lime); }
-    .nav-wordmark:hover { text-decoration: none; opacity: 0.85; }
+    .nav-brand img {
+      height: 52px;
+      width: 52px;
+      object-fit: contain;
+      display: block;
+      border-radius: 12px;
+    }
+    .nav-brand:hover { opacity: 0.85; text-decoration: none; }
     .nav-links {
       display: flex;
       align-items: center;
@@ -196,15 +201,19 @@ function shell(title: string, description: string, body: string, canonicalPath =
       display: flex;
       align-items: center;
     }
-    .footer-wordmark {
-      font-size: 18px;
-      font-weight: 800;
-      color: var(--text);
+    .footer-brand {
+      display: flex;
+      align-items: center;
       text-decoration: none;
-      letter-spacing: -0.5px;
     }
-    .footer-wordmark span { color: var(--lime); }
-    .footer-wordmark:hover { text-decoration: none; opacity: 0.85; }
+    .footer-brand img {
+      height: 44px;
+      width: 44px;
+      object-fit: contain;
+      display: block;
+      border-radius: 10px;
+    }
+    .footer-brand:hover { opacity: 0.85; text-decoration: none; }
     .footer-links {
       display: flex;
       gap: 24px;
@@ -233,7 +242,7 @@ function shell(title: string, description: string, body: string, canonicalPath =
 <body>
   <nav>
     <div class="nav-inner">
-      <a class="nav-wordmark" href="${RAILWAY_URL}">Pay<span>Vora</span></a>
+      <a class="nav-brand" href="${RAILWAY_URL}"><img src="/logo.png" alt="PayVora" /></a>
       <ul class="nav-links">
         <li><a href="${RAILWAY_URL}">Home</a></li>
         <li><a href="${RAILWAY_URL}/privacy">Privacy Policy</a></li>
@@ -247,7 +256,7 @@ function shell(title: string, description: string, body: string, canonicalPath =
 
   <footer>
     <div class="footer-inner">
-      <a class="footer-wordmark" href="${RAILWAY_URL}">Pay<span>Vora</span></a>
+      <a class="footer-brand" href="${RAILWAY_URL}"><img src="/logo.png" alt="PayVora" /></a>
       <ul class="footer-links">
         <li><a href="${RAILWAY_URL}">Home</a></li>
         <li><a href="${RAILWAY_URL}/privacy">Privacy Policy</a></li>
