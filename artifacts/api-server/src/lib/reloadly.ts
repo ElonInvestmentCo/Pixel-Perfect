@@ -1,14 +1,13 @@
 /**
- * reloadly.ts — Reloadly API client with automatic token caching.
+ * reloadly.ts — Reloadly Airtime API client with automatic token caching.
  *
  * Tokens are cached in-process for their full lifetime minus a 5-minute safety
- * buffer.  A single shared token cache means concurrent requests don't race to
+ * buffer. A single shared token promise means concurrent requests don't race to
  * refresh; the first awaiter fetches and stores, subsequent ones reuse.
  *
  * Environment:
- *   Development  → sandbox  (topups-sandbox.reloadly.com) — no real money
- *   Production   → live     (topups.reloadly.com)
- *   Override via RELOADLY_SANDBOX=true/false env var.
+ *   RELOADLY_SANDBOX=true  → sandbox  (topups-sandbox.reloadly.com) — no real money
+ *   RELOADLY_SANDBOX=false → live     (topups.reloadly.com)
  */
 
 import { env } from "./env";
@@ -28,8 +27,8 @@ interface CachedToken {
   expiresAt: number;
 }
 
-let _tokenCache: CachedToken | null = null;
-let _tokenPromise: Promise<string>  | null = null;
+let _tokenCache:   CachedToken | null    = null;
+let _tokenPromise: Promise<string> | null = null;
 
 async function fetchFreshToken(): Promise<string> {
   const base = getBase();
@@ -73,10 +72,10 @@ async function getToken(): Promise<string> {
   return _tokenPromise;
 }
 
-// ── Core fetch wrapper ────────────────────────────────────────────────────────
+// ── Core fetch wrapper ─────────────────────────────────────────────────────────
 
 async function reloadlyFetch<T>(
-  path: string,
+  path:    string,
   options: RequestInit = {},
 ): Promise<T> {
   const token = await getToken();
@@ -187,30 +186,56 @@ export interface ReloadlyTopupResponse {
   };
 }
 
+// ── Paginated wrapper ─────────────────────────────────────────────────────────
+
+interface Paginated<T> {
+  content:       T[];
+  page:          number;
+  size:          number;
+  totalElements: number;
+  totalPages:    number;
+}
+
 // ── API methods ───────────────────────────────────────────────────────────────
 
 export async function getCountries(): Promise<ReloadlyCountry[]> {
-  return reloadlyFetch<ReloadlyCountry[]>("/countries");
+  const res = await reloadlyFetch<Paginated<ReloadlyCountry>>(
+    "/countries?page=1&size=250",
+  );
+  return res.content ?? [];
 }
 
-export async function getOperatorsByCountry(countryCode: string): Promise<ReloadlyOperator[]> {
-  return reloadlyFetch<ReloadlyOperator[]>(
-    `/operators/countries/${countryCode}?includePin=false&includeData=true&includeBundles=true&suggestedAmountsMap=true&suggestedAmounts=true`,
+export async function getOperatorsByCountry(
+  countryCode: string,
+): Promise<ReloadlyOperator[]> {
+  const res = await reloadlyFetch<Paginated<ReloadlyOperator>>(
+    `/operators/countries/${countryCode.toUpperCase()}` +
+    `?page=1&size=200&includePin=false&includeData=true` +
+    `&includeBundles=true&suggestedAmountsMap=true&suggestedAmounts=true`,
   );
+  return res.content ?? [];
 }
 
 export async function detectOperator(
-  phone: string,
+  phone:       string,
   countryCode: string,
 ): Promise<ReloadlyOperator> {
   const encoded = encodeURIComponent(phone);
   return reloadlyFetch<ReloadlyOperator>(
-    `/operators/auto-detect/phone/${encoded}/countries/${countryCode}?suggestedAmountsMap=true&suggestedAmounts=true`,
+    `/operators/auto-detect/phone/${encoded}` +
+    `/country-codes/${countryCode.toUpperCase()}` +
+    `?suggestedAmountsMap=true&suggestedAmounts=true` +
+    `&includeData=true&includeBundles=true`,
   );
 }
 
-export async function getDataBundles(operatorId: number): Promise<ReloadlyDataBundle[]> {
-  return reloadlyFetch<ReloadlyDataBundle[]>(`/operators/${operatorId}/data-bundles`);
+export async function getDataBundles(
+  operatorId: number,
+): Promise<ReloadlyDataBundle[]> {
+  const res = await reloadlyFetch<Paginated<ReloadlyDataBundle>>(
+    `/operators/${operatorId}/bundles?page=1&size=100`,
+  );
+  return res.content ?? [];
 }
 
 export async function executeTopup(

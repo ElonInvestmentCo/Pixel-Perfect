@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import React, { useRef, useState, useMemo } from "react";
 import {
   Dimensions,
@@ -82,12 +83,14 @@ const TRANSACTIONS = [
 function HeroActionButton({
   icon,
   label,
+  onPress,
 }: {
   icon: "arrow-up" | "arrow-down";
   label: string;
+  onPress?: () => void;
 }) {
   return (
-    <TouchableOpacity style={h.pill} activeOpacity={0.82}>
+    <TouchableOpacity style={h.pill} activeOpacity={0.82} onPress={onPress}>
       <View style={h.pillCircle}>
         <Feather name={icon} size={14} color={BLACK} />
       </View>
@@ -190,7 +193,7 @@ function HeroCard({
 
       {/* Action buttons */}
       <View style={h.actionRow}>
-        <HeroActionButton icon="arrow-up" label="Topup" />
+        <HeroActionButton icon="arrow-up" label="Topup" onPress={() => router.push("/(app)/airtime")} />
         <HeroActionButton icon="arrow-down" label="Withdraw" />
         <HeroMoreButton />
       </View>
