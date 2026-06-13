@@ -27,10 +27,10 @@ const LOGO_PATH = fs.existsSync(LOGO_ICON) ? LOGO_ICON : LOGO_FALLBACK;
 const PRODUCTION_URL = "https://www.payvora.org";
 
 // ── App store URLs — update these once the app is approved and live ───────────
-// App Store: replace id000000000 with the real numeric Apple App ID
-// Google Play: replace com.payvora.app with the real package name if different
+// App Store: replace id000000000 with your real numeric Apple App ID after App Store Connect approval
+// Google Play: matches app.json android.package exactly
 const APP_STORE_URL   = "https://apps.apple.com/app/payvora/id000000000";
-const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.payvora.app";
+const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.payvora.mobile";
 
 router.get("/logo.png", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "image/png");
@@ -39,17 +39,90 @@ router.get("/logo.png", (_req: Request, res: Response) => {
 });
 
 // ── Google Search Console ownership verification ──────────────────────────────
-// Set GOOGLE_SITE_VERIFICATION=<token> in Replit Secrets.
-// Supports both the HTML-tag method (meta tag in <head>) and the
-// HTML-file method (GET /google<token>.html returns the required file).
-
+// Set GOOGLE_SITE_VERIFICATION env var to enable.
 const GSV_TOKEN = process.env.GOOGLE_SITE_VERIFICATION ?? "";
 
 // HTML file method: GET /google<token>.html
 router.get(/^\/google[a-zA-Z0-9_-]+\.html$/, (req: Request, res: Response) => {
-  const file = req.path.slice(1).replace(".html", ""); // e.g. "google<token>"
+  const file = req.path.slice(1).replace(".html", "");
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.send(`google-site-verification: ${file}.html`);
+});
+
+// ── SEO: sitemap.xml ──────────────────────────────────────────────────────────
+router.get("/sitemap.xml", (_req: Request, res: Response) => {
+  const today = new Date().toISOString().split("T")[0];
+  res.setHeader("Content-Type", "application/xml; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>${PRODUCTION_URL}/</loc><lastmod>${today}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>${PRODUCTION_URL}/privacy</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>${PRODUCTION_URL}/terms</loc><lastmod>${today}</lastmod><changefreq>monthly</changefreq><priority>0.6</priority></url>
+</urlset>`);
+});
+
+// ── SEO: robots.txt ───────────────────────────────────────────────────────────
+router.get("/robots.txt", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "text/plain; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=86400");
+  res.send(`User-agent: *\nAllow: /\nAllow: /privacy\nAllow: /terms\nDisallow: /api/\nDisallow: /.well-known/\n\nSitemap: ${PRODUCTION_URL}/sitemap.xml\n`);
+});
+
+// ── Universal Links: Apple App Site Association ───────────────────────────────
+// iOS reads this file to verify the domain for Universal Links.
+// Must be served as application/json WITHOUT any redirect from HTTP→HTTPS.
+// Apple fetches this with a CDN — no auth, no cookies needed.
+// Replace TEAMID with your 10-char Apple Developer Team ID once known.
+const APPLE_TEAM_ID = process.env.APPLE_TEAM_ID ?? "TEAMID";
+const APPLE_BUNDLE_ID = process.env.APPLE_BUNDLE_ID ?? "com.payvora.mobile";
+
+router.get("/.well-known/apple-app-site-association", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.json({
+    applinks: {
+      apps: [],
+      details: [
+        {
+          appIDs: [`${APPLE_TEAM_ID}.${APPLE_BUNDLE_ID}`],
+          components: [
+            { "/": "/oauth-callback*", comment: "OAuth deep-link" },
+            { "/": "/invite/*",        comment: "Referral invite" },
+            { "/": "/transfer/*",      comment: "Payment request" },
+            { "/": "/topup/*",         comment: "Top-up link" },
+            { "/": "/*",               comment: "All paths" },
+          ],
+        },
+      ],
+    },
+    webcredentials: {
+      apps: [`${APPLE_TEAM_ID}.${APPLE_BUNDLE_ID}`],
+    },
+  });
+});
+
+// ── Android App Links: Digital Asset Links ────────────────────────────────────
+// Android verifies this file to enable App Links (autoVerify intent filters).
+// Replace SHA256 fingerprint with output of:
+//   keytool -printcert -jarfile your-release.apk
+// Or from EAS: eas credentials (then copy the SHA-256 fingerprint)
+const ANDROID_SHA256 = process.env.ANDROID_SHA256_CERT ?? "REPLACE_WITH_RELEASE_SHA256_FINGERPRINT";
+const ANDROID_PACKAGE = process.env.ANDROID_PACKAGE ?? "com.payvora.mobile";
+
+router.get("/.well-known/assetlinks.json", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Cache-Control", "public, max-age=3600");
+  res.json([
+    {
+      relation: ["delegate_permission/common.handle_all_urls"],
+      target: {
+        namespace: "android_app",
+        package_name: ANDROID_PACKAGE,
+        sha256_cert_fingerprints: [ANDROID_SHA256],
+      },
+    },
+  ]);
 });
 
 // ── CSP for HTML pages (looser than API CSP — allows fonts + inline styles) ──
@@ -82,6 +155,9 @@ function shell(title: string, description: string, body: string, canonicalPath =
   <meta name="description" content="${description}" />
   <title>${title} — PayVora</title>${GSV_TOKEN ? `\n  <meta name="google-site-verification" content="${GSV_TOKEN}" />` : ""}
   <link rel="canonical" href="${canonicalUrl}" />
+  <!-- Smart App Banners — shown on iOS Safari and Android Chrome -->
+  <meta name="apple-itunes-app" content="app-id=000000000, app-argument=${canonicalUrl}" />
+  <meta name="google-play-app" content="app-id=com.payvora.mobile" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
   <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />

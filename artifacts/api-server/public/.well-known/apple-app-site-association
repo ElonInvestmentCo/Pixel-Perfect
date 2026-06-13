@@ -1,0 +1,35 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.payvora.mobile"],
+        "components": [
+          {
+            "/": "/oauth-callback*",
+            "comment": "OAuth callback deep link"
+          },
+          {
+            "/": "/invite/*",
+            "comment": "Referral invite links"
+          },
+          {
+            "/": "/transfer/*",
+            "comment": "Payment request links"
+          },
+          {
+            "/": "/topup/*",
+            "comment": "Top-up links"
+          },
+          {
+            "/": "/*",
+            "comment": "All paths open in app"
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": ["TEAMID.com.payvora.mobile"]
+  }
+}

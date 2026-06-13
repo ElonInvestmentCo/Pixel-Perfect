@@ -86,7 +86,7 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
     if (!IS_WEB || !webResponse || !CLIENT_ID) return;
 
     if (webResponse.type === "error") {
-      console.error("[GoogleOAuth/web] Error:", webResponse.error);
+      if (__DEV__) console.error("[GoogleOAuth/web] Error:", webResponse.error);
       if (mountedRef.current) {
         Alert.alert("Sign In Failed", webResponse.error?.message ?? "Google sign-in failed.");
       }
@@ -149,15 +149,7 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
     // openAuthSessionAsync watches for navigations to this prefix and closes.
     const returnUrl = Linking.createURL("oauth-callback");
 
-    console.log("╔════════════════════════════════════════════╗");
-    console.log("║    Google OAuth — Server-Side Flow          ║");
-    console.log("╠════════════════════════════════════════════╣");
-    console.log(`║ Backend URL : ${backendUrl}`);
-    console.log(`║ Return URL  : ${returnUrl}`);
-    console.log("╠════════════════════════════════════════════╣");
-    console.log("║ ACTION: Register this redirect URI in GCC:");
-    console.log(`║   ${backendUrl}/api/auth/google/callback`);
-    console.log("╚════════════════════════════════════════════╝");
+    if (__DEV__) console.log("[GoogleOAuth/native] Backend:", backendUrl, "| Return:", returnUrl);
 
     const initUrl =
       `${backendUrl}/api/auth/google/init?` +
@@ -167,7 +159,7 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
     setIsLoading(true);
     try {
       const result = await WebBrowser.openAuthSessionAsync(initUrl, returnUrl);
-      console.log(`[GoogleOAuth/native] Browser result type: ${result.type}`);
+      if (__DEV__) console.log(`[GoogleOAuth/native] Browser result type: ${result.type}`);
 
       if (result.type !== "success") {
         // User cancelled or dismissed the browser — not an error
@@ -185,7 +177,7 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
         throw new Error(`Google declined: ${friendly}`);
       }
       if (!token) {
-        console.error("[GoogleOAuth/native] Return URL:", result.url);
+        if (__DEV__) console.error("[GoogleOAuth/native] Return URL:", result.url);
         throw new Error("No authentication token received. Please try again.");
       }
 
@@ -196,13 +188,13 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
         avatarUrl: (qp.avatarUrl as string) ?? null,
       };
 
-      console.log("[GoogleOAuth/native] ✓ Token received — saving session…");
+      if (__DEV__) console.log("[GoogleOAuth/native] ✓ Token received — saving session…");
       await onSuccess(token, user);
-      console.log("[GoogleOAuth/native] ✓ Done.");
+      if (__DEV__) console.log("[GoogleOAuth/native] ✓ Done.");
     } catch (err) {
       if (!mountedRef.current) return;
       const msg = err instanceof Error ? err.message : "Google sign-in failed.";
-      console.error("[GoogleOAuth/native] ✗ Error:", msg);
+      if (__DEV__) console.error("[GoogleOAuth/native] ✗ Error:", msg);
       Alert.alert("Sign In Failed", msg);
     } finally {
       if (mountedRef.current) setIsLoading(false);
@@ -214,7 +206,7 @@ export function useGoogleSignIn(onSuccess: OnSuccess) {
     if (!CLIENT_ID) {
       Alert.alert(
         "Google Sign-In Not Configured",
-        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID is missing from Replit Secrets.",
+        "Google sign-in is not available. Please sign in with Apple or email.",
       );
       return;
     }

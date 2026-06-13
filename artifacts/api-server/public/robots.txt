@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Allow: /privacy
+Allow: /terms
+Disallow: /api/
+Disallow: /.well-known/
+
+Sitemap: https://www.payvora.org/sitemap.xml
