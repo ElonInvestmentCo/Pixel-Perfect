@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "crypto";
+import { createHash, createHmac, randomBytes, timingSafeEqual } from "crypto";
 import { and, eq } from "drizzle-orm";
 import { Router } from "express";
 import bcrypt from "bcryptjs";
@@ -70,21 +70,45 @@ function signToken(userId: string, email: string, name: string): string {
 //  5. expo-web-browser intercepts the exp:// redirect and resolves the promise
 // ──────────────────────────────────────────────────────────────────────────────
 
-interface OAuthState {
-  returnUrl: string;
-  expiresAt: number;
+// ── Stateless signed OAuth state ─────────────────────────────────────────────
+// Encodes returnUrl + expiry into a self-contained HMAC-SHA256 signed token so
+// no server-side storage is needed.  Safe across Railway container restarts and
+// horizontal scaling because any replica can verify with the shared JWT_SECRET.
+//
+// Format: base64url(JSON({returnUrl,expiresAt,nonce})).HMAC-SHA256-hex
+
+function createOAuthState(returnUrl: string): string {
+  const payload = Buffer.from(
+    JSON.stringify({
+      returnUrl,
+      expiresAt: Date.now() + 10 * 60 * 1000,
+      nonce: randomBytes(12).toString("hex"),
+    }),
+  ).toString("base64url");
+  const sig = createHmac("sha256", env.JWT_SECRET).update(payload).digest("hex");
+  return `${payload}.${sig}`;
 }
 
-/** Short-lived store keyed by state token (hex). TTL: 10 minutes. */
-const oauthStates = new Map<string, OAuthState>();
-
-// Purge expired entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, val] of oauthStates) {
-    if (val.expiresAt < now) oauthStates.delete(key);
+function verifyOAuthState(state: string): { returnUrl: string } | null {
+  const dot = state.lastIndexOf(".");
+  if (dot === -1) return null;
+  const payload = state.slice(0, dot);
+  const sig     = state.slice(dot + 1);
+  const expected = createHmac("sha256", env.JWT_SECRET).update(payload).digest("hex");
+  const expBuf  = Buffer.from(expected, "hex");
+  const sigBuf  = Buffer.from(sig,      "hex");
+  if (expBuf.length !== sigBuf.length || !timingSafeEqual(expBuf, sigBuf)) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as {
+      returnUrl: string;
+      expiresAt: number;
+    };
+    if (Date.now() > parsed.expiresAt) return null;
+    return { returnUrl: parsed.returnUrl };
+  } catch {
+    return null;
   }
-}, 5 * 60 * 1000).unref();
+}
 
 /**
  * Return the backend's public HTTPS callback URL for Google OAuth.
@@ -127,8 +151,7 @@ router.get("/auth/google/init", (req, res) => {
     return;
   }
 
-  const state = randomBytes(24).toString("hex");
-  oauthStates.set(state, { returnUrl, expiresAt: Date.now() + 10 * 60 * 1000 });
+  const state = createOAuthState(returnUrl);
 
   const callbackUrl = buildCallbackUrl(req);
   const params = new URLSearchParams({
@@ -155,8 +178,8 @@ router.get("/auth/google/init", (req, res) => {
 router.get("/auth/google/callback", async (req, res) => {
   const { code, state, error } = req.query as Record<string, string>;
 
-  const stored = oauthStates.get(state ?? "");
-  if (!stored || Date.now() > stored.expiresAt) {
+  const stored = verifyOAuthState(state ?? "");
+  if (!stored) {
     res.status(400).send(
       "<!DOCTYPE html><html><body>" +
       "<p>Session expired. Please close this window and try signing in again.</p>" +
@@ -164,8 +187,6 @@ router.get("/auth/google/callback", async (req, res) => {
     );
     return;
   }
-
-  oauthStates.delete(state); // single-use
 
   const { returnUrl } = stored;
 
