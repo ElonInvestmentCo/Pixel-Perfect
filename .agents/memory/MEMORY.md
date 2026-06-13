@@ -10,3 +10,4 @@
 - [Apple Sign In nonce requirement](apple-signin-nonce.md) — Apple mandates nonce for replay-attack prevention; client generates UUID, SHA-256 hashes it, passes hash to signInAsync; backend re-hashes rawNonce and compares to payload.nonce claim after JWKS verification.
 - [Google OAuth Expo SDK 54](google-oauth-sdk54.md) — expo-auth-session v7 removed auth.expo.io proxy entirely; use server-side OAuth (backend code exchange + exp:// redirect) for Expo Go native.
 - [Metro blockList for Replit temp files](metro-blocklist.md) — add /\/\.local\/.*/ and /\/attached_assets\/.*/ to config.resolver.blockList; Metro FallbackWatcher crashes on deleted .old-* temp files in .local/skills/.
+- [Expo Go QR code 502 on Replit](expo-qr-replit-port.md) — must use PORT=5000 pnpm run dev (not --port 8082 + dev-proxy); dev script sets EXPO_PACKAGER_PROXY_URL so QR code uses stable *.expo.janeway.replit.dev domain.

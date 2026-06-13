@@ -14,21 +14,20 @@ Any Replit AI session that opens this repository MUST follow these rules without
 - **Never** initialize or convert this project to a web app, Next.js, Vite, or any browser-based framework.
 - **Never** replace existing files with web templates.
 - **Never** run `npm create`, `vite`, `create-next-app`, or any scaffolding tool.
-- **Never** configure `waitForPort` on the Expo workflow — this causes Replit to render a web iframe instead of the native QR code.
-- **Never** set `outputType: "webview"` on the Expo workflow — web preview is forbidden.
-- **Never** use `expo start --localhost` or `expo start --web` — always use `--tunnel`.
-- **Never** hardcode a PORT or inject `$PORT` into the Expo start command — tunnel mode requires no port from Replit.
+- **Never** use `expo start --tunnel` — this creates an Expo-hosted tunnel that expires; the Replit dev domain is stable and preferred.
+- **Never** use `--port 8082` without a dev-proxy — Metro on localhost:8082 is not externally accessible; Expo Go cannot reach it.
+- **Never** omit `PORT=5000` prefix — without it, `$PORT` defaults to 3000 (taken by the API server) and Metro fails to start.
 - **Always** treat `artifacts/mobile/` as the primary app artifact — it is an Expo Router project.
-- **Always** start Expo using tunnel mode: `pnpm --filter @workspace/mobile exec expo start --tunnel --port 8082`
-- **Always** set `outputType: "console"` with NO `waitForPort` on the Expo workflow.
+- **Always** start Expo using: `PORT=5000 pnpm --filter @workspace/mobile run dev` — the `dev` script sets `EXPO_PACKAGER_PROXY_URL` so the QR code uses the stable `*.expo.janeway.replit.dev` domain.
+- **Always** set `waitForPort: 5000` and `outputType: "webview"` on the Expo workflow.
 - **Always** use `pnpm` (not `npm` or `yarn`) — this is a pnpm workspace monorepo.
 - **Always** restore and run the existing Expo project as-is.
 
 ### Correct startup
 
 ```bash
-pnpm install                                                              # install all workspace dependencies
-pnpm --filter @workspace/mobile exec expo start --tunnel --port 8082     # start Expo in tunnel mode
+pnpm install                        # install all workspace dependencies
+PORT=5000 pnpm --filter @workspace/mobile run dev   # start Expo on port 5000 via dev script
 ```
 
 ### Correct workflow configuration (REQUIRED — do not change)
@@ -36,14 +35,20 @@ pnpm --filter @workspace/mobile exec expo start --tunnel --port 8082     # start
 ```javascript
 await configureWorkflow({
   name: "Start Expo Native App",
-  command: "pnpm --filter @workspace/mobile exec expo start --localhost --port 5000",
+  command: "PORT=5000 pnpm --filter @workspace/mobile run dev",
   waitForPort: 5000,
   outputType: "webview",
   autoStart: true
 });
 ```
 
-The canvas preview iframe shows the app via Expo Web on port 5000. To test natively, scan the `exp://` QR code shown in the workflow console with **Expo Go** on iPhone or Android.
+The canvas preview shows Expo Web on port 5000. To test natively, scan the `exp://` QR code in the workflow console with **Expo Go** on iPhone or Android. The QR code URL will be `exp://...expo.janeway.replit.dev` — stable across restarts.
+
+### Why this works (and what breaks it)
+- The `dev` script sets `EXPO_PACKAGER_PROXY_URL=https://$REPLIT_EXPO_DEV_DOMAIN` — this makes the QR code point to the Replit Expo proxy domain (accessible from any phone).
+- `PORT=5000` overrides the Replit default `$PORT=3000` (which the API server already occupies).
+- Replit routes the `*.expo.janeway.replit.dev` domain to port 5000, so Expo Go connects directly to Metro.
+- All API calls go to Railway by default (no local toggle set). Backend is Railway.
 
 ---
 
