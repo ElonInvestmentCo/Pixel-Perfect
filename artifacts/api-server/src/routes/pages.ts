@@ -380,432 +380,542 @@ function shell(title: string, description: string, body: string, canonicalPath =
 
 const landingBody = /* html */ `
 <style>
-  /* ── Hero — two-column cover layout ── */
-  .hero {
-    min-height: 100vh;
+  /* ────────────────────────────────────────────────────────────────────────────
+     ANNOUNCEMENT BANNER
+  ──────────────────────────────────────────────────────────────────────────── */
+  .ann-banner {
+    background: #0A0A0A;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    padding: 12px 48px;
+    position: relative;
+    line-height: 1.4;
     display: flex;
     align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .ann-banner a {
+    color: #C8FF00;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .ann-banner a:hover { text-decoration: underline; }
+  .ann-dismiss {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.5);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 4px 8px;
+    transition: color 0.15s;
+  }
+  .ann-dismiss:hover { color: #fff; }
+
+  /* ────────────────────────────────────────────────────────────────────────────
+     HERO
+  ──────────────────────────────────────────────────────────────────────────── */
+  .hero {
     padding: 80px 0 60px;
-    position: relative;
-    overflow: hidden;
-    background: #FFFFFF;
+    border-bottom: 1px solid #E5E5E5;
+    background: #fff;
   }
-
-  /* Layered subtle light texture */
-  .hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 140% 90% at 75% 55%, rgba(200,255,0,0.06) 0%, transparent 55%),
-      radial-gradient(ellipse 70% 70%  at 15% 20%, rgba(240,240,240,0.80) 0%, transparent 50%),
-      radial-gradient(ellipse 55% 55%  at 85% 85%, rgba(235,235,235,0.70) 0%, transparent 50%),
-      radial-gradient(ellipse 100% 60% at 50% 0%,  rgba(245,245,245,0.50) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* Subtle grain layer */
-  .hero::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-    opacity: 0.035;
-    pointer-events: none;
-    z-index: 0;
-  }
-
   .hero-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 48px;
-    position: relative;
-    z-index: 1;
-    width: 100%;
   }
-
   .hero-grid {
     display: grid;
-    grid-template-columns: 45% 55%;
-    gap: 0;
+    grid-template-columns: 1fr 1fr;
+    gap: 64px;
     align-items: center;
-    min-height: calc(100vh - 72px);
   }
 
-  /* ── Hero Left ── */
-  .hero-left {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-right: 40px;
-    padding-top: 20px;
-  }
+  /* ── Left ── */
+  .hero-left { display: flex; flex-direction: column; }
 
-  .hero-logo-wrap {
-    margin-bottom: 28px;
-  }
-  .hero-logo-wrap img {
-    height: 120px;
-    width: auto;
-    display: block;
-  }
-
-  .hero-eyebrow {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #C8FF00;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin-bottom: 18px;
-  }
-  .hero-eyebrow-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #C8FF00;
-    display: inline-block;
-    box-shadow: 0 0 8px rgba(200,255,0,0.8);
-  }
-
-  .hero-title {
-    font-size: clamp(44px, 4.8vw, 68px);
-    font-weight: 900;
-    line-height: 1.0;
-    letter-spacing: -2.5px;
-    margin-bottom: 20px;
-    color: #0A0A0A;
-  }
-  .hero-title .accent { color: #7AAD00; }
-
-  .hero-sub {
-    font-size: 16px;
-    color: #777;
-    max-width: 400px;
-    line-height: 1.75;
-    margin-bottom: 36px;
-  }
-
-  .hero-actions {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-wrap: wrap;
-    margin-bottom: 44px;
-  }
-  .hero-badge-link {
-    display: inline-block;
-    transition: opacity 0.2s, transform 0.2s;
-  }
-  .hero-badge-link:hover { opacity: 0.85; transform: translateY(-2px); text-decoration: none; }
-  .hero-badge-link img { height: 54px; width: auto; display: block; }
-
-  .hero-stats {
-    display: flex;
-    gap: 28px;
-  }
-  .hero-stat-val {
-    font-size: 24px;
-    font-weight: 900;
-    color: #0A0A0A;
-    letter-spacing: -0.5px;
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-  .hero-stat-label {
-    font-size: 11px;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .hero-stat-divider {
-    width: 1px;
-    height: 32px;
-    background: #D8D8D8;
-    align-self: center;
-  }
-
-  /* ── Hero Right ── */
-  .hero-right {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    justify-content: center;
-    height: 100%;
-  }
-
-  .hero-phone {
-    position: relative;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 40px;
-  }
-  .hero-phone::before {
-    content: '';
-    position: absolute;
-    inset: -80px;
-    background: radial-gradient(ellipse at 50% 50%, rgba(200,255,0,0.10) 0%, transparent 65%);
-    pointer-events: none;
-  }
-  .hero-phone img {
-    max-width: 340px;
-    width: 80%;
-    height: auto;
-    border-radius: 44px;
-    position: relative;
-    z-index: 1;
-    box-shadow:
-      0 0 0 1px rgba(200,255,0,0.12),
-      0 80px 140px rgba(0,0,0,0.95),
-      0 0 100px rgba(200,255,0,0.07);
-    transform: perspective(1400px) rotateY(-6deg) rotateX(2deg);
-    transition: transform 0.4s ease;
-  }
-  .hero-phone img:hover {
-    transform: perspective(1400px) rotateY(-2deg) rotateX(1deg);
-  }
-
-  /* Feature tag list — bottom-right of hero (mirroring the Cover's feature list) */
-  .hero-feature-list {
-    width: 100%;
-    padding: 0 8px;
-  }
-  .hero-feature-item {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-    font-size: clamp(16px, 1.6vw, 20px);
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: rgba(0,0,0,0.25);
-    transition: color 0.2s;
-    cursor: default;
-  }
-  .hero-feature-item:last-child { border-bottom: none; }
-  .hero-feature-item:hover { color: rgba(0,0,0,0.55); }
-  .hero-feature-item .accent { color: #7AAD00; }
-  .hero-feature-num {
-    font-size: 11px;
-    font-weight: 600;
-    color: #BBBBBB;
-    min-width: 24px;
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* Screens badge pill (like "100+ Screens" in Cover) */
-  .hero-screens-badge {
+  .hero-pill {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(200,255,0,0.1);
-    border: 1px solid rgba(200,255,0,0.25);
+    border: 1px solid #E0E0E0;
     border-radius: 100px;
-    padding: 8px 18px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #C8FF00;
-    margin-bottom: 24px;
-    align-self: flex-start;
+    padding: 6px 14px 6px 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 32px;
+    width: fit-content;
+    background: #FAFAFA;
+  }
+  .hero-pill-dot {
+    width: 20px;
+    height: 20px;
+    background: #C8FF00;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
   }
 
-  /* ── Features section ── */
-  .section {
-    padding: 96px 0;
+  .hero-title {
+    font-size: clamp(44px, 5.5vw, 72px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.0;
+    color: #0A0A0A;
+    margin-bottom: 24px;
+    text-wrap: balance;
+  }
+  .hero-title em {
+    font-style: normal;
+    color: transparent;
+    -webkit-text-stroke: 2px #0A0A0A;
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    color: #6B7280;
+    line-height: 1.7;
+    max-width: 440px;
+    margin-bottom: 40px;
+  }
+
+  .hero-badges {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+  .hero-badge-link {
+    display: inline-block;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .hero-badge-link:hover { opacity: 0.8; transform: translateY(-1px); text-decoration: none; }
+  .hero-badge-link img { height: 44px; width: auto; display: block; }
+
+  .hero-social-proof {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-stars { color: #F59E0B; font-size: 15px; letter-spacing: 1px; }
+  .hero-proof-text { font-size: 13px; color: #9CA3AF; }
+  .hero-proof-text strong { color: #374151; font-weight: 600; }
+
+  /* ── Right ── */
+  .hero-right {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-visual {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    background: #0A0A0A;
+    border-radius: 40px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.08),
+      0 32px 80px rgba(0,0,0,0.35),
+      0 8px 24px rgba(0,0,0,0.15);
+    margin: 0 auto;
+    max-width: 280px;
+    position: relative;
+    z-index: 2;
+  }
+  .phone-notch {
+    width: 90px;
+    height: 26px;
+    background: #0A0A0A;
+    border-radius: 0 0 18px 18px;
+    margin: 0 auto 8px;
+    position: relative;
+    z-index: 3;
+  }
+  .phone-screen {
+    background: #111;
+    border-radius: 28px;
+    overflow: hidden;
+    aspect-ratio: 9/19.5;
+    position: relative;
+  }
+  .phone-screen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+  }
+
+  /* Floating stat card — top-right */
+  .float-card {
+    position: absolute;
+    background: #fff;
+    border: 1px solid #E5E5E5;
+    border-radius: 16px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+    z-index: 10;
+    white-space: nowrap;
+  }
+  .float-card-1 {
+    top: 40px;
+    right: -24px;
+  }
+  .float-card-2 {
+    bottom: 80px;
+    left: -24px;
+  }
+  .float-label { font-size: 11px; color: #9CA3AF; font-weight: 500; margin-bottom: 4px; }
+  .float-value { font-size: 18px; font-weight: 800; color: #0A0A0A; letter-spacing: -0.5px; line-height: 1; }
+  .float-sub { font-size: 11px; color: #10B981; font-weight: 600; margin-top: 3px; }
+  .float-sub.red { color: #EF4444; }
+
+  /* glow behind phone */
+  .phone-glow {
+    position: absolute;
+    inset: -40px;
+    background: radial-gradient(ellipse at 50% 60%, rgba(200,255,0,0.12) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 50%;
+  }
+
+  /* ────────────────────────────────────────────────────────────────────────────
+     TRUST STRIP
+  ──────────────────────────────────────────────────────────────────────────── */
+  .trust-strip {
+    border-bottom: 1px solid #E5E5E5;
+    padding: 32px 48px;
     max-width: 1200px;
     margin: 0 auto;
-    padding-left: 48px;
-    padding-right: 48px;
   }
-  .section-label {
-    display: inline-block;
+  .trust-label {
+    text-align: center;
     font-size: 11px;
-    font-weight: 700;
-    color: #C8FF00;
+    font-weight: 600;
+    color: #9CA3AF;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    margin-bottom: 12px;
+    margin-bottom: 24px;
+  }
+  .trust-logos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .trust-logo {
+    font-size: 15px;
+    font-weight: 700;
+    color: #C4C4C4;
+    letter-spacing: -0.02em;
+    transition: color 0.2s;
+  }
+  .trust-logo:hover { color: #9CA3AF; }
+
+  /* ────────────────────────────────────────────────────────────────────────────
+     FEATURES
+  ──────────────────────────────────────────────────────────────────────────── */
+  .section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 96px 48px;
+  }
+  .section-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 32px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+  .section-kicker {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #9CA3AF;
+    margin-bottom: 10px;
   }
   .section-title {
-    font-size: clamp(28px, 4vw, 44px);
+    font-size: clamp(28px, 3.5vw, 44px);
     font-weight: 900;
-    letter-spacing: -1.5px;
+    letter-spacing: -0.04em;
     line-height: 1.1;
-    margin-bottom: 16px;
+    color: #0A0A0A;
+    text-wrap: balance;
   }
-  .section-subtitle {
-    font-size: 16px;
-    color: #666;
-    max-width: 480px;
-    line-height: 1.75;
-    margin-bottom: 48px;
+  .section-desc {
+    font-size: 15px;
+    color: #6B7280;
+    line-height: 1.7;
+    max-width: 320px;
+    align-self: flex-end;
   }
+
+  /* Border-grid feature cards (Ramp-style) */
   .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1px;
-    background: #E4E4E4;
-    border: 1px solid #E4E4E4;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid #E5E5E5;
     border-radius: 20px;
     overflow: hidden;
   }
   .feature-card {
-    background: #FFFFFF;
-    padding: 32px 28px;
-    transition: background 0.2s;
+    padding: 36px 32px;
+    border-right: 1px solid #E5E5E5;
+    border-bottom: 1px solid #E5E5E5;
+    background: #fff;
+    transition: background 0.15s;
+    position: relative;
   }
   .feature-card:hover { background: #FAFAFA; }
-  .feature-icon {
+  .feature-card:nth-child(3n) { border-right: none; }
+  .feature-card:nth-child(n+4) { border-bottom: none; }
+
+  .feature-icon-wrap {
     width: 44px;
     height: 44px;
-    background: rgba(122,173,0,0.10);
     border-radius: 12px;
+    border: 1px solid #E5E5E5;
+    background: #F9F9F9;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 20px;
-    margin-bottom: 18px;
-    border: 1px solid rgba(122,173,0,0.20);
+    margin-bottom: 20px;
   }
-  .feature-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
-  .feature-desc { font-size: 13px; color: #666; line-height: 1.65; }
+  .feature-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0A0A0A;
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+  .feature-desc { font-size: 13px; color: #6B7280; line-height: 1.65; }
 
-  /* ── Stats ── */
-  .stats-row {
+  /* ────────────────────────────────────────────────────────────────────────────
+     STATS BAND
+  ──────────────────────────────────────────────────────────────────────────── */
+  .stats-band {
+    border-top: 1px solid #E5E5E5;
+    border-bottom: 1px solid #E5E5E5;
+    background: #FAFAFA;
+  }
+  .stats-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 48px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: #E4E4E4;
-    border: 1px solid #E4E4E4;
-    border-radius: 20px;
-    overflow: hidden;
-    margin-top: 2px;
+    divide-x: 1px solid #E5E5E5;
   }
-  .stat {
-    background: #FFFFFF;
-    padding: 36px 28px;
+  .stat-item {
+    padding: 48px 32px;
+    border-right: 1px solid #E5E5E5;
+    text-align: left;
   }
+  .stat-item:last-child { border-right: none; }
   .stat-value {
-    font-size: 38px;
+    font-size: 42px;
     font-weight: 900;
-    color: #7AAD00;
-    letter-spacing: -1.5px;
+    letter-spacing: -0.04em;
+    color: #0A0A0A;
     line-height: 1;
     margin-bottom: 8px;
   }
-  .stat-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.08em; }
+  .stat-value span { color: #C8FF00; }
+  .stat-label { font-size: 13px; color: #9CA3AF; font-weight: 500; }
 
-  /* ── CTA ── */
-  .cta-section {
+  /* ────────────────────────────────────────────────────────────────────────────
+     HOW IT WORKS
+  ──────────────────────────────────────────────────────────────────────────── */
+  .how-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 96px 48px;
+  }
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #E5E5E5;
+    border: 1px solid #E5E5E5;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 48px;
+  }
+  .how-step {
+    background: #fff;
+    padding: 40px 32px;
+    transition: background 0.15s;
+  }
+  .how-step:hover { background: #FAFAFA; }
+  .step-num {
+    width: 36px;
+    height: 36px;
+    background: #0A0A0A;
+    color: #C8FF00;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+  .step-title { font-size: 17px; font-weight: 800; color: #0A0A0A; margin-bottom: 10px; letter-spacing: -0.03em; }
+  .step-desc { font-size: 13px; color: #6B7280; line-height: 1.65; }
+
+  /* ────────────────────────────────────────────────────────────────────────────
+     CTA SECTION — dark
+  ──────────────────────────────────────────────────────────────────────────── */
+  .cta-outer {
     padding: 0 48px 96px;
     max-width: 1200px;
     margin: 0 auto;
   }
   .cta-card {
-    background: linear-gradient(135deg, #F7F7F7 0%, #F0F0F0 100%);
-    border: 1px solid #E0E0E0;
+    background: #0A0A0A;
     border-radius: 24px;
-    padding: 72px 48px;
-    text-align: center;
+    padding: 80px 64px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 48px;
+    align-items: center;
     position: relative;
     overflow: hidden;
   }
   .cta-card::before {
     content: '';
     position: absolute;
-    top: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 500px;
-    height: 300px;
-    background: radial-gradient(ellipse, rgba(200,255,0,0.06) 0%, transparent 70%);
+    top: -120px;
+    right: -120px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(200,255,0,0.08) 0%, transparent 65%);
     pointer-events: none;
   }
-  .cta-card::after {
-    content: '';
-    position: absolute;
-    bottom: -60px;
-    right: -60px;
-    width: 240px;
-    height: 240px;
-    background: radial-gradient(circle, rgba(200,255,0,0.04) 0%, transparent 70%);
-    pointer-events: none;
-  }
-  .cta-card h2 {
-    font-size: clamp(28px, 4vw, 46px);
-    font-weight: 900;
-    letter-spacing: -1.5px;
+  .cta-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #C8FF00;
     margin-bottom: 16px;
-    position: relative;
-    z-index: 1;
   }
-  .cta-card p {
-    font-size: 16px;
-    color: #666;
-    margin-bottom: 36px;
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.7;
-    position: relative;
-    z-index: 1;
+  .cta-title {
+    font-size: clamp(28px, 3.5vw, 44px);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    color: #fff;
+    margin-bottom: 16px;
+    text-wrap: balance;
   }
-  .store-badges {
+  .cta-sub {
+    font-size: 15px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.65;
+    max-width: 420px;
+  }
+  .cta-badges {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-end;
+    flex-shrink: 0;
     position: relative;
     z-index: 1;
   }
-  .store-badge-link {
+  .cta-badge-link {
     display: inline-block;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: opacity 0.2s, transform 0.15s;
   }
-  .store-badge-link:hover { opacity: 0.85; transform: translateY(-2px); text-decoration: none; }
-  .store-badge-link img { height: 52px; width: auto; display: block; }
+  .cta-badge-link:hover { opacity: 0.8; transform: translateY(-1px); text-decoration: none; }
+  .cta-badge-link img { height: 44px; width: auto; display: block; }
 
-  @media (max-width: 960px) {
-    .hero-grid {
-      grid-template-columns: 1fr;
-      min-height: auto;
-    }
-    .hero-container { padding: 0 24px; }
-    .hero-left {
-      padding-right: 0;
-      align-items: center;
-      text-align: center;
-      padding-top: 32px;
-      padding-bottom: 32px;
-    }
-    .hero-logo-wrap img { margin: 0 auto; }
-    .hero-eyebrow { justify-content: center; }
-    .hero-sub { margin-left: auto; margin-right: auto; }
-    .hero-actions { justify-content: center; }
-    .hero-stats { justify-content: center; }
-    .hero-right { align-items: center; padding-bottom: 48px; }
-    .hero-screens-badge { align-self: center; }
-    .hero-phone img { transform: none; max-width: 280px; }
-    .hero-feature-list { text-align: left; max-width: 400px; }
-    .section { padding: 64px 24px; }
-    .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .cta-section { padding: 0 24px 64px; }
-    .cta-card { padding: 48px 24px; }
+  /* ────────────────────────────────────────────────────────────────────────────
+     RESPONSIVE
+  ──────────────────────────────────────────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .float-card-1, .float-card-2 { display: none; }
+    .stats-inner { grid-template-columns: repeat(2, 1fr); }
+    .stat-item:nth-child(2) { border-right: none; }
+    .stat-item:nth-child(3) { border-right: 1px solid #E5E5E5; }
+    .stat-item:nth-child(3), .stat-item:nth-child(4) { border-top: 1px solid #E5E5E5; }
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .feature-card:nth-child(3n) { border-right: 1px solid #E5E5E5; }
+    .feature-card:nth-child(2n) { border-right: none; }
+    .feature-card:nth-child(n+4) { border-bottom: 1px solid #E5E5E5; }
+    .feature-card:nth-child(n+5) { border-bottom: none; }
+    .how-grid { grid-template-columns: 1fr; }
+    .cta-card { grid-template-columns: 1fr; gap: 32px; padding: 56px 40px; }
+    .cta-badges { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
   }
 
-  @media (max-width: 540px) {
-    .hero-title { letter-spacing: -1.5px; }
-    .stats-row { grid-template-columns: 1fr 1fr; }
-    .features-grid { grid-template-columns: 1fr; }
+  @media (max-width: 768px) {
+    .hero { padding: 56px 0 48px; }
+    .hero-container, .section, .how-section, .cta-outer, .trust-strip { padding-left: 24px; padding-right: 24px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+    .hero-right { order: -1; }
+    .hero-visual { max-width: 260px; }
+    .features-grid { grid-template-columns: 1fr; border-radius: 16px; }
+    .feature-card:nth-child(n) { border-right: none; border-bottom: 1px solid #E5E5E5; }
+    .feature-card:last-child { border-bottom: none; }
+    .stats-inner { grid-template-columns: 1fr 1fr; padding: 0 24px; }
+    .stat-item { padding: 32px 20px; }
+    .cta-card { padding: 40px 28px; border-radius: 20px; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-title { letter-spacing: -0.03em; }
+    .stats-inner { grid-template-columns: 1fr 1fr; }
+    .stat-value { font-size: 32px; }
+    .section-header { flex-direction: column; align-items: flex-start; }
+    .section-desc { max-width: 100%; }
   }
 </style>
+
+<!-- ── Announcement Banner ── -->
+<div class="ann-banner" id="ann-banner">
+  <span>🚀 PayVora is now live in 150+ countries — send money to anyone, anywhere.</span>
+  <a href="#download">Download free →</a>
+  <button class="ann-dismiss" id="ann-dismiss" aria-label="Dismiss">&#x2715;</button>
+</div>
+<script>
+  (function() {
+    var btn = document.getElementById('ann-dismiss');
+    var bar = document.getElementById('ann-banner');
+    if (btn && bar) {
+      btn.addEventListener('click', function() {
+        bar.style.display = 'none';
+      });
+    }
+  })();
+</script>
 
 <main>
   <!-- ── Hero ── -->
@@ -813,20 +923,18 @@ const landingBody = /* html */ `
     <div class="hero-container">
       <div class="hero-grid">
 
-        <!-- Left column: brand + headline + CTA + stats -->
+        <!-- Left -->
         <div class="hero-left">
-          <div class="hero-logo-wrap">
-            <img src="/brand-logo.png" alt="PayVora" />
+          <div class="hero-pill">
+            <span class="hero-pill-dot">✦</span>
+            The all-in-one money app
           </div>
-          <div class="hero-eyebrow">
-            <span class="hero-eyebrow-dot"></span>
-            Digital Wallet
-          </div>
-          <h1 class="hero-title">
-            Digital Wallet<br /><span class="accent">Finance App</span>
-          </h1>
-          <p class="hero-sub">Send money instantly, top up airtime, pay bills, and manage virtual cards — all from one beautifully designed app.</p>
-          <div class="hero-actions" id="download">
+
+          <h1 class="hero-title">Your money,<br /><em>everywhere</em>.</h1>
+
+          <p class="hero-sub">Send money instantly, top up airtime, buy gift cards, pay bills, and manage crypto — all in one beautifully designed app.</p>
+
+          <div class="hero-badges" id="download">
             <a class="hero-badge-link" href="${APP_STORE_URL}" target="_blank" rel="noopener noreferrer">
               <img src="/app-store-badge.svg" alt="Download on the App Store" />
             </a>
@@ -834,48 +942,36 @@ const landingBody = /* html */ `
               <img src="/google-play-badge.svg" alt="Get it on Google Play" />
             </a>
           </div>
-          <div class="hero-stats">
-            <div>
-              <div class="hero-stat-val">1M+</div>
-              <div class="hero-stat-label">Active Users</div>
-            </div>
-            <div class="hero-stat-divider"></div>
-            <div>
-              <div class="hero-stat-val">$2B+</div>
-              <div class="hero-stat-label">Processed</div>
-            </div>
-            <div class="hero-stat-divider"></div>
-            <div>
-              <div class="hero-stat-val">150+</div>
-              <div class="hero-stat-label">Countries</div>
-            </div>
+
+          <div class="hero-social-proof">
+            <span class="hero-stars">★★★★★</span>
+            <span class="hero-proof-text"><strong>50,000+</strong> five-star reviews</span>
           </div>
         </div>
 
-        <!-- Right column: pill badge + phone + feature list -->
+        <!-- Right -->
         <div class="hero-right">
-          <div class="hero-screens-badge">
-            &#10024; 100+ App Screens
-          </div>
-          <div class="hero-phone">
-            <img src="/app-screenshot.png" alt="PayVora app interface" />
-          </div>
-          <div class="hero-feature-list">
-            <div class="hero-feature-item">
-              <span class="hero-feature-num">01</span>
-              UX Scenarios
+          <div class="hero-visual">
+            <div class="phone-glow"></div>
+            <div class="phone-frame">
+              <div class="phone-notch"></div>
+              <div class="phone-screen">
+                <img src="/app-screenshot.png" alt="PayVora app" />
+              </div>
             </div>
-            <div class="hero-feature-item">
-              <span class="hero-feature-num">02</span>
-              <span class="accent">Global</span>&nbsp;Style Guide
+
+            <!-- Floating card: balance -->
+            <div class="float-card float-card-1">
+              <div class="float-label">Total Balance</div>
+              <div class="float-value">$12,480.00</div>
+              <div class="float-sub">↑ +3.2% this month</div>
             </div>
-            <div class="hero-feature-item">
-              <span class="hero-feature-num">03</span>
-              <span class="accent">Well</span>&nbsp;Organized
-            </div>
-            <div class="hero-feature-item">
-              <span class="hero-feature-num">04</span>
-              150+ Components
+
+            <!-- Floating card: transfer -->
+            <div class="float-card float-card-2">
+              <div class="float-label">Last Transfer</div>
+              <div class="float-value">$240.00</div>
+              <div class="float-sub">✓ Delivered instantly</div>
             </div>
           </div>
         </div>
@@ -884,63 +980,121 @@ const landingBody = /* html */ `
     </div>
   </section>
 
+  <!-- ── Trust Strip ── -->
+  <div class="trust-strip">
+    <div class="trust-label">Trusted by users in 150+ countries</div>
+    <div class="trust-logos">
+      <span class="trust-logo">Africa</span>
+      <span class="trust-logo">Europe</span>
+      <span class="trust-logo">North America</span>
+      <span class="trust-logo">Asia Pacific</span>
+      <span class="trust-logo">Middle East</span>
+      <span class="trust-logo">Latin America</span>
+    </div>
+  </div>
+
   <!-- ── Features ── -->
   <section class="section">
-    <div class="section-label">Features</div>
-    <h2 class="section-title">Everything you need,<br />nothing you don't</h2>
-    <p class="section-subtitle">PayVora brings together all the financial tools you use daily into a single, fast, secure app.</p>
+    <div class="section-header">
+      <div>
+        <div class="section-kicker">Features</div>
+        <h2 class="section-title">Everything you need,<br />nothing you don't.</h2>
+      </div>
+      <p class="section-desc">PayVora brings together all the financial tools you use daily into one fast, secure, and delightful app.</p>
+    </div>
 
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon">⚡</div>
+        <div class="feature-icon-wrap">⚡</div>
         <div class="feature-title">Instant Transfers</div>
-        <div class="feature-desc">Send money to anyone instantly. No delays, no hidden fees — funds arrive in seconds.</div>
+        <div class="feature-desc">Send money to anyone, anywhere in the world. No delays, no hidden fees — funds arrive in seconds.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📱</div>
+        <div class="feature-icon-wrap">📱</div>
         <div class="feature-title">Airtime & Data Top-Up</div>
-        <div class="feature-desc">Top up airtime and data for any network, anywhere in the world, directly from the app.</div>
+        <div class="feature-desc">Top up airtime and data for any network in 150+ countries, directly from your phone.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">💳</div>
+        <div class="feature-icon-wrap">💳</div>
         <div class="feature-title">Virtual Cards</div>
-        <div class="feature-desc">Create virtual debit cards for secure online shopping. Freeze, unfreeze, or delete instantly.</div>
+        <div class="feature-desc">Instantly create virtual debit cards for secure online shopping. Freeze or delete anytime.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <div class="feature-title">Portfolio Growth</div>
-        <div class="feature-desc">Track your financial growth with beautiful insights, charts, and spending analytics.</div>
+        <div class="feature-icon-wrap">🎁</div>
+        <div class="feature-title">Gift Cards</div>
+        <div class="feature-desc">Buy and send gift cards from hundreds of brands worldwide in seconds, with instant delivery.</div>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">🔒</div>
+        <div class="feature-icon-wrap">₿</div>
+        <div class="feature-title">Crypto</div>
+        <div class="feature-desc">Buy, sell, and hold crypto alongside your regular currency. One wallet for everything.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrap">🔒</div>
         <div class="feature-title">Bank-Grade Security</div>
-        <div class="feature-desc">Face ID, biometric authentication, and end-to-end encryption keep your money safe.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🎁</div>
-        <div class="feature-title">Gift Cards & Crypto</div>
-        <div class="feature-desc">Buy and redeem gift cards, and manage crypto holdings — all within one app.</div>
+        <div class="feature-desc">Face ID, biometric authentication, and end-to-end encryption keep every transaction safe.</div>
       </div>
     </div>
+  </section>
 
-    <div class="stats-row">
-      <div class="stat"><div class="stat-value">1M+</div><div class="stat-label">Active Users</div></div>
-      <div class="stat"><div class="stat-value">$2B+</div><div class="stat-label">Processed Monthly</div></div>
-      <div class="stat"><div class="stat-value">150+</div><div class="stat-label">Countries</div></div>
-      <div class="stat"><div class="stat-value">99.9%</div><div class="stat-label">Uptime SLA</div></div>
+  <!-- ── Stats Band ── -->
+  <div class="stats-band">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <div class="stat-value">1M<span>+</span></div>
+        <div class="stat-label">Active users worldwide</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">$2B<span>+</span></div>
+        <div class="stat-label">Processed every month</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">150<span>+</span></div>
+        <div class="stat-label">Countries supported</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">99.9<span>%</span></div>
+        <div class="stat-label">Uptime SLA</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── How It Works ── -->
+  <section class="how-section">
+    <div class="section-kicker">How it works</div>
+    <h2 class="section-title">Up and running in 60 seconds.</h2>
+    <div class="how-grid">
+      <div class="how-step">
+        <div class="step-num">1</div>
+        <div class="step-title">Download the app</div>
+        <div class="step-desc">Available on iOS and Android. Free to download, no credit card required to get started.</div>
+      </div>
+      <div class="how-step">
+        <div class="step-num">2</div>
+        <div class="step-title">Create your account</div>
+        <div class="step-desc">Sign up with your email or continue with Apple or Google. Verify your identity in minutes.</div>
+      </div>
+      <div class="how-step">
+        <div class="step-num">3</div>
+        <div class="step-title">Start sending money</div>
+        <div class="step-desc">Add funds and instantly send money, buy airtime, gift cards, or invest in crypto — worldwide.</div>
+      </div>
     </div>
   </section>
 
   <!-- ── CTA ── -->
-  <section class="cta-section">
+  <section class="cta-outer" id="download-cta">
     <div class="cta-card">
-      <h2>Ready to take control<br />of your finances?</h2>
-      <p>Download PayVora today and join over a million people managing their money the modern way.</p>
-      <div class="store-badges">
-        <a class="store-badge-link" href="${APP_STORE_URL}" target="_blank" rel="noopener noreferrer">
+      <div>
+        <div class="cta-eyebrow">Get started today</div>
+        <h2 class="cta-title">Your money deserves<br />a better home.</h2>
+        <p class="cta-sub">Join over a million people who manage their money smarter with PayVora. Free to download.</p>
+      </div>
+      <div class="cta-badges">
+        <a class="cta-badge-link" href="${APP_STORE_URL}" target="_blank" rel="noopener noreferrer">
           <img src="/app-store-badge.svg" alt="Download on the App Store" />
         </a>
-        <a class="store-badge-link" href="${GOOGLE_PLAY_URL}" target="_blank" rel="noopener noreferrer">
+        <a class="cta-badge-link" href="${GOOGLE_PLAY_URL}" target="_blank" rel="noopener noreferrer">
           <img src="/google-play-badge.svg" alt="Get it on Google Play" />
         </a>
       </div>
