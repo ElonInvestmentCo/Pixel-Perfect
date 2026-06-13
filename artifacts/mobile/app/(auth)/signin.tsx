@@ -4,6 +4,7 @@ import { router, useNavigation } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
+  Image,
   Keyboard,
   StyleSheet,
   Text,
@@ -13,7 +14,6 @@ import {
 } from "react-native";
 
 import { AppleSignInButton } from "@/components/AppleSignInButton";
-import { FloatingCardIllustration } from "@/components/FloatingCardIllustration";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import {
   AuthDivider,
@@ -127,8 +127,12 @@ export default function SignInScreen() {
         subtitle="Sign in to your account"
         gap={28}
         topSlot={
-          <View style={s.avatarWrap} accessibilityElementsHidden>
-            <FloatingCardIllustration />
+          <View style={s.logoWrap} accessibilityElementsHidden>
+            <Image
+              source={require("../../assets/images/icon.png")}
+              style={s.logoImg}
+              resizeMode="contain"
+            />
           </View>
         }
       />
@@ -244,11 +248,17 @@ export default function SignInScreen() {
 }
 
 const s = StyleSheet.create({
-  avatarWrap: {
-    width: 116, height: 76,
-    alignItems: "center", justifyContent: "center",
-    marginBottom: 4,
+  logoWrap: {
+    width:           120,
+    height:          52,
+    borderRadius:    14,
+    backgroundColor: "#0A0A0A",
+    overflow:        "hidden",
+    alignItems:      "center",
+    justifyContent:  "center",
+    marginBottom:    4,
   },
+  logoImg: { width: 120, height: 120 },
 
   submitErrBox: {
     flexDirection: "row", alignItems: "center", gap: 6,

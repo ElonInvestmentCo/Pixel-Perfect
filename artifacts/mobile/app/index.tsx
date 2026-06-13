@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+const LOGO = require("../assets/images/icon.png");
+
 const { width: SW } = Dimensions.get("window");
 
 const LIME  = "#e6f51b";
@@ -176,8 +178,11 @@ export default function OnboardingScreen() {
 
   return (
     <View style={[rs.root, { backgroundColor: "#EBEBEB" }]}>
-      {/* Skip */}
+      {/* Top bar: logo + skip */}
       <View style={[rs.topBar, { paddingTop: topPad + 10 }]}>
+        <View style={rs.logoContainer}>
+          <Image source={LOGO} style={rs.logoImg} resizeMode="contain" />
+        </View>
         <TouchableOpacity
           style={rs.skipBtn}
           onPress={() => safeNavigate(() => router.push("/signin"))}
@@ -252,14 +257,30 @@ export default function OnboardingScreen() {
 }
 
 const rs = StyleSheet.create({
-  root:    { flex: 1 },
-  topBar:  { paddingHorizontal: 22, marginBottom: 4 },
+  root:   { flex: 1 },
+  topBar: {
+    paddingHorizontal: 22,
+    marginBottom:      4,
+    flexDirection:     "row",
+    alignItems:        "center",
+    justifyContent:    "space-between",
+  },
+  logoContainer: {
+    width:           110,
+    height:          42,
+    borderRadius:    12,
+    backgroundColor: "#0A0A0A",
+    overflow:        "hidden",
+    alignItems:      "center",
+    justifyContent:  "center",
+  },
+  logoImg: { width: 110, height: 110 },
   skipBtn: {
-    alignSelf:       "flex-start",
-    backgroundColor: "#fff",
-    borderWidth:     1.5,
-    borderColor:     BLACK,
-    borderRadius:    20,
+    alignSelf:         "flex-start",
+    backgroundColor:   "#fff",
+    borderWidth:       1.5,
+    borderColor:       BLACK,
+    borderRadius:      20,
     paddingHorizontal: 18,
     paddingVertical:   6,
   },

@@ -144,12 +144,13 @@ function HeroCard({
 
       {/* Profile row */}
       <View style={h.profileRow}>
-        <LinearGradient
-          colors={["#D1D5DB", "#9CA3AF"]}
-          style={h.avatar}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-        />
+        <View style={h.avatarWrap}>
+          <Image
+            source={require("../../assets/images/icon.png")}
+            style={h.avatarLogo}
+            resizeMode="contain"
+          />
+        </View>
         <View style={{ flex: 1 }}>
           <Text style={h.hiText}>Hi, Jennifer 👋</Text>
           <Text style={h.morningText}>{greeting}</Text>
@@ -309,11 +310,16 @@ const h = StyleSheet.create({
     gap: 12,
     marginBottom: 26,
   },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  avatarWrap: {
+    width:           50,
+    height:          50,
+    borderRadius:    14,
+    backgroundColor: "#0A0A0A",
+    overflow:        "hidden",
+    alignItems:      "center",
+    justifyContent:  "center",
   },
+  avatarLogo: { width: 50, height: 50 },
   hiText: {
     fontSize: 18,
     fontFamily: "Inter_700Bold",

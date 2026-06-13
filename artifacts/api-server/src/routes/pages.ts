@@ -13,18 +13,20 @@
 
 import { Router, type Request, type Response } from "express";
 import path from "path";
-import fs from "fs";
 
 const router = Router();
 
 // ── Logo asset — served from mobile assets directory ─────────────────────────
-// GET /logo.png → serves payvora-logo-clean.png (transparent background)
-// Falls back to logo.png if clean version is missing.
-const LOGO_CLEAN = path.resolve(process.cwd(), "artifacts/mobile/assets/images/payvora-logo-clean.png");
-const LOGO_FALLBACK = path.resolve(process.cwd(), "artifacts/mobile/assets/images/logo.png");
-const LOGO_PATH = fs.existsSync(LOGO_CLEAN) ? LOGO_CLEAN : LOGO_FALLBACK;
+// GET /logo.png and GET /favicon.ico both serve icon.png (the canonical brand logo).
+const LOGO_PATH = path.resolve(process.cwd(), "artifacts/mobile/assets/images/icon.png");
 
 router.get("/logo.png", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "image/png");
+  res.setHeader("Cache-Control", "public, max-age=86400");
+  res.sendFile(LOGO_PATH);
+});
+
+router.get("/favicon.ico", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "image/png");
   res.setHeader("Cache-Control", "public, max-age=86400");
   res.sendFile(LOGO_PATH);
