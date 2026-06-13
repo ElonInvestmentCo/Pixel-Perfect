@@ -1,0 +1,161 @@
+Perform a complete UX/UI production audit of the entire PayVora app and fix ALL broken interactions, states, navigation, authentication flows, buttons, forms, and visual inconsistencies.
+
+Current issue:
+Apple Sign In is failing with:
+"Invalid Apple identity token"
+
+I want a full root-cause investigation and fix.
+
+TASKS:
+
+1. Apple Authentication
+- Audit every Apple Sign In implementation.
+- Verify Apple Service ID.
+- Verify Apple Bundle ID = com.payvora.mobile.
+- Verify Apple Team ID.
+- Verify Apple Key ID.
+- Verify Apple Private Key.
+- Verify nonce generation and validation.
+- Verify identityToken verification on backend.
+- Verify JWT audience, issuer, and subject validation.
+- Verify callback URLs.
+- Verify Expo Apple Authentication implementation.
+- Verify iOS production configuration.
+- Find the exact reason for:
+  "Invalid Apple identity token"
+- Fix the issue completely.
+- Produce a report showing:
+  - Root cause
+  - File location
+  - Exact code changes
+
+2. Authentication Audit
+Audit:
+- Email signup
+- Email login
+- Forgot password
+- Google OAuth
+- Apple OAuth
+- Session persistence
+- Logout
+- Token refresh
+- Deep linking
+
+Fix every broken flow.
+
+3. Global Button Audit
+Scan the entire application and verify:
+
+Every button:
+- responds instantly
+- has loading state
+- has disabled state
+- has error state
+- has success state
+- prevents double clicks
+- has proper accessibility labels
+- uses consistent styling
+
+Pages to check:
+- Splash
+- Onboarding
+- Login
+- Signup
+- Home
+- Wallet
+- Cards
+- Airtime
+- Data
+- Gift Cards
+- Transactions
+- Withdraw
+- Topup
+- Profile
+- Settings
+- KYC
+- Notifications
+
+4. Form Validation
+Audit every form.
+
+Requirements:
+- Inline validation
+- Helpful error messages
+- Prevent invalid submission
+- Keyboard avoidance
+- Proper autofill support
+- Proper password visibility toggles
+
+5. Fintech UX Polish
+Make PayVora feel like:
+- Revolut
+- Mercury
+- Ramp
+- Brex
+- Airwallex
+
+Requirements:
+- Smooth animations
+- Consistent spacing
+- Proper loading skeletons
+- Empty states
+- Error states
+- Success confirmations
+- Pull to refresh
+- Haptic feedback
+- Professional fintech micro-interactions
+
+6. Design System Audit
+
+Enforce globally:
+
+Primary:
+#5B45FF
+
+Accent:
+#E7F41C
+
+Text:
+#111827
+
+Background:
+#FFFFFF
+
+Rules:
+- One button system
+- One card system
+- One spacing system
+- One typography system
+- One shadow system
+- One border radius system
+
+Fix all inconsistencies.
+
+7. Navigation Audit
+Verify:
+- No dead links
+- No broken routes
+- No blank screens
+- No navigation loops
+- Back button works everywhere
+- Deep links work
+
+8. Production Quality Report
+
+Return:
+
+✅ Production Ready Items
+
+⚠️ UX Issues Found
+
+❌ Critical Bugs Found
+
+📂 Files Changed
+
+🔒 Security Issues
+
+🚀 Release Readiness Score
+
+Do not assume anything.
+
+Inspect actual source code, environment variables, routes, auth handlers, navigation stacks, forms, components, buttons, and API integrations before making changes.

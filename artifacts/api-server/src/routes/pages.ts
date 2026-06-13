@@ -599,82 +599,341 @@ const landingBody = /* html */ `
     align-items: center;
     justify-content: center;
   }
-  .hero-visual {
+  /* ── PayVora Card Scene ── */
+  .pv-scene {
     position: relative;
-    width: 100%;
-    max-width: 460px;
+    width: 460px;
+    height: 500px;
+    flex-shrink: 0;
   }
 
-  /* Phone frame */
-  .phone-frame {
-    background: #0A0A0A;
-    border-radius: 40px;
-    padding: 14px;
-    box-shadow:
-      0 0 0 1px rgba(255,255,255,0.08),
-      0 32px 80px rgba(0,0,0,0.35),
-      0 8px 24px rgba(0,0,0,0.15);
-    margin: 0 auto;
-    max-width: 280px;
-    position: relative;
-    z-index: 2;
+  /* Ambient glow */
+  .pv-glow {
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(ellipse at 45% 55%,
+      rgba(91,69,255,0.22) 0%,
+      rgba(91,69,255,0.08) 40%,
+      transparent 68%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
   }
-  .phone-notch {
-    width: 90px;
-    height: 26px;
-    background: #0A0A0A;
-    border-radius: 0 0 18px 18px;
-    margin: 0 auto 8px;
-    position: relative;
-    z-index: 3;
-  }
-  .phone-screen {
-    background: #111;
-    border-radius: 28px;
-    overflow: hidden;
-    aspect-ratio: 9/19.5;
-    position: relative;
-  }
-  .phone-screen img {
+
+  /* Network SVG */
+  .pv-network {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: top;
-    display: block;
-  }
-
-  /* Floating stat card — top-right */
-  .float-card {
-    position: absolute;
-    background: #fff;
-    border: 1px solid #E5E5E5;
-    border-radius: 16px;
-    padding: 14px 18px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.10);
-    z-index: 10;
-    white-space: nowrap;
-  }
-  .float-card-1 {
-    top: 40px;
-    right: -24px;
-  }
-  .float-card-2 {
-    bottom: 80px;
-    left: -24px;
-  }
-  .float-label { font-size: 11px; color: #9CA3AF; font-weight: 500; margin-bottom: 4px; }
-  .float-value { font-size: 18px; font-weight: 800; color: #0A0A0A; letter-spacing: -0.5px; line-height: 1; }
-  .float-sub { font-size: 11px; color: #10B981; font-weight: 600; margin-top: 3px; }
-  .float-sub.red { color: #EF4444; }
-
-  /* glow behind phone */
-  .phone-glow {
-    position: absolute;
-    inset: -40px;
-    background: radial-gradient(ellipse at 50% 60%, rgba(200,255,0,0.12) 0%, transparent 65%);
     pointer-events: none;
     z-index: 1;
+  }
+  .pv-net-a {
+    stroke-dasharray: 10 8;
+    animation: pv-dash-a 3.6s linear infinite;
+  }
+  .pv-net-b {
+    stroke-dasharray: 7 12;
+    animation: pv-dash-b 5.2s linear infinite;
+  }
+  .pv-net-c {
+    stroke-dasharray: 5 14;
+    animation: pv-dash-c 4.4s linear infinite;
+  }
+  .pv-node-pulse {
+    animation: pv-node-pop 2.8s ease-in-out infinite;
+  }
+  .pv-node-pulse2 {
+    animation: pv-node-pop 3.5s ease-in-out infinite 0.9s;
+  }
+  .pv-node-lime {
+    animation: pv-node-pop 4s ease-in-out infinite 1.6s;
+  }
+
+  /* Virtual Card */
+  .pv-card {
+    position: absolute;
+    left: 60px;
+    top: 145px;
+    width: 340px;
+    height: 210px;
+    border-radius: 20px;
+    background: linear-gradient(140deg,
+      #080d1a 0%,
+      #0f1535 28%,
+      #1d1260 55%,
+      #5B45FF 100%);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.10),
+      0 48px 96px rgba(91,69,255,0.40),
+      0 24px 48px rgba(0,0,0,0.50),
+      inset 0 1px 0 rgba(255,255,255,0.14),
+      inset 0 -1px 0 rgba(0,0,0,0.30);
+    overflow: hidden;
+    animation: pv-card-float 6s ease-in-out infinite;
+    transform: perspective(1100px) rotateX(7deg) rotateY(-13deg);
+    transform-origin: center center;
+    z-index: 10;
+  }
+
+  /* Reflection sweep */
+  .pv-card::before {
+    content: '';
+    position: absolute;
+    top: -60%;
+    left: -80%;
+    width: 55%;
+    height: 220%;
+    background: linear-gradient(
+      108deg,
+      transparent 38%,
+      rgba(255,255,255,0.07) 48%,
+      rgba(255,255,255,0.11) 52%,
+      transparent 62%
+    );
+    animation: pv-reflect 5s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  /* Inner mesh grid */
+  .pv-card-mesh {
+    position: absolute;
+    inset: 0;
+    opacity: 0.055;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(255,255,255,1) 30px, rgba(255,255,255,1) 31px),
+      repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(255,255,255,1) 30px, rgba(255,255,255,1) 31px);
+    pointer-events: none;
+  }
+
+  /* Inner radial overlay */
+  .pv-card-radial {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 85% -5%, rgba(91,69,255,0.55) 0%, transparent 50%),
+      radial-gradient(ellipse at -5% 110%, rgba(5,8,20,0.7) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Lime accent bar */
+  .pv-accent-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #E7F31D 0%, rgba(231,243,29,0.35) 80%, transparent 100%);
+    border-radius: 20px 20px 0 0;
+  }
+
+  /* EMV Chip */
+  .pv-emv-chip {
+    position: absolute;
+    top: 40px;
+    left: 28px;
+    width: 40px;
+    height: 30px;
+    border-radius: 6px;
+    background: linear-gradient(135deg,
+      #c9a227 0%,
+      #f0d060 30%,
+      #c9a227 55%,
+      #e8c84a 75%,
+      #b8901a 100%);
+    box-shadow:
+      0 2px 6px rgba(0,0,0,0.45),
+      inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .pv-emv-chip::before {
+    content: '';
+    position: absolute;
+    top: 9px; left: 0; right: 0;
+    height: 1px;
+    background: rgba(100,70,0,0.25);
+  }
+  .pv-emv-chip::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0; left: 13px;
+    width: 1px;
+    background: rgba(100,70,0,0.2);
+  }
+
+  /* Contactless / NFC symbol */
+  .pv-nfc {
+    position: absolute;
+    top: 42px;
+    right: 26px;
+    opacity: 0.55;
+  }
+
+  /* Card logo */
+  .pv-card-logo {
+    position: absolute;
+    top: 38px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.88);
+    text-shadow:
+      0 0 24px rgba(91,69,255,0.9),
+      0 0 8px rgba(91,69,255,0.6),
+      0 2px 4px rgba(0,0,0,0.5);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* Card number */
+  .pv-cardnum {
+    position: absolute;
+    bottom: 68px;
+    left: 28px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: rgba(255,255,255,0.82);
+    font-family: 'SF Mono','Courier New',monospace;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  }
+
+  /* Card details row */
+  .pv-card-row {
+    position: absolute;
+    bottom: 26px;
+    left: 28px;
+    right: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .pv-card-group { display: flex; flex-direction: column; gap: 2px; }
+  .pv-card-dlabel {
+    font-size: 7.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.38);
+    font-weight: 600;
+  }
+  .pv-card-dval {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.88);
+    letter-spacing: 0.04em;
+  }
+  .pv-card-dval-lime { color: #E7F31D; }
+
+  /* Floating indicator chips */
+  .pv-indicator {
+    position: absolute;
+    background: rgba(255,255,255,0.94);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 14px;
+    padding: 10px 14px;
+    box-shadow:
+      0 8px 28px rgba(0,0,0,0.10),
+      0 2px 6px rgba(0,0,0,0.06);
+    white-space: nowrap;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pv-ind-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+  .pv-ind-label { font-size: 10.5px; color: #9CA3AF; font-weight: 500; line-height: 1; margin-bottom: 2px; }
+  .pv-ind-val   { font-size: 13.5px; color: #0A0A0A; font-weight: 800; letter-spacing: -0.3px; line-height: 1; }
+  .pv-ind-val-green { color: #059669; }
+
+  .pv-ind-balance {
+    top: 24px; right: 8px;
+    animation: pv-float-a 5.2s ease-in-out infinite;
+  }
+  .pv-ind-secure {
+    bottom: 50px; left: 0px;
+    animation: pv-float-b 5.8s ease-in-out infinite;
+  }
+  .pv-ind-airtime {
+    top: 110px; left: -4px;
+    animation: pv-float-c 4.9s ease-in-out infinite 0.4s;
+  }
+  .pv-ind-gift {
+    bottom: 108px; right: 4px;
+    animation: pv-float-a 6.1s ease-in-out infinite 1.1s;
+  }
+
+  /* Transaction particles */
+  .pv-pt {
+    position: absolute;
     border-radius: 50%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* ── Keyframes ── */
+  @keyframes pv-card-float {
+    0%,100% { transform: perspective(1100px) rotateX(7deg) rotateY(-13deg) translateY(0px); }
+    50%      { transform: perspective(1100px) rotateX(9deg) rotateY(-9deg)  translateY(-13px); }
+  }
+  @keyframes pv-reflect {
+    0%        { left: -80%;  opacity: 0; }
+    8%        { opacity: 1; }
+    55%       { left: 130%;  opacity: 1; }
+    56%,100%  { left: 130%;  opacity: 0; }
+  }
+  @keyframes pv-float-a {
+    0%,100% { transform: translateY(0px); }
+    50%     { transform: translateY(-9px); }
+  }
+  @keyframes pv-float-b {
+    0%,100% { transform: translateY(0px) translateX(0px); }
+    50%     { transform: translateY(8px) translateX(3px); }
+  }
+  @keyframes pv-float-c {
+    0%,100% { transform: translateY(0px) translateX(0px); }
+    50%     { transform: translateY(-7px) translateX(-3px); }
+  }
+  @keyframes pv-dash-a {
+    to { stroke-dashoffset: -72; }
+  }
+  @keyframes pv-dash-b {
+    to { stroke-dashoffset: -76; }
+  }
+  @keyframes pv-dash-c {
+    to { stroke-dashoffset: 76; }
+  }
+  @keyframes pv-node-pop {
+    0%,100% { opacity: 0.45; r: 3; }
+    50%     { opacity: 0.9;  r: 4.5; }
+  }
+  @keyframes pv-pt-a {
+    0%,100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.55; }
+    50%     { transform: translateY(-22px) translateX(11px) scale(0.7); opacity: 0.15; }
+  }
+  @keyframes pv-pt-b {
+    0%,100% { transform: translateY(0) translateX(0) scale(1); opacity: 0.4; }
+    50%     { transform: translateY(18px) translateX(-14px) scale(1.3); opacity: 0.1; }
+  }
+  @keyframes pv-pt-c {
+    0%,100% { transform: translateY(0) scale(1); opacity: 0.5; }
+    33%     { transform: translateY(-12px) scale(0.8); opacity: 0.2; }
+    66%     { transform: translateY(8px) scale(1.1); opacity: 0.35; }
   }
 
   /* ────────────────────────────────────────────────────────────────────────────
@@ -957,7 +1216,15 @@ const landingBody = /* html */ `
     .hero-container, .section, .how-section, .cta-outer, .trust-strip { padding-left: 24px; padding-right: 24px; }
     .hero-grid { grid-template-columns: 1fr; gap: 48px; }
     .hero-right { order: -1; }
-    .hero-visual { max-width: 260px; }
+    .pv-scene { width: 100%; max-width: 320px; height: 380px; }
+    .pv-card { left: 20px; top: 100px; width: 280px; height: 174px; }
+    .pv-card-logo { font-size: 11px; }
+    .pv-cardnum { font-size: 12px; bottom: 52px; left: 20px; }
+    .pv-card-row { left: 20px; right: 20px; bottom: 20px; }
+    .pv-ind-balance { top: 16px; right: 0; }
+    .pv-ind-secure  { bottom: 30px; left: 0; }
+    .pv-ind-airtime { display: none; }
+    .pv-ind-gift    { display: none; }
     .features-grid { grid-template-columns: 1fr; border-radius: 16px; }
     .feature-card:nth-child(n) { border-right: none; border-bottom: 1px solid #E5E5E5; }
     .feature-card:last-child { border-bottom: none; }
@@ -1025,30 +1292,136 @@ const landingBody = /* html */ `
           </div>
         </div>
 
-        <!-- Right -->
+        <!-- Right: PayVora Card Scene -->
         <div class="hero-right">
-          <div class="hero-visual">
-            <div class="phone-glow"></div>
-            <div class="phone-frame">
-              <div class="phone-notch"></div>
-              <div class="phone-screen">
-                <img src="/app-screenshot.png" alt="PayVora app" />
+          <div class="pv-scene">
+
+            <!-- Ambient glow -->
+            <div class="pv-glow"></div>
+
+            <!-- Global payment network lines -->
+            <svg class="pv-network" viewBox="0 0 460 500" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <!-- Primary flow line: left to right across card -->
+              <path class="pv-net-a" d="M0,110 C60,90 100,140 160,130 S260,80 320,120 S400,160 460,140"
+                stroke="rgba(91,69,255,0.18)" stroke-width="1.5" fill="none"/>
+              <!-- Secondary flow: lower arc -->
+              <path class="pv-net-b" d="M0,340 C80,310 140,370 220,350 S340,300 420,330 S460,340 460,340"
+                stroke="rgba(91,69,255,0.11)" stroke-width="1.2" fill="none"/>
+              <!-- Lime accent trace -->
+              <path class="pv-net-c" d="M30,430 C100,410 180,460 260,440 S370,400 460,430"
+                stroke="rgba(231,243,29,0.15)" stroke-width="1" fill="none"/>
+              <!-- Diagonal cross-link -->
+              <path d="M80,80 L200,420" stroke="rgba(91,69,255,0.07)" stroke-width="1" stroke-dasharray="4 12"/>
+              <path d="M380,60 L240,460" stroke="rgba(91,69,255,0.06)" stroke-width="1" stroke-dasharray="4 14"/>
+              <!-- Network nodes -->
+              <circle class="pv-node-pulse"  cx="160" cy="130" r="3.5" fill="rgba(91,69,255,0.65)"/>
+              <circle class="pv-node-pulse2" cx="320" cy="120" r="4"   fill="rgba(91,69,255,0.75)"/>
+              <circle class="pv-node-pulse"  cx="80"  cy="340" r="3"   fill="rgba(91,69,255,0.50)"/>
+              <circle class="pv-node-pulse2" cx="220" cy="350" r="3.5" fill="rgba(91,69,255,0.60)"/>
+              <circle class="pv-node-lime"   cx="420" cy="330" r="3"   fill="rgba(231,243,29,0.70)"/>
+              <circle class="pv-node-lime"   cx="260" cy="440" r="2.5" fill="rgba(231,243,29,0.55)"/>
+              <circle class="pv-node-pulse"  cx="30"  cy="430" r="2.5" fill="rgba(91,69,255,0.40)"/>
+            </svg>
+
+            <!-- ── Virtual Card ── -->
+            <div class="pv-card">
+              <!-- Lime top accent -->
+              <div class="pv-accent-bar"></div>
+              <!-- Subtle mesh -->
+              <div class="pv-card-mesh"></div>
+              <!-- Inner glow overlay -->
+              <div class="pv-card-radial"></div>
+
+              <!-- EMV chip -->
+              <div class="pv-emv-chip"></div>
+
+              <!-- Embossed logo -->
+              <div class="pv-card-logo">PayVora</div>
+
+              <!-- Contactless symbol -->
+              <div class="pv-nfc">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11 2.5 C17 6 17 16 11 19.5" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                  <path d="M11 6.5 C15 9 15 13 11 15.5"   stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                  <path d="M11 10.5 C12.6 11.2 12.6 10.8 11 11.5" stroke="rgba(255,255,255,0.65)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+                </svg>
+              </div>
+
+              <!-- Card number -->
+              <div class="pv-cardnum">•••• &nbsp;•••• &nbsp;•••• &nbsp;8291</div>
+
+              <!-- Details row -->
+              <div class="pv-card-row">
+                <div class="pv-card-group">
+                  <div class="pv-card-dlabel">Card Holder</div>
+                  <div class="pv-card-dval">ALEX JOHNSON</div>
+                </div>
+                <div class="pv-card-group">
+                  <div class="pv-card-dlabel">Expires</div>
+                  <div class="pv-card-dval">12 / 28</div>
+                </div>
+                <div class="pv-card-group">
+                  <div class="pv-card-dlabel">Type</div>
+                  <div class="pv-card-dval pv-card-dval-lime">Virtual</div>
+                </div>
               </div>
             </div>
 
-            <!-- Floating card: balance -->
-            <div class="float-card float-card-1">
-              <div class="float-label">Total Balance</div>
-              <div class="float-value">$12,480.00</div>
-              <div class="float-sub">↑ +3.2% this month</div>
+            <!-- ── Floating indicators ── -->
+
+            <!-- Balance -->
+            <div class="pv-indicator pv-ind-balance">
+              <div class="pv-ind-icon" style="background:#EEECFF;">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="4" width="13" height="9" rx="2" stroke="#5B45FF" stroke-width="1.5"/><path d="M5 4V3a2.5 2.5 0 0 1 5 0v1" stroke="#5B45FF" stroke-width="1.5"/><circle cx="7.5" cy="8.5" r="1.5" fill="#5B45FF"/></svg>
+              </div>
+              <div>
+                <div class="pv-ind-label">Total Balance</div>
+                <div class="pv-ind-val">$12,480.00</div>
+              </div>
             </div>
 
-            <!-- Floating card: transfer -->
-            <div class="float-card float-card-2">
-              <div class="float-label">Last Transfer</div>
-              <div class="float-value">$240.00</div>
-              <div class="float-sub">✓ Delivered instantly</div>
+            <!-- Secure payment -->
+            <div class="pv-indicator pv-ind-secure">
+              <div class="pv-ind-icon" style="background:#ECFDF5;">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1.5 L13 3.5v4c0 3.5-2.5 5.8-5.5 6-3-0.2-5.5-2.5-5.5-6v-4z" stroke="#059669" stroke-width="1.5" fill="none"/><path d="M5 7.5l2 2 3-3" stroke="#059669" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+              <div>
+                <div class="pv-ind-label">Payment Status</div>
+                <div class="pv-ind-val pv-ind-val-green">✓ Secured</div>
+              </div>
             </div>
+
+            <!-- Airtime -->
+            <div class="pv-indicator pv-ind-airtime">
+              <div class="pv-ind-icon" style="background:#FFF7ED;">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="3" y="2" width="9" height="11" rx="2" stroke="#EA580C" stroke-width="1.5"/><circle cx="7.5" cy="10" r="1" fill="#EA580C"/><path d="M5 5h5M5 7h3" stroke="#EA580C" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div>
+                <div class="pv-ind-label">Airtime Sent</div>
+                <div class="pv-ind-val">$5.00</div>
+              </div>
+            </div>
+
+            <!-- Gift card -->
+            <div class="pv-indicator pv-ind-gift">
+              <div class="pv-ind-icon" style="background:#FFF0F8;">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="1" y="6" width="13" height="8" rx="1.5" stroke="#DB2777" stroke-width="1.5"/><path d="M1 9h13" stroke="#DB2777" stroke-width="1.2"/><path d="M7.5 6V14" stroke="#DB2777" stroke-width="1.2"/><path d="M5 6c0-1.5 2.5-2.5 2.5 0" stroke="#DB2777" stroke-width="1.2" fill="none"/><path d="M10 6c0-1.5-2.5-2.5-2.5 0" stroke="#DB2777" stroke-width="1.2" fill="none"/></svg>
+              </div>
+              <div>
+                <div class="pv-ind-label">Gift Card</div>
+                <div class="pv-ind-val">Redeemed</div>
+              </div>
+            </div>
+
+            <!-- Transaction particles -->
+            <div class="pv-pt" style="width:7px;height:7px;background:#5B45FF;top:55px;left:200px;animation:pv-pt-a 3.8s ease-in-out infinite;"></div>
+            <div class="pv-pt" style="width:4px;height:4px;background:#E7F31D;top:160px;right:36px;animation:pv-pt-b 4.5s ease-in-out infinite 0.6s;"></div>
+            <div class="pv-pt" style="width:9px;height:9px;background:#5B45FF;opacity:0.28;bottom:130px;left:52px;animation:pv-pt-a 5.2s ease-in-out infinite 1.3s;"></div>
+            <div class="pv-pt" style="width:5px;height:5px;background:#E7F31D;opacity:0.45;bottom:210px;right:48px;animation:pv-pt-b 4.0s ease-in-out infinite 0.4s;"></div>
+            <div class="pv-pt" style="width:3px;height:3px;background:#fff;opacity:0.4;top:300px;left:28px;animation:pv-pt-c 5.6s ease-in-out infinite 2.1s;"></div>
+            <div class="pv-pt" style="width:6px;height:6px;background:#5B45FF;opacity:0.30;top:420px;right:74px;animation:pv-pt-a 3.4s ease-in-out infinite 1.8s;"></div>
+            <div class="pv-pt" style="width:4px;height:4px;background:#E7F31D;opacity:0.35;top:70px;right:120px;animation:pv-pt-c 4.8s ease-in-out infinite 0.9s;"></div>
+
           </div>
         </div>
 
