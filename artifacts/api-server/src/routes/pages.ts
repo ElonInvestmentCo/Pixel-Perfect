@@ -15,6 +15,20 @@ import { Router, type Request, type Response } from "express";
 
 const router = Router();
 
+// ── Google Search Console ownership verification ──────────────────────────────
+// Set GOOGLE_SITE_VERIFICATION=<token> in Railway env vars.
+// Supports both the HTML-tag method (meta tag in <head>) and the
+// HTML-file method (GET /google<token>.html returns the required file).
+
+const GSV_TOKEN = process.env.GOOGLE_SITE_VERIFICATION ?? "";
+
+// HTML file method: GET /google<token>.html
+router.get(/^\/google[a-zA-Z0-9_-]+\.html$/, (req: Request, res: Response) => {
+  const file = req.path.slice(1).replace(".html", ""); // e.g. "google<token>"
+  res.setHeader("Content-Type", "text/html; charset=utf-8");
+  res.send(`google-site-verification: ${file}.html`);
+});
+
 // ── CSP for HTML pages (looser than API CSP — allows fonts + inline styles) ──
 
 function setPageCsp(res: Response): void {
@@ -42,7 +56,7 @@ function shell(title: string, description: string, body: string): string {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="${description}" />
-  <title>${title} — PayVora</title>
+  <title>${title} — PayVora</title>${GSV_TOKEN ? `\n  <meta name="google-site-verification" content="${GSV_TOKEN}" />` : ""}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
