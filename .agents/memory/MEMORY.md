@@ -12,3 +12,4 @@
 - [Metro blockList for Replit temp files](metro-blocklist.md) — add /\/\.local\/.*/ and /\/attached_assets\/.*/ to config.resolver.blockList; Metro FallbackWatcher crashes on deleted .old-* temp files in .local/skills/.
 - [Expo Go QR code 502 on Replit](expo-qr-replit-port.md) — must use PORT=5000 pnpm run dev (not --port 8082 + dev-proxy); dev script sets EXPO_PACKAGER_PROXY_URL so QR code uses stable *.expo.janeway.replit.dev domain.
 - [Expo start --offline for artifact workflow](expo-offline-flag.md) — artifact workflow uses --offline instead of --localhost; they're mutually exclusive and --offline skips the remote version check (getVersionsAsync) that crashes with "Body already read" on Replit Node 20.
+- [Reloadly API response format](reloadly-api-format.md) — production Reloadly endpoints return plain JSON arrays (not paginated); use toArray() helper that handles both shapes. Bundles return 404 for most NG operators.

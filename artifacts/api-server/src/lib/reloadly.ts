@@ -186,34 +186,35 @@ export interface ReloadlyTopupResponse {
   };
 }
 
-// ── Paginated wrapper ─────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-interface Paginated<T> {
-  content:       T[];
-  page:          number;
-  size:          number;
-  totalElements: number;
-  totalPages:    number;
+/**
+ * Reloadly endpoints return either a plain JSON array or a Spring-style
+ * paginated object { content: [...] }.  This helper handles both shapes.
+ */
+function toArray<T>(raw: T[] | { content?: T[] }): T[] {
+  if (Array.isArray(raw)) return raw;
+  return (raw as { content?: T[] }).content ?? [];
 }
 
 // ── API methods ───────────────────────────────────────────────────────────────
 
 export async function getCountries(): Promise<ReloadlyCountry[]> {
-  const res = await reloadlyFetch<Paginated<ReloadlyCountry>>(
-    "/countries?page=1&size=250",
+  const raw = await reloadlyFetch<ReloadlyCountry[] | { content?: ReloadlyCountry[] }>(
+    "/countries",
   );
-  return res.content ?? [];
+  return toArray(raw);
 }
 
 export async function getOperatorsByCountry(
   countryCode: string,
 ): Promise<ReloadlyOperator[]> {
-  const res = await reloadlyFetch<Paginated<ReloadlyOperator>>(
+  const raw = await reloadlyFetch<ReloadlyOperator[] | { content?: ReloadlyOperator[] }>(
     `/operators/countries/${countryCode.toUpperCase()}` +
-    `?page=1&size=200&includePin=false&includeData=true` +
-    `&includeBundles=true&suggestedAmountsMap=true&suggestedAmounts=true`,
+    `?includePin=false&includeData=true&includeBundles=true` +
+    `&suggestedAmountsMap=true&suggestedAmounts=true`,
   );
-  return res.content ?? [];
+  return toArray(raw);
 }
 
 export async function detectOperator(
@@ -232,10 +233,10 @@ export async function detectOperator(
 export async function getDataBundles(
   operatorId: number,
 ): Promise<ReloadlyDataBundle[]> {
-  const res = await reloadlyFetch<Paginated<ReloadlyDataBundle>>(
-    `/operators/${operatorId}/bundles?page=1&size=100`,
+  const raw = await reloadlyFetch<ReloadlyDataBundle[] | { content?: ReloadlyDataBundle[] }>(
+    `/operators/${operatorId}/bundles`,
   );
-  return res.content ?? [];
+  return toArray(raw);
 }
 
 export async function executeTopup(

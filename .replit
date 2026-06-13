@@ -97,7 +97,6 @@ channel = "stable-25_05"
 NODE_ENV = "development"
 LOG_LEVEL = "info"
 EXPO_PUBLIC_BACKEND_URL = "https://pixel-perfect-production-812e.up.railway.app"
-RELOADLY_SANDBOX = "true"
 
 [userenv.development]
 PORT = "3000"
