@@ -41,3 +41,9 @@ id = "w88xF2Tb3dZI6AKQ4Lgnz"
 uri = "file://attached_assets/google-oauth-branding/payvora-oauth-logo-120x120.png"
 type = "image"
 title = "PayVora OAuth Logo — 120×120px (upload to GCC Branding)"
+
+[[outputs]]
+id = "Hxb2SypnsOs0aQE7uo99A"
+uri = "file://artifacts/mobile/assets/images/payvora-logo-clean.png"
+type = "image"
+title = "PayVora Logo — clean (no background)"
