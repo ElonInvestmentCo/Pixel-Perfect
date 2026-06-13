@@ -26,6 +26,12 @@ const LOGO_PATH = fs.existsSync(LOGO_ICON) ? LOGO_ICON : LOGO_FALLBACK;
 
 const RAILWAY_URL = "https://pixel-perfect-production-812e.up.railway.app";
 
+// ── App store URLs — update these once the app is approved and live ───────────
+// App Store: replace id000000000 with the real numeric Apple App ID
+// Google Play: replace com.payvora.app with the real package name if different
+const APP_STORE_URL   = "https://apps.apple.com/app/payvora/id000000000";
+const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.payvora.app";
+
 router.get("/logo.png", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "image/png");
   res.setHeader("Cache-Control", "public, max-age=86400");
@@ -498,10 +504,10 @@ const landingBody = /* html */ `
       <h1>Banking that moves<br />at the speed of <span class="accent">life</span></h1>
       <p>Send money instantly, top up airtime, pay bills, and manage virtual cards — all from one beautifully designed app.</p>
       <div class="hero-actions" id="download">
-        <a class="hero-badge-link" href="#">
+        <a class="hero-badge-link" href="${APP_STORE_URL}" target="_blank" rel="noopener noreferrer">
           <img src="/app-store-badge.svg" alt="Download on the App Store" />
         </a>
-        <a class="hero-badge-link" href="#">
+        <a class="hero-badge-link" href="${GOOGLE_PLAY_URL}" target="_blank" rel="noopener noreferrer">
           <img src="/google-play-badge.svg" alt="Get it on Google Play" />
         </a>
       </div>
@@ -569,10 +575,10 @@ const landingBody = /* html */ `
         <h2>Ready to take control<br />of your finances?</h2>
         <p>Download PayVora today and join over a million people managing their money the modern way.</p>
         <div class="store-badges">
-          <a class="store-badge-link" href="#">
+          <a class="store-badge-link" href="${APP_STORE_URL}" target="_blank" rel="noopener noreferrer">
             <img src="/app-store-badge.svg" alt="Download on the App Store" />
           </a>
-          <a class="store-badge-link" href="#">
+          <a class="store-badge-link" href="${GOOGLE_PLAY_URL}" target="_blank" rel="noopener noreferrer">
             <img src="/google-play-badge.svg" alt="Get it on Google Play" />
           </a>
         </div>
