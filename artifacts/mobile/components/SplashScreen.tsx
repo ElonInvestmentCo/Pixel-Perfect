@@ -43,7 +43,7 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
     <View style={styles.container}>
       <StatusBar
         barStyle="light-content"
-        backgroundColor="#000000"
+        backgroundColor="#5b45ff"
         translucent={Platform.OS === "android"}
       />
 
@@ -61,7 +61,7 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex:            1,
-    backgroundColor: "#000000",
+    backgroundColor: "#5b45ff",
     alignItems:      "center",
     justifyContent:  "center",
   },
