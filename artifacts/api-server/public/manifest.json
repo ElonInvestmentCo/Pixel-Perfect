@@ -4,8 +4,8 @@
   "description": "Send money, buy airtime, gift cards, and crypto — all in one app.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a1a",
-  "theme_color": "#1a3aff",
+  "background_color": "#5b45ff",
+  "theme_color": "#5b45ff",
   "icons": [
     {
       "src": "/icon-192.png",

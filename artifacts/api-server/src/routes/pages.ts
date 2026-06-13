@@ -751,7 +751,7 @@ const landingBody = /* html */ `
     align-self: flex-end;
   }
 
-  /* Border-grid feature cards (Ramp-style) */
+  /* Border-grid feature cards */
   .features-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
