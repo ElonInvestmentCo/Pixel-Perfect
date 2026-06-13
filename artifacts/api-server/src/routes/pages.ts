@@ -138,7 +138,7 @@ function shell(title: string, description: string, body: string, canonicalPath =
       max-width: 1200px;
       margin: 0 auto;
       padding: 0 32px;
-      height: 72px;
+      height: 100px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -150,7 +150,7 @@ function shell(title: string, description: string, body: string, canonicalPath =
       flex-shrink: 0;
     }
     .nav-brand img {
-      height: 72px;
+      height: 160px;
       width: auto;
       object-fit: contain;
       display: block;
