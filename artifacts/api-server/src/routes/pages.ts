@@ -137,20 +137,15 @@ function shell(title: string, description: string, body: string, canonicalPath =
       align-items: center;
       justify-content: space-between;
     }
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .nav-wordmark {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
       text-decoration: none;
+      letter-spacing: -0.5px;
     }
-    .nav-logo img {
-      height: 44px;
-      width: 44px;
-      object-fit: contain;
-      display: block;
-      border-radius: 10px;
-    }
-    .nav-logo span { color: var(--lime); }
+    .nav-wordmark span { color: var(--lime); }
+    .nav-wordmark:hover { text-decoration: none; opacity: 0.85; }
     .nav-links {
       display: flex;
       align-items: center;
@@ -201,14 +196,15 @@ function shell(title: string, description: string, body: string, canonicalPath =
       display: flex;
       align-items: center;
     }
-    .footer-logo img {
-      height: 36px;
-      width: 36px;
-      object-fit: contain;
-      display: block;
-      border-radius: 8px;
+    .footer-wordmark {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.5px;
     }
-    .footer-logo span { color: var(--lime); }
+    .footer-wordmark span { color: var(--lime); }
+    .footer-wordmark:hover { text-decoration: none; opacity: 0.85; }
     .footer-links {
       display: flex;
       gap: 24px;
@@ -237,7 +233,7 @@ function shell(title: string, description: string, body: string, canonicalPath =
 <body>
   <nav>
     <div class="nav-inner">
-      <a class="nav-logo" href="${RAILWAY_URL}"><img src="${RAILWAY_URL}/logo.png" alt="PayVora logo" /></a>
+      <a class="nav-wordmark" href="${RAILWAY_URL}">Pay<span>Vora</span></a>
       <ul class="nav-links">
         <li><a href="${RAILWAY_URL}">Home</a></li>
         <li><a href="${RAILWAY_URL}/privacy">Privacy Policy</a></li>
@@ -251,7 +247,7 @@ function shell(title: string, description: string, body: string, canonicalPath =
 
   <footer>
     <div class="footer-inner">
-      <a class="footer-logo" href="${RAILWAY_URL}"><img src="${RAILWAY_URL}/logo.png" alt="PayVora logo" /></a>
+      <a class="footer-wordmark" href="${RAILWAY_URL}">Pay<span>Vora</span></a>
       <ul class="footer-links">
         <li><a href="${RAILWAY_URL}">Home</a></li>
         <li><a href="${RAILWAY_URL}/privacy">Privacy Policy</a></li>
