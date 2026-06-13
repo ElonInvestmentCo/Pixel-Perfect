@@ -18,11 +18,13 @@ import fs from "fs";
 const router = Router();
 
 // ── Logo asset — served from mobile assets directory ─────────────────────────
-// GET /logo.png → serves payvora-logo-clean.png (transparent background)
-// Falls back to logo.png if clean version is missing.
-const LOGO_CLEAN = path.resolve(process.cwd(), "artifacts/mobile/assets/images/payvora-logo-clean.png");
+// GET /logo.png → serves icon.png (official splash screen / brand logo)
+// Falls back to logo.png if icon is missing.
+const LOGO_ICON = path.resolve(process.cwd(), "artifacts/mobile/assets/images/icon.png");
 const LOGO_FALLBACK = path.resolve(process.cwd(), "artifacts/mobile/assets/images/logo.png");
-const LOGO_PATH = fs.existsSync(LOGO_CLEAN) ? LOGO_CLEAN : LOGO_FALLBACK;
+const LOGO_PATH = fs.existsSync(LOGO_ICON) ? LOGO_ICON : LOGO_FALLBACK;
+
+const RAILWAY_URL = "https://pixel-perfect-production-812e.up.railway.app";
 
 router.get("/logo.png", (_req: Request, res: Response) => {
   res.setHeader("Content-Type", "image/png");
@@ -64,7 +66,8 @@ function setPageCsp(res: Response): void {
 
 // ── Shared HTML shell ─────────────────────────────────────────────────────────
 
-function shell(title: string, description: string, body: string): string {
+function shell(title: string, description: string, body: string, canonicalPath = "/"): string {
+  const canonicalUrl = `${RAILWAY_URL}${canonicalPath}`;
   return /* html */ `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,6 +75,19 @@ function shell(title: string, description: string, body: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="${description}" />
   <title>${title} — PayVora</title>${GSV_TOKEN ? `\n  <meta name="google-site-verification" content="${GSV_TOKEN}" />` : ""}
+  <link rel="canonical" href="${canonicalUrl}" />
+  <link rel="icon" type="image/png" href="${RAILWAY_URL}/logo.png" />
+  <link rel="apple-touch-icon" href="${RAILWAY_URL}/logo.png" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="${canonicalUrl}" />
+  <meta property="og:title" content="${title} — PayVora" />
+  <meta property="og:description" content="${description}" />
+  <meta property="og:image" content="${RAILWAY_URL}/logo.png" />
+  <meta property="og:image:width" content="1024" />
+  <meta property="og:image:height" content="1024" />
+  <meta property="og:site_name" content="PayVora" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:image" content="${RAILWAY_URL}/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -128,10 +144,11 @@ function shell(title: string, description: string, body: string): string {
       text-decoration: none;
     }
     .nav-logo img {
-      height: 36px;
-      width: auto;
+      height: 44px;
+      width: 44px;
       object-fit: contain;
       display: block;
+      border-radius: 10px;
     }
     .nav-logo span { color: var(--lime); }
     .nav-links {
@@ -185,10 +202,11 @@ function shell(title: string, description: string, body: string): string {
       align-items: center;
     }
     .footer-logo img {
-      height: 28px;
-      width: auto;
+      height: 36px;
+      width: 36px;
       object-fit: contain;
       display: block;
+      border-radius: 8px;
     }
     .footer-logo span { color: var(--lime); }
     .footer-links {
@@ -219,11 +237,11 @@ function shell(title: string, description: string, body: string): string {
 <body>
   <nav>
     <div class="nav-inner">
-      <div class="nav-logo"><img src="/logo.png" alt="PayVora" /></div>
+      <a class="nav-logo" href="${RAILWAY_URL}"><img src="${RAILWAY_URL}/logo.png" alt="PayVora logo" /></a>
       <ul class="nav-links">
-        <li><a href="/">Home</a></li>
-        <li><a href="/privacy">Privacy Policy</a></li>
-        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="${RAILWAY_URL}">Home</a></li>
+        <li><a href="${RAILWAY_URL}/privacy">Privacy Policy</a></li>
+        <li><a href="${RAILWAY_URL}/terms">Terms of Service</a></li>
         <li><a class="nav-cta" href="#download">Download</a></li>
       </ul>
     </div>
@@ -233,11 +251,11 @@ function shell(title: string, description: string, body: string): string {
 
   <footer>
     <div class="footer-inner">
-      <div class="footer-logo"><img src="/logo.png" alt="PayVora" /></div>
+      <a class="footer-logo" href="${RAILWAY_URL}"><img src="${RAILWAY_URL}/logo.png" alt="PayVora logo" /></a>
       <ul class="footer-links">
-        <li><a href="/">Home</a></li>
-        <li><a href="/privacy">Privacy Policy</a></li>
-        <li><a href="/terms">Terms of Service</a></li>
+        <li><a href="${RAILWAY_URL}">Home</a></li>
+        <li><a href="${RAILWAY_URL}/privacy">Privacy Policy</a></li>
+        <li><a href="${RAILWAY_URL}/terms">Terms of Service</a></li>
         <li><a href="mailto:support@payvora.app">Contact</a></li>
       </ul>
       <div class="footer-copy">
@@ -1025,7 +1043,7 @@ const termsBody = /* html */ `
       <div class="legal-content">
         <h2 id="agreement">1. Agreement to Terms</h2>
         <p>These Terms of Service ("Terms") constitute a legally binding agreement between you ("User", "you", or "your") and PayVora Technologies Ltd ("PayVora", "we", "our", or "us") governing your use of the PayVora mobile application and associated services (collectively, the "Service").</p>
-        <p>By downloading, installing, or using PayVora, you confirm that you have read, understood, and agree to be bound by these Terms and our <a href="/privacy">Privacy Policy</a>. If you do not agree to these Terms, you must not use the Service.</p>
+        <p>By downloading, installing, or using PayVora, you confirm that you have read, understood, and agree to be bound by these Terms and our <a href="https://pixel-perfect-production-812e.up.railway.app/privacy">Privacy Policy</a>. If you do not agree to these Terms, you must not use the Service.</p>
 
         <div class="highlight-box">
           <p><strong>Please read these Terms carefully.</strong> They contain important information about your rights and obligations, including limitations on our liability and dispute resolution procedures.</p>
@@ -1160,19 +1178,19 @@ const termsBody = /* html */ `
 router.get("/", (_req: Request, res: Response) => {
   setPageCsp(res);
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.send(shell("Home", "PayVora — Next-generation mobile finance. Send money, top up airtime, manage virtual cards and more.", landingBody));
+  res.send(shell("Home", "PayVora — Next-generation mobile finance. Send money, top up airtime, manage virtual cards and more.", landingBody, "/"));
 });
 
 router.get("/privacy", (_req: Request, res: Response) => {
   setPageCsp(res);
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.send(shell("Privacy Policy", "PayVora Privacy Policy — How we collect, use, and protect your personal information.", privacyBody));
+  res.send(shell("Privacy Policy", "PayVora Privacy Policy — How we collect, use, and protect your personal information.", privacyBody, "/privacy"));
 });
 
 router.get("/terms", (_req: Request, res: Response) => {
   setPageCsp(res);
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.send(shell("Terms of Service", "PayVora Terms of Service — The rules and guidelines governing your use of PayVora.", termsBody));
+  res.send(shell("Terms of Service", "PayVora Terms of Service — The rules and guidelines governing your use of PayVora.", termsBody, "/terms"));
 });
 
 export default router;
