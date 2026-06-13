@@ -10,6 +10,7 @@
  *  5. globalLimiter — Drop rate-exceeded requests before body parsing.
  *  6. Body parsers  — JSON + URL-encoded with size limits (prevents DoS).
  *  7. sanitize      — Strip prototype-pollution keys from parsed body.
+ *  7b. Public pages — Landing, Privacy, Terms served before SPA fallback.
  *  8. Routes        — Business logic.
  *  9. notFound      — 404 for unmatched paths (clean JSON, no path reflection).
  * 10. errorHandler  — Global error handler (no stack-trace leakage in prod).
@@ -29,6 +30,7 @@ import { requestId }              from "./middlewares/request-id";
 import { notFound }               from "./middlewares/not-found";
 import { errorHandler }           from "./middlewares/error-handler";
 import router                     from "./routes";
+import pagesRouter                from "./routes/pages";
 import { isProd }                 from "./lib/env";
 
 const app: Express = express();
@@ -80,7 +82,12 @@ app.use((req, res, next) => {
 // Runs AFTER body parsers so req.body is populated, BEFORE routes.
 app.use(sanitizeRequest);
 
-// ── 7. API routes ────────────────────────────────────────────────────────────
+// ── 7b. Public HTML pages — served before API routes and SPA fallback ────────
+// Landing (/), Privacy Policy (/privacy), Terms of Service (/terms).
+// Each handler overrides the Helmet CSP for HTML rendering.
+app.use(pagesRouter);
+
+// ── 8. API routes ────────────────────────────────────────────────────────────
 app.use("/api", router);
 
 // ── 8. Serve Expo web build in production ─────────────────────────────────────
