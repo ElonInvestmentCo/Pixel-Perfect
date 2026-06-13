@@ -12,8 +12,23 @@
  */
 
 import { Router, type Request, type Response } from "express";
+import path from "path";
+import fs from "fs";
 
 const router = Router();
+
+// ── Logo asset — served from mobile assets directory ─────────────────────────
+// GET /logo.png → serves payvora-logo-clean.png (transparent background)
+// Falls back to logo.png if clean version is missing.
+const LOGO_CLEAN = path.resolve(process.cwd(), "artifacts/mobile/assets/images/payvora-logo-clean.png");
+const LOGO_FALLBACK = path.resolve(process.cwd(), "artifacts/mobile/assets/images/logo.png");
+const LOGO_PATH = fs.existsSync(LOGO_CLEAN) ? LOGO_CLEAN : LOGO_FALLBACK;
+
+router.get("/logo.png", (_req: Request, res: Response) => {
+  res.setHeader("Content-Type", "image/png");
+  res.setHeader("Cache-Control", "public, max-age=86400");
+  res.sendFile(LOGO_PATH);
+});
 
 // ── Google Search Console ownership verification ──────────────────────────────
 // Set GOOGLE_SITE_VERIFICATION=<token> in Railway env vars.
@@ -107,13 +122,16 @@ function shell(title: string, description: string, body: string): string {
       justify-content: space-between;
     }
     .nav-logo {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -0.5px;
       display: flex;
       align-items: center;
       gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo img {
+      height: 36px;
+      width: auto;
+      object-fit: contain;
+      display: block;
     }
     .nav-logo span { color: var(--lime); }
     .nav-links {
@@ -163,9 +181,14 @@ function shell(title: string, description: string, body: string): string {
       gap: 16px;
     }
     .footer-logo {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--text);
+      display: flex;
+      align-items: center;
+    }
+    .footer-logo img {
+      height: 28px;
+      width: auto;
+      object-fit: contain;
+      display: block;
     }
     .footer-logo span { color: var(--lime); }
     .footer-links {
@@ -196,7 +219,7 @@ function shell(title: string, description: string, body: string): string {
 <body>
   <nav>
     <div class="nav-inner">
-      <div class="nav-logo">Pay<span>Vora</span></div>
+      <div class="nav-logo"><img src="/logo.png" alt="PayVora" /></div>
       <ul class="nav-links">
         <li><a href="/">Home</a></li>
         <li><a href="/privacy">Privacy Policy</a></li>
@@ -210,7 +233,7 @@ function shell(title: string, description: string, body: string): string {
 
   <footer>
     <div class="footer-inner">
-      <div class="footer-logo">Pay<span>Vora</span></div>
+      <div class="footer-logo"><img src="/logo.png" alt="PayVora" /></div>
       <ul class="footer-links">
         <li><a href="/">Home</a></li>
         <li><a href="/privacy">Privacy Policy</a></li>
