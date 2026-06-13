@@ -4,7 +4,6 @@ import { router, useNavigation } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
-  Image,
   Keyboard,
   StyleSheet,
   Text,
@@ -147,15 +146,6 @@ export default function SignUpScreen() {
         onClose={() => router.back()}
         title="Welcome to PayVora"
         subtitle={`Create a commitment-free profile to\nexplore financial products`}
-        topSlot={
-          <View style={s.logoWrap} accessibilityElementsHidden>
-            <Image
-              source={require("../../assets/images/icon.png")}
-              style={s.logoImg}
-              resizeMode="contain"
-            />
-          </View>
-        }
       />
 
       {/* Submit-level error */}
@@ -278,18 +268,6 @@ export default function SignUpScreen() {
 }
 
 const s = StyleSheet.create({
-  logoWrap: {
-    width:           120,
-    height:          52,
-    borderRadius:    14,
-    backgroundColor: "#0A0A0A",
-    overflow:        "hidden",
-    alignItems:      "center",
-    justifyContent:  "center",
-    marginBottom:    4,
-  },
-  logoImg: { width: 120, height: 120 },
-
   eyeBtn: { paddingLeft: 8 },
 
   cta: { marginTop: 28, marginBottom: 20 },

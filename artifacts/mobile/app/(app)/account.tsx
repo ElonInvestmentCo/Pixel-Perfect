@@ -3,7 +3,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React from "react";
 import {
-  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -66,14 +65,7 @@ export default function AccountScreen() {
       >
         {/* ── Header ── */}
         <View style={s.header}>
-          <View style={s.headerLogoWrap}>
-            <Image
-              source={require("../../assets/images/icon.png")}
-              style={s.headerLogoImg}
-              resizeMode="contain"
-            />
-          </View>
-          <Text style={[s.screenTitle, { flex: 1 }]}>Account</Text>
+          <Text style={s.screenTitle}>Account</Text>
           <TouchableOpacity
             style={s.notifBtn}
             activeOpacity={0.75}
@@ -189,18 +181,8 @@ const s = StyleSheet.create({
 
   header: {
     flexDirection: "row", alignItems: "center",
-    justifyContent: "space-between", gap: 12, marginBottom: 20,
+    justifyContent: "space-between", marginBottom: 20,
   },
-  headerLogoWrap: {
-    width:           40,
-    height:          40,
-    borderRadius:    10,
-    backgroundColor: "#0A0A0A",
-    overflow:        "hidden",
-    alignItems:      "center",
-    justifyContent:  "center",
-  },
-  headerLogoImg: { width: 40, height: 40 },
   screenTitle: { fontSize: 28, fontFamily: "Inter_700Bold", color: BLACK },
   notifBtn: {
     width: 44, height: 44, borderRadius: 22,
