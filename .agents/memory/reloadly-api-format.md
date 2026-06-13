@@ -1,6 +1,6 @@
 ---
 name: Reloadly API response format
-description: Reloadly topups production API returns plain arrays for most list endpoints, not paginated objects. Bundles endpoint returns 404 for many operators.
+description: Reloadly sandbox credentials confirmed. toArray() helper handles both plain-array and paginated list responses. Bundles empty in sandbox.
 ---
 
 ## Rule
@@ -12,20 +12,29 @@ function toArray<T>(raw: T[] | { content?: T[] }): T[] {
 }
 ```
 
-**Why:** The Reloadly production API (`topups.reloadly.com`) returns plain JSON arrays for `/countries` and `/operators/countries/{code}`, NOT the Spring `{ content: [...] }` pagination wrapper. Treating it as paginated returns `[]` every time.
+**Why:** Reloadly list endpoints return plain JSON arrays (not Spring `{ content: [...] }` pagination). Without toArray(), list calls return `[]` every time.
 
-**How to apply:** Every list-returning Reloadly function should call `toArray(rawResponse)` rather than assuming either format.
+**How to apply:** Every list-returning Reloadly function should call `toArray(rawResponse)`.
 
-## Credentials
-- `RELOADLY_CLIENT_ID` and `RELOADLY_CLIENT_SECRET` are **production** credentials, stored as Replit secrets.
-- `RELOADLY_SANDBOX` must NOT be set (defaults to false = production mode). Setting it to `true` causes `CREDENTIAL_VS_ENVIRONMENT_MISMATCH` because the credentials are production, not sandbox.
+## Credentials — SANDBOX
+- `RELOADLY_CLIENT_ID` and `RELOADLY_CLIENT_SECRET` stored as Replit secrets are **SANDBOX** credentials.
+- Production audience (`topups.reloadly.com`) returns `INVALID_CREDENTIALS` with these keys.
+- `RELOADLY_SANDBOX=true` is set as a Replit shared env var — must also be set in Railway env vars for production deployment.
+- Sandbox starting balance: $1,000 USD. Topups deduct from this balance (no real money).
 
-## Bundles endpoint
-- `/operators/{id}/bundles` returns 404 for most Nigerian operators in the production API.
-- The airtime route already handles 404 → returns `[]` gracefully.
-- The mobile screen shows "No data bundles available" when bundles is empty — acceptable UX.
+## Sandbox behaviour vs production
+- Countries: 159 returned ✅ (same as production)
+- Operators for NG: 13 returned ✅ (same as production)
+- Auto-detect: returns `COULD_NOT_AUTO_DETECT` 422 for most numbers — triggers manual operator picker on mobile ✅
+- Bundles: returns `[]` for all operators in sandbox — mobile shows "No data bundles available" ✅
+- Topup POST: executes and returns `SUCCESSFUL` with transactionId, no real money charged ✅
 
-## Confirmed working (production)
-- `GET /operators/countries/NG` → 13 operators (Airtel, MTN, Glo, T2 Mobile variants)
-- `GET /operators/auto-detect/phone/{phone}/country-codes/{code}` → operator or 422 COULD_NOT_AUTO_DETECT
-- `POST /topups` → executes real topup (charges real money in production mode)
+## Confirmed working end-to-end (sandbox, June 2026)
+- OAuth token: 824-char Bearer, 86400s lifetime
+- `GET /countries` → 159 countries
+- `GET /operators/countries/NG` → 13 operators (Airtel 342, MTN 341, Glo 344, etc.)
+- `POST /topups` op=342, $1.00 → transactionId 173477, status SUCCESSFUL, delivered 1206 NGN
+
+## Railway deployment note
+When deploying to Railway, add `RELOADLY_SANDBOX=true` to Railway environment variables.
+To switch to production credentials later: get production client_id/secret from Reloadly dashboard → update secrets → set `RELOADLY_SANDBOX=false` (or delete the var).
