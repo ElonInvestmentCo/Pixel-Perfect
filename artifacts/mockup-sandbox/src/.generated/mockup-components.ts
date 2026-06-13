@@ -3,8 +3,8 @@ type ModuleMap = Record<string, () => Promise<Record<string, unknown>>>;
 export const modules: ModuleMap = {
   "./components/mockups/iphone-expo/ExpoGoLauncher.tsx": () => import("../components/mockups/iphone-expo/ExpoGoLauncher.tsx"),
   "./components/mockups/iphone-expo/IPhoneExpoPreview.tsx": () => import("../components/mockups/iphone-expo/IPhoneExpoPreview.tsx"),
-  "./components/mockups/social-buttons/SocialButtonsComparison.tsx": () => import("../components/mockups/social-buttons/SocialButtonsComparison.tsx"),
   "./components/mockups/payvora-logos/CombinedPV.tsx": () => import("../components/mockups/payvora-logos/CombinedPV.tsx"),
   "./components/mockups/payvora-logos/GeometricP.tsx": () => import("../components/mockups/payvora-logos/GeometricP.tsx"),
-  "./components/mockups/payvora-logos/GrowthChevron.tsx": () => import("../components/mockups/payvora-logos/GrowthChevron.tsx")
+  "./components/mockups/payvora-logos/GrowthChevron.tsx": () => import("../components/mockups/payvora-logos/GrowthChevron.tsx"),
+  "./components/mockups/social-buttons/SocialButtonsComparison.tsx": () => import("../components/mockups/social-buttons/SocialButtonsComparison.tsx")
 };
