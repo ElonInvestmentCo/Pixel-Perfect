@@ -11,9 +11,9 @@
     "newArchEnabled": true,
     "projectType": "MOBILE_APP_EXPO_NATIVE",
     "splash": {
-      "image": "./assets/images/icon.png",
-      "resizeMode": "cover",
-      "backgroundColor": "#5b45ff"
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0a1a"
     },
     "ios": {
       "supportsTablet": false,
@@ -22,8 +22,8 @@
     "android": {
       "package": "com.payvora.mobile",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
-        "backgroundColor": "#C8FF00"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#0a0a1a"
       }
     },
     "web": {
@@ -50,7 +50,7 @@
         "expo-notifications",
         {
           "icon": "./assets/images/icon.png",
-          "color": "#C8FF00",
+          "color": "#1a3aff",
           "sounds": [],
           "mode": "production"
         }

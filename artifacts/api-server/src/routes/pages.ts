@@ -82,8 +82,11 @@ function shell(title: string, description: string, body: string, canonicalPath =
   <meta name="description" content="${description}" />
   <title>${title} — PayVora</title>${GSV_TOKEN ? `\n  <meta name="google-site-verification" content="${GSV_TOKEN}" />` : ""}
   <link rel="canonical" href="${canonicalUrl}" />
-  <link rel="icon" type="image/png" href="${PRODUCTION_URL}/logo.png" />
-  <link rel="apple-touch-icon" href="${PRODUCTION_URL}/logo.png" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icon-512.png" />
+  <link rel="manifest" href="/manifest.json" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="${canonicalUrl}" />
   <meta property="og:title" content="${title} — PayVora" />
