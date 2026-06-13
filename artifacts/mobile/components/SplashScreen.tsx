@@ -29,7 +29,7 @@ export function SplashScreen({ onFinish }: SplashScreenProps) {
     logoOpacity.value = withTiming(1, { duration: 320, easing: Easing.out(Easing.ease) });
     logoScale.value   = withSpring(1, { damping: 14, stiffness: 120, mass: 0.8 });
 
-    const timer = setTimeout(onFinish, 2200);
+    const timer = setTimeout(onFinish, 2800);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

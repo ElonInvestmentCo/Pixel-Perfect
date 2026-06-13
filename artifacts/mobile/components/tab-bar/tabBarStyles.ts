@@ -84,25 +84,30 @@ export const tabBarStyles = StyleSheet.create({
 
   floatingBar: {
     flexDirection: "row",
-    height:        72,
+    height:        78,
+    alignItems:    "center",
   },
 
   tab: {
-    flex:           1,
-    alignItems:     "center",
-    justifyContent: "center",
-    flexDirection:  "column",
-    gap:            4,
-    borderRadius:   18,
-    margin:         6,
-    position:       "relative",
+    flex:            1,
+    alignItems:      "center",
+    justifyContent:  "center",
+    flexDirection:   "column",
+    gap:             3,
+    borderRadius:    18,
+    marginVertical:  5,
+    marginHorizontal: 1,
+    paddingHorizontal: 2,
+    position:        "relative",
+    minHeight:       60,
   },
 
   tabLabel: {
-    fontSize:      10,
-    fontWeight:    "700",
-    letterSpacing: 0.2,
-    lineHeight:    12,
+    fontSize:        9.5,
+    fontWeight:      "700",
+    letterSpacing:   0.1,
+    lineHeight:      13,
+    textAlign:       "center",
   },
 
   expandedMenu: {

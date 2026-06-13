@@ -388,7 +388,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     top:             IND_MARGIN,
     left:            indicatorLeft.value,
     width:           TAB_W - IND_MARGIN * 2,
-    height:          72 - IND_MARGIN * 2,
+    height:          78 - IND_MARGIN * 2,
     borderRadius:    14,
     backgroundColor: "rgba(200, 255, 0, 0.14)",
     borderWidth:     1,

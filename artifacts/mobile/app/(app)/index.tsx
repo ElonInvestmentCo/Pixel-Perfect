@@ -190,8 +190,8 @@ function HeroCard({
 
       {/* Action buttons */}
       <View style={h.actionRow}>
-        <HeroActionButton icon="arrow-up" label="Transfer" />
-        <HeroActionButton icon="arrow-down" label="Receive" />
+        <HeroActionButton icon="arrow-up" label="Topup" />
+        <HeroActionButton icon="arrow-down" label="Withdraw" />
         <HeroMoreButton />
       </View>
     </View>

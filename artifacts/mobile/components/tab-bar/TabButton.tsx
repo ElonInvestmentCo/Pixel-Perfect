@@ -15,6 +15,7 @@ import Animated, {
 import { GRAY_INACTIVE, LIME, tabBarStyles, type PayvoraIconName } from "./tabBarStyles";
 
 const ICON_SIZE = 22;
+const ICON_WRAP = 26;
 
 interface TabButtonProps {
   isFocused:         boolean;
@@ -129,11 +130,11 @@ const styles = StyleSheet.create({
   tabContent: {
     alignItems:     "center",
     justifyContent: "center",
-    gap:            3,
+    gap:            2,
   },
   iconWrap: {
-    width:  ICON_SIZE,
-    height: ICON_SIZE,
+    width:  ICON_WRAP,
+    height: ICON_WRAP,
   },
   iconCenter: {
     alignItems:     "center",
