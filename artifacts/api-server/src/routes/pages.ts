@@ -498,7 +498,7 @@ const landingBody = /* html */ `
 
       <!-- Phone mockup -->
       <div class="phone-mockup-img">
-        <img src="/app-screenshot.png" alt="PayVora app — Buy Solana screen" />
+        <img src="https://payload-marketing.moonpay.com/api/media/file/Buy%20SOL.png" alt="PayVora app — Buy Solana screen" />
       </div>
     </div>
   </section>
@@ -560,10 +560,10 @@ const landingBody = /* html */ `
         <p>Download PayVora today and join over a million people managing their money the modern way.</p>
         <div class="store-badges">
           <a class="store-badge-link" href="#">
-            <img src="/app-store-badge.svg" alt="Download on the App Store" />
+            <img src="https://payload-marketing.moonpay.com/api/media/file/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg" alt="Download on the App Store" />
           </a>
           <a class="store-badge-link" href="#">
-            <img src="/google-play-badge.svg" alt="Get it on Google Play" />
+            <img src="https://payload-marketing.moonpay.com/api/media/file/GetItOnGooglePlay_Badge_Web_color_English.svg" alt="Get it on Google Play" />
           </a>
         </div>
       </div>
